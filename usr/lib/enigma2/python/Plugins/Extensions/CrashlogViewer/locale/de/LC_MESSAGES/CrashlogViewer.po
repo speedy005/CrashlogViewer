@@ -8,7 +8,7 @@ msgstr ""
 "PO-Revision-Date: 2025-09-06 20:33+0200\n"
 "Last-Translator: Dario Croci <speedy005@gmail.com>\n"
 "Language-Team: \"Last-Translator: speedy005 <speedy005@gmail.com>\n"
-"Language: it_IT\n"
+"Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,49 +19,49 @@ msgstr ""
 #: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:195
 #: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:357
 msgid "Close"
-msgstr "Chiudi"
+msgstr "Schließen"
 
 #: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:196
 msgid "View"
-msgstr "Visualizza"
+msgstr "Anzeigen"
 
 #: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:197
 msgid "Remove"
-msgstr "Rimuovi"
+msgstr "Entfernen"
 
 #: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:198
 msgid "Remove All"
-msgstr "Rimuovi tutto"
+msgstr "Alle entfernen"
 
 #: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:267
 #, python-format
 msgid "Removed %s"
-msgstr "Rimosso %s"
+msgstr "Entfernt %s"
 
 #: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:269
 #, python-format
 msgid "Failed to remove file due to an error: %s"
-msgstr "Impossibile rimuovere il file a causa di un errore: %s"
+msgstr "Fehler beim Entfernen der Datei: %s"
 
 #: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:271
 #, python-format
 msgid "Failed to remove file: %s"
-msgstr "Impossibile rimuovere il file: %s"
+msgstr "Fehler beim Entfernen der Datei: %s"
 
 #: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:273
 #: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:293
 #, python-format
 msgid "An unexpected error occurred: %s"
-msgstr "Si è verificato un errore imprevisto: %s"
+msgstr "Ein unerwarteter Fehler ist aufgetreten: %s"
 
 #: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:289
 msgid "Removed All Crashlog Files"
-msgstr "Tutti i file di crashlog sono stati rimossi"
+msgstr "Alle Crashlog-Dateien entfernt"
 
 #: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:291
 #, python-format
 msgid "Failed to remove some files: %s"
-msgstr "Impossibile rimuovere alcuni file: %s"
+msgstr "Fehler beim Entfernen einiger Dateien: %s"
 
 #: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:297
 #, python-format
@@ -75,29 +75,30 @@ msgid ""
 "Update from Lululla\n"
 "Homepage: gisclub.tv"
 msgstr ""
-"Crashlog Viewer  ver. %s\n"
+"Crashlog Viewer  Version %s\n"
 "\n"
-"Sviluppatore: speedy005\n"
+"Entwickler: speedy005\n"
 "\n"
-"Modificato da: speedy005\n"
+"Modifiziert von: speedy005\n"
 "\n"
-"Aggiornamento da speedy005\n"
+"Update von speedy005\n"
 "Homepage: github.com/speedy005"
 
 #: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:358
 msgid "Restart GUI"
-msgstr "Riavvia GUI"
+msgstr "GUI jetzt neu starten"
 
 #: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:400
 msgid "Crashlog  Viewer"
-msgstr "Visualizzatore Crashlog"
+msgstr "Crashlog Viewer"
 
 #: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:401
 msgid "View and remove crashlog files"
-msgstr "Visualizza e rimuovi i file crashlog"
+msgstr "Crashlog-Dateien anzeigen und entfernen" 
+
 
 msgid "View or Remove Crashlog files"
-msgstr "Visualizza o rimuovi i file crashlog"
+msgstr "Crashlog-Dateien anzeigen und entfernen" 
 
 msgid "View Crashlog file"
-msgstr "Visualizza file crashlog"
+msgstr "Crashlog-Datei anzeigen"
