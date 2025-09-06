@@ -6,7 +6,7 @@
 # updated Lululla 30/08/2024
 # updated Lululla 22/09/2024
 # updated Lululla 17/11/2024
-# updated Lululla 26/05/2025
+# updated speedy005 06/09/2025
 # mod by speedy005
 
 import gettext
@@ -28,7 +28,7 @@ from enigma import getDesktop
 
 
 version = '1.8'
-path_folder_log = '/media/hdd/'
+path_folder_log = '/home/root/logs/'
 
 
 def _(txt):
@@ -89,7 +89,7 @@ def find_log_files():
 		if exists(path) and not isMountReadonly(path):
 			try:
 				for file in listdir(path):
-					if file.endswith(".log") and ("crashlog" in file or "twiste" in file):
+					if file.endswith(".log") and ("crashlog" in file or "twiste" in file or "network" in file):
 						log_files.append(join(path, file))
 			except OSError as e:
 				print("Error %s while file access to: %s" % (str(e), path))
@@ -232,6 +232,7 @@ class CrashLogScreen(Screen):
 				"/media/hdd/logs/*crash*.log "
 				"/media/mmc/*crash*.log "
 				"/media/hdd/*crash*.log "
+				"/home/root/logs/*network*.log "
 				"/ba/*crash*.log "
 				"/ba/logs/*crash*.log"
 			) % (path_folder_log, path_folder_log, path_folder_log)
@@ -433,9 +434,3 @@ def Plugins(**kwargs):
         # Here the plugin is also added to the Main Menu
         PluginDescriptor(where=PluginDescriptor.WHERE_MENU, fnc=menu),  # Menu entry for the Main Menu
     ]
-
-
-
-
-
-
