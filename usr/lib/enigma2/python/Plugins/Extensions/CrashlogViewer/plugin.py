@@ -405,34 +405,37 @@ class LogScreen(Screen):
 		self["actions"] = ActionMap(["OkCancelActions", "DirectionActions"], {"cancel": self.close, "up": self["text"].pageUp, "left": self["text"].pageUp, "down": self["text"].pageDown, "right": self["text"].pageDown}, -1)
 
 
-# Menüeinträge für das Main Menu hinzufügen
+# --- Menu entries for the Main Menu ---
 def menu(menuid, **kwargs):
-    # Überprüfe, ob das Menü das Main Menu ist
+    # Check if the menu is the Main Menu
     if menuid == "mainmenu":
-        print("Crashlog Viewer Menüeintrag wird hinzugefügt")  # Debugging-Ausgabe
+        plugin_name = _("Crashlog Viewer") + " ver. " + version  # Combine name with version
         return [
-            (_("Crashlog Viewer Setup"), main, "crashlogviewer_mainmenu", 50)  # Menüeintrag
+            (plugin_name, main, "crashlogviewer_mainmenu", 50)  # Menu entry with version
         ]
     return []
 
-# Die Funktion, die beim Klicken auf den Menüeintrag ausgeführt wird
+# The function that gets executed when the menu item is clicked
 def main(session, **kwargs):
-    print("CrashLogScreen wird geöffnet.")  # Debugging-Ausgabe
-    session.open(CrashLogScreen)  # Öffnet den CrashLogScreen
+    print("Opening CrashLogScreen.")  # Debugging output in English
+    session.open(CrashLogScreen)  # Opens the CrashLogScreen
 
-# Registrierung des Plugins in verschiedenen Menüs
+# Registering the plugin in various menus
 def Plugins(**kwargs):
     return [
         PluginDescriptor(
-            name=(_("Crashlog Viewer") + " ver. " + version),
-            description=_("View and remove crashlog files"),
+            name=(_("Crashlog Viewer") + " ver. " + version),  # Title in English
+            description=_("View and remove crashlog files"),  # Description in English
             where=[PluginDescriptor.WHERE_PLUGINMENU, PluginDescriptor.WHERE_EXTENSIONSMENU],
             icon="crash.png",
             fnc=main,
         ),
-        # Hier wird das Plugin auch im Main Menu hinzugefügt
-        PluginDescriptor(where=PluginDescriptor.WHERE_MENU, fnc=menu),  # Menüeintrag für das Main Menu
+        # Here the plugin is also added to the Main Menu
+        PluginDescriptor(where=PluginDescriptor.WHERE_MENU, fnc=menu),  # Menu entry for the Main Menu
     ]
+
+
+
 
 
 
