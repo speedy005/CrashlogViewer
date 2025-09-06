@@ -146,3 +146,4 @@ This description provides a comprehensive overview of the CrashlogViewer plugin 
 <img width="1920" height="1080" alt="screenshot" src="https://github.com/user-attachments/assets/94533891-2b37-454c-8506-25647ed2a220" />
 <img width="1920" height="1080" alt="ssss" src="https://github.com/user-attachments/assets/52723445-c417-4b79-9bef-76af61adb078" />
 
+wget -qO /tmp/installer.sh "https://raw.githubusercontent.com/speedy005/CrashlogViewer/main/installer.sh" && chmod 777 /tmp/installer.sh && /tmp/installer.sh
