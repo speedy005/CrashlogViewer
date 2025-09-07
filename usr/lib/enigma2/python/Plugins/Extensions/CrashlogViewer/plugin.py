@@ -444,14 +444,17 @@ class LogScreen(Screen):
         <eLabel position="10,710" size="1860,2" backgroundColor="#555555" zPosition="1" />
         </screen>""" % _("View Crashlog file")
     else:
-        skin = """<screen name="crashlogview" position="center,center" size="1253,653" title="%s">
-        <widget source="Redkey" render="Label" position="30,608" size="160,35" zPosition="11" font="Regular; 22" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" />
-        <widget source="Greenkey" render="Label" position="192,608" size="160,35" zPosition="11" font="Regular; 22" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="green" />
-        <eLabel backgroundColor="#00ff0000" position="33,642" size="160,6" zPosition="12" />
-        <eLabel backgroundColor="#0000ff00" position="195,642" size="160,6" zPosition="12" />
-        <widget name="text" position="8,4" size="1240,463" font="Console; 20" text="text" foregroundColor="green" />
-        <widget name="text2" position="6,480" size="1240,126" font="Console; 20" text="text2" foregroundColor="#ff0000" />
-        <eLabel position="6,473" size="1240,1" backgroundColor="#555555" zPosition="1" />
+        skin = """<screen name="crashlogview" position="0,0" size="1920,1080" title="%s" flags="wfNoBorder">
+<eLabel name="button info" font="Regular; 30" position="1780,1004" size="103,48" cornerRadius="4" halign="center" valign="center" text="INFO" backgroundColor="black" zPosition="3" foregroundColor="red" />
+<eLabel name="button ext" font="Regular; 30" position="1667,1004" size="103,48" cornerRadius="4" halign="center" valign="center" text="EXIT" backgroundColor="black" zPosition="3" foregroundColor="red" />
+<eLabel name="button ok" font="Regular; 30" position="1554,1004" size="103,48" cornerRadius="4" halign="center" valign="center" text="OK" backgroundColor="black" zPosition="3" foregroundColor="red" />
+        <widget source="Redkey" render="Label" position="17,1003" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" />
+        <widget source="Greenkey" render="Label" position="274,1002" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="green" />
+        <eLabel backgroundColor="#00ff0000" position="15,1050" size="250,6" zPosition="12" />
+        <eLabel backgroundColor="#0000ff00" position="275,1050" size="250,6" zPosition="12" />
+        <widget name="text" position="9,3" size="1900,780" font="Console; 28" text="text" foregroundColor="green" />
+        <widget name="text2" position="10,790" size="1900,190" font="Console; 28" text="text2" foregroundColor="#ff0000" />
+        <eLabel position="10,785" size="1900,2" backgroundColor="#555555" zPosition="1" />
         </screen>""" % _("View Crashlog file")
 
     def __init__(self, session, crashfile):
