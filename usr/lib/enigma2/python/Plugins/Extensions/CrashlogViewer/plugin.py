@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-
-# updated Lululla 05/06/2023
-# updated Lululla 30/04/2024
-# updated Lululla 30/08/2024
-# updated Lululla 22/09/2024
-# updated Lululla 17/11/2024
+# CrashlogViewer Enigma2 Plugin mit Update-Funktion
+# updated Lululla 05/06/2023, 30/04/2024, 30/08/2024, 22/09/2024, 17/11/2024
 # updated speedy005 06/09/2025
-# mod by speedy005
 
+from __future__ import print_function
 import gettext
+from Components.Language import language
+import os, sys, re, shutil, tempfile, zipfile, traceback
 from os import remove, listdir, popen
 from os.path import exists, join
 from Components.ActionMap import ActionMap
@@ -17,93 +15,234 @@ from Components.ScrollLabel import ScrollLabel
 from Components.Sources.List import List
 from Components.Sources.StaticText import StaticText
 from Plugins.Plugin import PluginDescriptor
-
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
-
+from Screens.Standby import TryQuitMainloop
 from Tools.Directories import SCOPE_PLUGINS, resolveFilename
 from Tools.LoadPixmap import LoadPixmap
-
 from enigma import getDesktop
 
+PLUGIN_PATH = "/usr/lib/enigma2/python/Plugins/Extensions/CrashlogViewer/"
+LOCALE_DIR = os.path.join(PLUGIN_PATH, "locale")
+DOMAIN = "CrashlogViewer"
 
-version = '1.8'
-path_folder_log = '/home/root/logs/'
+def localeInit():
+    # Sprache aus den Box-Einstellungen holen
+    lang = language.getLanguage()[:2]
+    os.environ["LANGUAGE"] = lang
 
+    # gettext initialisieren
+    gettext.bindtextdomain(DOMAIN, LOCALE_DIR)
+    gettext.textdomain(DOMAIN)
 
 def _(txt):
-    if not txt:
-        return txt  # Return the text if it's None or empty
-    
-    # If the text is "View Crashlog file", translate it specifically
-    if txt == "View Crashlog file":
-        t = gettext.dgettext("CrashlogViewer", txt)
-        if t == txt:
-            t = gettext.gettext(txt)
-        return t
-    
-    # First, try the "View or Remove Crashlog files" module
-    t = gettext.dgettext("View or Remove Crashlog files", txt)
-    
-    # If no translation is found in the first module, try "CrashlogViewer"
-    if t == txt:
-        t = gettext.dgettext("CrashlogViewer", txt)
-    
-    # If no translation is found there either, try the default translation
-    if t == txt:
-        t = gettext.gettext(txt)
-    
+    t = gettext.dgettext(DOMAIN, txt)
+    if t == txt:  # keine Übersetzung gefunden → Fallback
+        return gettext.gettext(txt)
     return t
 
+# Initialisierung sofort und bei Sprachwechsel
+localeInit()
+language.addCallback(localeInit)
 
+gettext.bindtextdomain("CrashlogViewer", LOCALE_DIR)
+gettext.textdomain("CrashlogViewer")
+_ = gettext.gettext
 
+# Python 2/3 kompatibel urllib
+try:
+    import urllib2 as urllib_request
+except Exception:
+    import urllib.request as urllib_request
 
+# --- Plugin Version & Pfade ---
+version = '1.8'
+VERSION_FILE = os.path.join(PLUGIN_PATH, "version.txt")
+LAST_UPDATE_FILE = os.path.join(PLUGIN_PATH, "last_update_version.txt")
+GITHUB_VERSION_URL = "https://raw.githubusercontent.com/speedy005/CrashlogViewer/main/version.txt"
+GITHUB_CHANGELOG_URL = "https://raw.githubusercontent.com/speedy005/CrashlogViewer/main/changelog.txt"
+GITHUB_ZIP_URL = "https://github.com/speedy005/CrashlogViewer/archive/refs/heads/main.zip"
+path_folder_log = '/home/root/logs/'
+
+PY2 = sys.version_info[0] == 2
+PY3 = sys.version_info[0] == 3
+
+# --- Logging ---
+LOGFILE = "/tmp/CrashlogViewer.log"
+def log(msg):
+    try:
+        with open(LOGFILE, "a") as f:
+            f.write(msg + "\n")
+    except Exception:
+        pass
+    try:
+        print(msg)
+    except Exception:
+        pass
+
+# --- Update Funktionen ---
+def get_current_version():
+    try:
+        with open(VERSION_FILE, 'r') as f:
+            ver = f.read().strip()
+            log("Local version: %s" % ver)
+            return ver
+    except Exception:
+        return "0.0"
+
+def get_remote_version():
+    try:
+        response = urllib_request.urlopen(GITHUB_VERSION_URL, timeout=5).read()
+        if PY3:
+            response = response.decode("utf-8")
+        return response.strip().split()[0]
+    except Exception as e:
+        log("Error fetching remote version: %s" % e)
+        return None
+
+def parse_version(version_str):
+    if not version_str:
+        return (0, 0, 0)
+    v = version_str.strip().lower()
+    if v.startswith("v"):
+        v = v[1:]
+    parts = re.findall(r"\d+", v)
+    while len(parts) < 3:
+        parts.append("0")
+    return tuple(map(int, parts[:3]))
+
+def download_and_install_update(session):
+    tmp_dir = None
+    try:
+        tmp_dir = tempfile.mkdtemp()
+        zip_path = os.path.join(tmp_dir, "plugin_update.zip")
+        log("Downloading update...")
+        req = urllib_request.urlopen(GITHUB_ZIP_URL)
+        data = req.read()
+        with open(zip_path, "wb") as f:
+            f.write(data)
+        log("Download complete: %s" % zip_path)
+
+        log("Extracting update...")
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(tmp_dir)
+
+        # Alten Plugin-Ordner löschen
+        if os.path.exists(PLUGIN_PATH):
+            shutil.rmtree(PLUGIN_PATH, ignore_errors=True)
+            log("Old plugin folder deleted.")
+
+        # Den extrahierten CrashlogViewer-Ordner finden
+        new_plugin_folder = None
+        for root, dirs, files in os.walk(tmp_dir):
+            if "CrashlogViewer" in dirs:
+                new_plugin_folder = os.path.join(root, "CrashlogViewer")
+                break
+
+        if not new_plugin_folder:
+            raise Exception("CrashlogViewer-Ordner im ZIP nicht gefunden!")
+
+        # Den neuen Ordner kopieren
+        shutil.copytree(new_plugin_folder, PLUGIN_PATH)
+        log("New plugin folder copied to %s" % PLUGIN_PATH)
+
+        # Remote Version speichern
+        remote_version = get_remote_version()
+        if remote_version:
+            with open(VERSION_FILE, "w") as vf:
+                vf.write(remote_version + "\n")
+            with open(LAST_UPDATE_FILE, "w") as lf:
+                lf.write(remote_version + "\n")
+
+        log("Update installed successfully!")
+
+        # GUI Neustart anbieten
+        def restartGUI(answer):
+            if answer:
+                session.open(TryQuitMainloop, 3)
+
+        msg = _("Update installed successfully!\nDo you want to restart the GUI now?")
+        session.openWithCallback(
+            restartGUI,
+            MessageBox,
+            msg,
+            type=MessageBox.TYPE_YESNO
+        )
+
+    except Exception as e:
+        log("Error during update: %s" % e)
+        traceback.print_exc()
+        try:
+            msg = _("Error during update:\n%s") % str(e)
+            session.open(MessageBox, msg, type=MessageBox.TYPE_ERROR)
+        except Exception:
+            pass
+    finally:
+        if tmp_dir:
+            try:
+                shutil.rmtree(tmp_dir, ignore_errors=True)
+            except Exception:
+                pass
+
+def check_for_update(session, callback=None):
+    current_version = get_current_version()
+    remote_version = get_remote_version()
+    def proceed():
+        if callback:
+            callback()
+    try:
+        if remote_version and parse_version(remote_version) > parse_version(current_version):
+            def cb(choice):
+                if choice:
+                    download_and_install_update(session)
+                else:
+                    proceed()
+            msg = _("A new version %s is available.\nDo you want to install the update?") % remote_version
+            session.openWithCallback(
+                cb,
+                MessageBox,
+                msg,
+                type=MessageBox.TYPE_YESNO
+            )
+        else:
+            session.open(MessageBox, _("Kein Update verfügbar"), type=MessageBox.TYPE_INFO, timeout=4)
+            proceed()
+    except Exception as e:
+        log("Error during update check: %s" % e)
+        proceed()
+
+# --- Crashlog Funktionen ---
 def isMountReadonly(mnt):
-	try:
-		with open("/proc/mounts", "r") as f:
-			for line in f:
-				parts = line.split()
-				if len(parts) < 4:
-					continue
-				device, mp, fs, flags = parts[:4]
-				if mp == mnt:
-					return "ro" in flags
-	except IOError as e:
-		print("I/O error: %s" % str(e))
-	except Exception as err:
-		print("Error: %s" % str(err))
-	return False
-
+    try:
+        with open("/proc/mounts", "r") as f:
+            for line in f:
+                parts = line.split()
+                if len(parts) < 4:
+                    continue
+                device, mp, fs, flags = parts[:4]
+                if mp == mnt:
+                    return "ro" in flags
+    except Exception as e:
+        print("Error checking mount %s" % str(e))
+    return False
 
 def paths():
-	return [
-		"/media/hdd", "/media/usb", "/media/mmc", "/home/root", "/home/root/logs/",
-		"/media/hdd/logs", "/media/usb/logs", "/ba/", "/ba/logs"
-	]
-
+    return [
+        "/media/hdd", "/media/usb", "/media/mmc", "/home/root", "/home/root/logs/",
+        "/media/hdd/logs", "/media/usb/logs", "/ba/", "/ba/logs"
+    ]
 
 def find_log_files():
-	log_files = []
-	possible_paths = paths()
-	for path in possible_paths:
-		if exists(path) and not isMountReadonly(path):
-			try:
-				for file in listdir(path):
-					if file.endswith(".log") and ("crashlog" in file or "twiste" in file or "network" in file):
-						log_files.append(join(path, file))
-			except OSError as e:
-				print("Error %s while file access to: %s" % (str(e), path))
-	return log_files
-
-
-def delete_log_files(files):
-	for file in files:
-		try:
-			remove(file)
-			print('CrashLogScreen file deletedt: %s' % file)
-		except OSError as e:
-			print("Error while deleting %s error %s:" % (file,  str(e)))
-
+    log_files = []
+    for path in paths():
+        if exists(path) and not isMountReadonly(path):
+            try:
+                for file in listdir(path):
+                    if file.endswith(".log") and ("crashlog" in file or "twiste" in file or "network" in file):
+                        log_files.append(join(path, file))
+            except Exception as e:
+                print("Error accessing path %s: %s" % (path, str(e)))
+    return log_files
 
 class CrashLogScreen(Screen):
 	sz_w = getDesktop(0).size().width()
@@ -405,32 +544,24 @@ class LogScreen(Screen):
 		self["text2"].setText(list2)
 		self["actions"] = ActionMap(["OkCancelActions", "DirectionActions"], {"cancel": self.close, "up": self["text"].pageUp, "left": self["text"].pageUp, "down": self["text"].pageDown, "right": self["text"].pageDown}, -1)
 
-
-# --- Menu entries for the Main Menu ---
+# --- Menüeinträge & Main ---
 def menu(menuid, **kwargs):
-    # Check if the menu is the Main Menu
     if menuid == "mainmenu":
-        plugin_name = _("Crashlog Viewer") + " ver. " + version  # Combine name with version
-        return [
-            (plugin_name, main, "crashlogviewer_mainmenu", 50)  # Menu entry with version
-        ]
+        plugin_name = _("Crashlog Viewer") + " ver. " + version
+        return [(plugin_name, main, "CrashlogViewer_mainmenu", 50)]
     return []
 
-# The function that gets executed when the menu item is clicked
 def main(session, **kwargs):
-    print("Opening CrashLogScreen.")  # Debugging output in English
-    session.open(CrashLogScreen)  # Opens the CrashLogScreen
+    check_for_update(session, lambda: session.open(CrashLogScreen))
 
-# Registering the plugin in various menus
 def Plugins(**kwargs):
     return [
         PluginDescriptor(
-            name=(_("Crashlog Viewer") + " ver. " + version),  # Title in English
-            description=_("View and remove crashlog files"),  # Description in English
+            name=(_("Crashlog Viewer") + " ver. " + version),
+            description=_("View and remove crashlog files"),
             where=[PluginDescriptor.WHERE_PLUGINMENU, PluginDescriptor.WHERE_EXTENSIONSMENU],
             icon="crash.png",
             fnc=main,
         ),
-        # Here the plugin is also added to the Main Menu
-        PluginDescriptor(where=PluginDescriptor.WHERE_MENU, fnc=menu),  # Menu entry for the Main Menu
+        PluginDescriptor(where=PluginDescriptor.WHERE_MENU, fnc=menu),
     ]
