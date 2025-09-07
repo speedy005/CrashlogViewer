@@ -236,26 +236,26 @@ class CrashLogScreen(Screen):
 
     if sz_w == 2560:
         skin = """
-<screen name="crashlogscreen" position="320,40" size="1280,1000" title="%s">
-  <eLabel name="button ok" font="Regular; 30" position="1177,928" size="103,48" cornerRadius="4" halign="center" valign="center" text="OK" backgroundColor="black" zPosition="3" foregroundColor="red" />
-  <eLabel name="button info" font="Regular; 30" position="1068,930" size="103,48" cornerRadius="4" halign="center" valign="center" text="INFO" backgroundColor="black" zPosition="3" foregroundColor="red" />
-  <eLabel name="button ext" font="Regular; 30" position="1121,874" size="103,48" cornerRadius="4" halign="center" valign="center" text="EXIT" backgroundColor="black" zPosition="3" foregroundColor="red" />
-  <eLabel backgroundColor="listRecording" position="25,976" size="250,6" zPosition="12" />
-  <eLabel backgroundColor="green" position="285,974" size="250,6" zPosition="12" foregroundColor="green" />
-  <eLabel backgroundColor="yellow" position="547,974" size="250,6" zPosition="12" />
-  <eLabel backgroundColor="blue" position="807,974" size="250,8" zPosition="12" foregroundColor="blue" />
-  <widget source="Redkey" render="Label" position="25,928" size="250,45" font="Regular;30" />
-  <widget source="Greenkey" render="Label" position="283,928" size="250,45" font="Regular;30" foregroundColor="green" />
-  <widget source="Yellowkey" render="Label" position="544,928" size="250,45" font="Regular;30" foregroundColor="yellow" />
-  <widget source="Bluekey" render="Label" position="806,928" size="250,45" font="Regular;30" foregroundColor="blue" />
-  <widget source="menu" render="Listbox" position="80,67" size="1137,781" scrollbarMode="showOnDemand">
+<screen name="crashlogscreen" position="center,center" size="1000,880" title="%s">
+  <eLabel name="button info" font="Regular; 30" position="881,761" size="103,48" cornerRadius="4" halign="center" valign="center" text="INFO" backgroundColor="black" zPosition="3" foregroundColor="red" />
+  <eLabel name="button ext" font="Regular; 30" position="773,761" size="103,48" cornerRadius="4" halign="center" valign="center" text="EXIT" backgroundColor="black" zPosition="3" foregroundColor="red" />
+  <eLabel name="button ok" font="Regular; 30" position="663,761" size="103,48" cornerRadius="4" halign="center" valign="center" text="OK" backgroundColor="black" zPosition="3" foregroundColor="red" />
+  <eLabel backgroundColor="listRecording" position="0,858" size="250,6" zPosition="12" />
+  <eLabel backgroundColor="unff00" position="250,858" size="250,6" zPosition="12" />
+  <eLabel backgroundColor="yellow" position="500,858" size="250,6" zPosition="12" />
+  <eLabel backgroundColor="unff" position="750,858" size="250,6" zPosition="12" />
+  <widget source="Redkey" render="Label" position="0,814" size="250,45" font="Regular;26" />
+  <widget source="Greenkey" render="Label" position="252,813" size="250,45" font="Regular;26" foregroundColor="green" />
+  <widget source="Yellowkey" render="Label" position="499,814" size="250,45" font="Regular;26" foregroundColor="yellow" />
+  <widget source="Bluekey" render="Label" position="749,814" size="250,45" font="Regular;26" foregroundColor="blue" />
+  <widget source="menu" render="Listbox" position="20,10" size="961,740" scrollbarMode="showOnDemand">
     <convert type="TemplatedMultiContent">
         {"template":[
-            MultiContentEntryText(pos=(80,5),size=(580,46),font=0,flags=RT_HALIGN_LEFT|RT_VALIGN_CENTER,text=0),
-            MultiContentEntryText(pos=(80,55),size=(580,38),font=1,flags=RT_HALIGN_LEFT|RT_VALIGN_CENTER,text=1),
-            MultiContentEntryPixmapAlphaTest(pos=(5,35),size=(51,40),png=2)],
-        "fonts":[gFont("Regular",42),gFont("Regular",34)],
-        "itemHeight":100}
+            MultiContentEntryText(pos=(70,2),size=(880,50),font=0,flags=RT_HALIGN_LEFT,text=0),
+            MultiContentEntryText(pos=(80,29),size=(880,50),font=1,flags=RT_HALIGN_LEFT,text=1),
+            MultiContentEntryPixmapAlphaTest(pos=(5,20),size=(45,32),png=2)],
+        "fonts":[gFont("Regular",35),gFont("Regular",35)],
+        "itemHeight":90}
         </convert>
   </widget>
 </screen>
@@ -278,11 +278,11 @@ class CrashLogScreen(Screen):
   <widget source="menu" render="Listbox" position="20,10" size="961,740" scrollbarMode="showOnDemand">
     <convert type="TemplatedMultiContent">
         {"template":[
-            MultiContentEntryText(pos=(70,2),size=(580,34),font=0,flags=RT_HALIGN_LEFT,text=0),
-            MultiContentEntryText(pos=(80,29),size=(580,30),font=1,flags=RT_HALIGN_LEFT,text=1),
+            MultiContentEntryText(pos=(70,2),size=(880,70),font=0,flags=RT_HALIGN_LEFT,text=0),
+            MultiContentEntryText(pos=(80,35),size=(880,70),font=1,flags=RT_HALIGN_LEFT,text=1),
             MultiContentEntryPixmapAlphaTest(pos=(5,20),size=(45,32),png=2)],
-        "fonts":[gFont("Regular",28),gFont("Regular",24)],
-        "itemHeight":75}
+        "fonts":[gFont("Regular",35),gFont("Regular",35)],
+        "itemHeight":90}
         </convert>
   </widget>
 </screen>
@@ -290,26 +290,26 @@ class CrashLogScreen(Screen):
 
     else:
         skin = """
-<screen name="crashlogscreen" position="center,center" size="900,600" title="%s">
-  <eLabel name="button info" font="Regular; 30" position="793,488" size="103,48" cornerRadius="4" halign="center" valign="center" text="INFO" backgroundColor="black" zPosition="3" foregroundColor="red" />
-  <eLabel name="button ext" font="Regular; 30" position="687,489" size="103,48" cornerRadius="4" halign="center" valign="center" text="EXIT" backgroundColor="black" zPosition="3" foregroundColor="red" />
-  <eLabel name="button ok" font="Regular; 30" position="580,490" size="103,48" cornerRadius="4" halign="center" valign="center" text="OK" backgroundColor="black" zPosition="3" foregroundColor="red" />
-  <eLabel backgroundColor="listRecording" position="5,586" size="200,6" zPosition="12" />
-  <eLabel backgroundColor="green" position="215,586" size="200,6" zPosition="12" foregroundColor="green" />
-  <eLabel backgroundColor="yellow" position="421,586" size="200,6" zPosition="12" />
-  <eLabel backgroundColor="blue" position="626,586" size="200,6" zPosition="12" foregroundColor="blue" />
-  <widget source="Redkey" render="Label" position="4,540" size="200,45" font="Regular;26" />
-  <widget source="Greenkey" render="Label" position="212,540" size="200,45" font="Regular;26" foregroundColor="green" />
-  <widget source="Yellowkey" render="Label" position="418,540" size="200,45" font="Regular;26" foregroundColor="yellow" />
-  <widget source="Bluekey" render="Label" position="626,538" size="200,45" font="Regular;26" foregroundColor="blue" />
-  <widget source="menu" render="Listbox" position="7,8" size="861,480" scrollbarMode="showOnDemand">
+<screen name="crashlogscreen" position="center,center" size="1000,880" title="%s">
+  <eLabel name="button info" font="Regular; 30" position="881,761" size="103,48" cornerRadius="4" halign="center" valign="center" text="INFO" backgroundColor="black" zPosition="3" foregroundColor="red" />
+  <eLabel name="button ext" font="Regular; 30" position="773,761" size="103,48" cornerRadius="4" halign="center" valign="center" text="EXIT" backgroundColor="black" zPosition="3" foregroundColor="red" />
+  <eLabel name="button ok" font="Regular; 30" position="663,761" size="103,48" cornerRadius="4" halign="center" valign="center" text="OK" backgroundColor="black" zPosition="3" foregroundColor="red" />
+  <eLabel backgroundColor="listRecording" position="0,858" size="250,6" zPosition="12" />
+  <eLabel backgroundColor="unff00" position="250,858" size="250,6" zPosition="12" />
+  <eLabel backgroundColor="yellow" position="500,858" size="250,6" zPosition="12" />
+  <eLabel backgroundColor="unff" position="750,858" size="250,6" zPosition="12" />
+  <widget source="Redkey" render="Label" position="0,814" size="250,45" font="Regular;26" />
+  <widget source="Greenkey" render="Label" position="252,813" size="250,45" font="Regular;26" foregroundColor="green" />
+  <widget source="Yellowkey" render="Label" position="499,814" size="250,45" font="Regular;26" foregroundColor="yellow" />
+  <widget source="Bluekey" render="Label" position="749,814" size="250,45" font="Regular;26" foregroundColor="blue" />
+  <widget source="menu" render="Listbox" position="20,10" size="961,740" scrollbarMode="showOnDemand">
     <convert type="TemplatedMultiContent">
         {"template":[
-            MultiContentEntryText(pos=(70,2),size=(580,34),font=0,flags=RT_HALIGN_LEFT,text=0),
-            MultiContentEntryText(pos=(80,29),size=(580,30),font=1,flags=RT_HALIGN_LEFT,text=1),
+            MultiContentEntryText(pos=(70,2),size=(880,50),font=0,flags=RT_HALIGN_LEFT,text=0),
+            MultiContentEntryText(pos=(80,29),size=(880,50),font=1,flags=RT_HALIGN_LEFT,text=1),
             MultiContentEntryPixmapAlphaTest(pos=(5,20),size=(45,32),png=2)],
-        "fonts":[gFont("Regular",28),gFont("Regular",24)],
-        "itemHeight":75}
+        "fonts":[gFont("Regular",35),gFont("Regular",35)],
+        "itemHeight":90}
         </convert>
   </widget>
 </screen>
