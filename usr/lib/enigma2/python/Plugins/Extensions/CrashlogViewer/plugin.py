@@ -25,6 +25,7 @@ from enigma import getDesktop
 PLUGIN_PATH = "/usr/lib/enigma2/python/Plugins/Extensions/CrashlogViewer/"
 LOCALE_DIR = os.path.join(PLUGIN_PATH, "locale")
 DOMAIN = "CrashlogViewer"
+path_folder_log = '/media/hdd/'
 
 def localeInit():
     # Sprache aus den Box-Einstellungen holen
@@ -36,10 +37,10 @@ def localeInit():
     gettext.textdomain(DOMAIN)
 
 def _(txt):
-    t = gettext.dgettext(DOMAIN, txt)
-    if t == txt:  # keine Übersetzung gefunden → Fallback
-        return gettext.gettext(txt)
-    return t
+	t = gettext.dgettext("CrashlogViewer", txt)
+	if t == txt:
+		t = gettext.gettext(txt)
+	return t
 
 # Initialisierung sofort und bei Sprachwechsel
 localeInit()
@@ -213,36 +214,50 @@ def check_for_update(session, callback=None):
 
 # --- Crashlog Funktionen ---
 def isMountReadonly(mnt):
-    try:
-        with open("/proc/mounts", "r") as f:
-            for line in f:
-                parts = line.split()
-                if len(parts) < 4:
-                    continue
-                device, mp, fs, flags = parts[:4]
-                if mp == mnt:
-                    return "ro" in flags
-    except Exception as e:
-        print("Error checking mount %s" % str(e))
-    return False
+	try:
+		with open("/proc/mounts", "r") as f:
+			for line in f:
+				parts = line.split()
+				if len(parts) < 4:
+					continue
+				device, mp, fs, flags = parts[:4]
+				if mp == mnt:
+					return "ro" in flags
+	except IOError as e:
+		print("I/O error: %s" % str(e))
+	except Exception as err:
+		print("Error: %s" % str(err))
+	return False
+
 
 def paths():
-    return [
-        "/media/hdd", "/media/usb", "/media/mmc", "/home/root", "/home/root/logs/",
-        "/media/hdd/logs", "/media/usb/logs", "/ba/", "/ba/logs"
-    ]
+	return [
+		"/media/hdd", "/media/usb", "/media/mmc", "/home/root", "/home/root/logs/",
+		"/media/hdd/logs", "/media/usb/logs", "/ba/", "/ba/logs"
+	]
+
 
 def find_log_files():
-    log_files = []
-    for path in paths():
-        if exists(path) and not isMountReadonly(path):
-            try:
-                for file in listdir(path):
-                    if file.endswith(".log") and ("crashlog" in file or "twiste" in file or "network" in file):
-                        log_files.append(join(path, file))
-            except Exception as e:
-                print("Error accessing path %s: %s" % (path, str(e)))
-    return log_files
+	log_files = []
+	possible_paths = paths()
+	for path in possible_paths:
+		if exists(path) and not isMountReadonly(path):
+			try:
+				for file in listdir(path):
+					if file.endswith(".log") and ("crashlog" in file or "twiste" in file):
+						log_files.append(join(path, file))
+			except OSError as e:
+				print("Error %s while file access to: %s" % (str(e), path))
+	return log_files
+
+
+def delete_log_files(files):
+	for file in files:
+		try:
+			remove(file)
+			print('CrashLogScreen file deletedt: %s' % file)
+		except OSError as e:
+			print("Error while deleting %s error %s:" % (file,  str(e)))
 
 class CrashLogScreen(Screen):
 	sz_w = getDesktop(0).size().width()
