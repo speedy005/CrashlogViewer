@@ -417,52 +417,51 @@ class CrashLogScreen(Screen):
         self.close()
 
 
-
-
-# --- LogScreen ---
 class LogScreen(Screen):
     sz_w = getDesktop(0).size().width()
 
     if sz_w == 2560:
         skin = """<screen name="crashlogview" position="center,center" size="2560,1440" title="%s">
-        <widget source="Redkey" render="Label" position="32,1326" size="250,69" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" />
-        <widget source="Greenkey" render="Label" position="321,1326" size="250,69" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="green" />
-        <eLabel backgroundColor="#00ff0000" position="32,1394" size="250,6" zPosition="12" />
-        <eLabel backgroundColor="#0000ff00" position="321,1396" size="250,6" zPosition="12" />
-        <widget name="text" position="0,10" size="2560,1092" font="Console; 42" text="text" foregroundColor="green" />
-        <widget name="text2" position="-279,1123" size="2560,190" font="Console; 42" text="text2" foregroundColor="#ff0000" />
-        <eLabel position="10,1110" size="2560,4" backgroundColor="#555555" zPosition="1" />
+            <widget source="Redkey" render="Label" position="32,1326" size="250,69" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" />
+            <widget source="Greenkey" render="Label" position="321,1326" size="250,69" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="green" />
+            <eLabel backgroundColor="#00ff0000" position="32,1394" size="250,6" zPosition="12" />
+            <eLabel backgroundColor="#0000ff00" position="321,1396" size="250,6" zPosition="12" />
+            <widget name="text" position="0,10" size="2560,1092" font="Console; 42" foregroundColor="green" />
+            <widget name="text2" position="-279,1123" size="2560,190" font="Console; 42" foregroundColor="#ff0000" />
+            <eLabel position="10,1110" size="2560,4" backgroundColor="#555555" zPosition="1" />
         </screen>""" % _("View Crashlog file")
+
     elif sz_w == 1920:
         skin = """<screen name="crashlogview" position="0,0" size="1920,1080" title="%s" flags="wfNoBorder">
-<eLabel name="button info" font="Regular; 30" position="1780,1004" size="103,48" cornerRadius="4" halign="center" valign="center" text="INFO" backgroundColor="black" zPosition="3" foregroundColor="red" />
-<eLabel name="button ext" font="Regular; 30" position="1667,1004" size="103,48" cornerRadius="4" halign="center" valign="center" text="EXIT" backgroundColor="black" zPosition="3" foregroundColor="red" />
-<eLabel name="button ok" font="Regular; 30" position="1554,1004" size="103,48" cornerRadius="4" halign="center" valign="center" text="OK" backgroundColor="black" zPosition="3" foregroundColor="red" />
-        <widget source="Redkey" render="Label" position="17,1003" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" />
-        <widget source="Greenkey" render="Label" position="274,1002" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="green" />
-        <eLabel backgroundColor="#00ff0000" position="15,1050" size="250,6" zPosition="12" />
-        <eLabel backgroundColor="#0000ff00" position="275,1050" size="250,6" zPosition="12" />
-        <widget name="text" position="9,3" size="1900,780" font="Console; 28" text="text" foregroundColor="green" />
-        <widget name="text2" position="10,790" size="1900,190" font="Console; 28" text="text2" foregroundColor="#ff0000" />
-        <eLabel position="10,785" size="1900,2" backgroundColor="#555555" zPosition="1" />
+            <eLabel name="button info" font="Regular; 30" position="1780,1004" size="103,48" cornerRadius="4" halign="center" valign="center" text="INFO" backgroundColor="black" zPosition="3" foregroundColor="red" />
+            <eLabel name="button ext" font="Regular; 30" position="1667,1004" size="103,48" cornerRadius="4" halign="center" valign="center" text="EXIT" backgroundColor="black" zPosition="3" foregroundColor="red" />
+            <eLabel name="button ok" font="Regular; 30" position="1554,1004" size="103,48" cornerRadius="4" halign="center" valign="center" text="OK" backgroundColor="black" zPosition="3" foregroundColor="red" />
+            <widget source="Redkey" render="Label" position="17,1003" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" />
+            <widget source="Greenkey" render="Label" position="274,1002" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="green" />
+            <eLabel backgroundColor="#00ff0000" position="15,1050" size="250,6" zPosition="12" />
+            <eLabel backgroundColor="#0000ff00" position="275,1050" size="250,6" zPosition="12" />
+            <widget name="text" position="9,3" size="1900,780" font="Console; 28" foregroundColor="green" />
+            <widget name="text2" position="10,790" size="1900,190" font="Console; 28" foregroundColor="#ff0000" />
+            <eLabel position="10,785" size="1900,2" backgroundColor="#555555" zPosition="1" />
         </screen>""" % _("View Crashlog file")
+
     else:
         skin = """<screen name="crashlogview" position="0,0" size="1920,1080" title="%s" flags="wfNoBorder">
-<eLabel name="button info" font="Regular; 30" position="1780,1004" size="103,48" cornerRadius="4" halign="center" valign="center" text="INFO" backgroundColor="black" zPosition="3" foregroundColor="red" />
-<eLabel name="button ext" font="Regular; 30" position="1667,1004" size="103,48" cornerRadius="4" halign="center" valign="center" text="EXIT" backgroundColor="black" zPosition="3" foregroundColor="red" />
-<eLabel name="button ok" font="Regular; 30" position="1554,1004" size="103,48" cornerRadius="4" halign="center" valign="center" text="OK" backgroundColor="black" zPosition="3" foregroundColor="red" />
-        <widget source="Redkey" render="Label" position="17,1003" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" />
-        <widget source="Greenkey" render="Label" position="274,1002" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="green" />
-        <eLabel backgroundColor="#00ff0000" position="15,1050" size="250,6" zPosition="12" />
-        <eLabel backgroundColor="#0000ff00" position="275,1050" size="250,6" zPosition="12" />
-        <widget name="text" position="9,3" size="1900,780" font="Console; 28" text="text" foregroundColor="green" />
-        <widget name="text2" position="10,790" size="1900,190" font="Console; 28" text="text2" foregroundColor="#ff0000" />
-        <eLabel position="10,785" size="1900,2" backgroundColor="#555555" zPosition="1" />
+            <eLabel name="button info" font="Regular; 30" position="1780,1004" size="103,48" cornerRadius="4" halign="center" valign="center" text="INFO" backgroundColor="black" zPosition="3" foregroundColor="red" />
+            <eLabel name="button ext" font="Regular; 30" position="1667,1004" size="103,48" cornerRadius="4" halign="center" valign="center" text="EXIT" backgroundColor="black" zPosition="3" foregroundColor="red" />
+            <eLabel name="button ok" font="Regular; 30" position="1554,1004" size="103,48" cornerRadius="4" halign="center" valign="center" text="OK" backgroundColor="black" zPosition="3" foregroundColor="red" />
+            <widget source="Redkey" render="Label" position="17,1003" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" />
+            <widget source="Greenkey" render="Label" position="274,1002" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="green" />
+            <eLabel backgroundColor="#00ff0000" position="15,1050" size="250,6" zPosition="12" />
+            <eLabel backgroundColor="#0000ff00" position="275,1050" size="250,6" zPosition="12" />
+            <widget name="text" position="9,3" size="1900,780" font="Console; 28" foregroundColor="green" />
+            <widget name="text2" position="10,790" size="1900,190" font="Console; 28" foregroundColor="#ff0000" />
+            <eLabel position="10,785" size="1900,2" backgroundColor="#555555" zPosition="1" />
         </screen>""" % _("View Crashlog file")
 
     def __init__(self, session, crashfile):
-        self.session = session
         Screen.__init__(self, session)
+        self.session = session
         self.crashfile = crashfile
 
         self["Redkey"] = StaticText(_("Close"))
@@ -470,14 +469,22 @@ class LogScreen(Screen):
         self["text"] = ScrollLabel("")
         self["text2"] = ScrollLabel("")
 
-        self["shortcuts"] = ActionMap(
-            ["ShortcutActions", "WizardActions"],
+        # Scroll- und Farb-Tasten belegen
+        self["actions"] = ActionMap(
+            ["OkCancelActions", "DirectionActions", "ColorActions"],
             {
                 "cancel": self.exit,
-                "back": self.exit,
+                "ok": self.exit,
                 "red": self.exit,
                 "green": self.restartGUI,
-            }
+                # Zeilenweise scrollen
+                "up": self.scrollUp,
+                "down": self.scrollDown,
+                # Seitenweise scrollen
+                "left": self.scrollPageUp,
+                "right": self.scrollPageDown,
+            },
+            -1
         )
 
         self.loadLogFile()
@@ -499,11 +506,29 @@ class LogScreen(Screen):
         self["text"].setText(full_text)
         self["text2"].setText(error_text)
 
+    # --- Scrollsteuerung für beide Bereiche ---
+    def scrollUp(self):
+        self["text"].moveUp()
+        self["text2"].moveUp()
+
+    def scrollDown(self):
+        self["text"].moveDown()
+        self["text2"].moveDown()
+
+    def scrollPageUp(self):
+        self["text"].pageUp()
+        self["text2"].pageUp()
+
+    def scrollPageDown(self):
+        self["text"].pageDown()
+        self["text2"].pageDown()
+
     def restartGUI(self):
         self.session.open(TryQuitMainloop, 3)
 
     def exit(self):
         self.close()
+
 
 # --- Menü & Plugins ---
 def menu(menuid, **kwargs):
