@@ -7,7 +7,7 @@
 from __future__ import print_function
 import gettext
 from Components.Language import language
-import os, sys, re, shutil, tempfile, zipfile, traceback
+import os, sys, re, shutil, tempfile, zipfile, traceback, time, glob
 from os import remove, listdir, popen
 from os.path import exists, join
 from Components.ActionMap import ActionMap
@@ -238,20 +238,18 @@ def check_for_update(session, callback=None):
 
 # --- Crashlog Funktionen ---
 def isMountReadonly(mnt):
-	try:
-		with open("/proc/mounts", "r") as f:
-			for line in f:
-				parts = line.split()
-				if len(parts) < 4:
-					continue
-				device, mp, fs, flags = parts[:4]
-				if mp == mnt:
-					return "ro" in flags
-	except IOError as e:
-		print("I/O error: %s" % str(e))
-	except Exception as err:
-		print("Error: %s" % str(err))
-	return False
+    try:
+        with open("/proc/mounts", "r") as f:
+            for line in f:
+                parts = line.split()
+                if len(parts) < 4:
+                    continue
+                device, mp, fs, flags = parts[:4]
+                if mp == mnt:
+                    return "ro" in flags
+    except Exception:
+        return False
+    return False
 
 
 def paths():
@@ -260,15 +258,8 @@ def paths():
 		"/media/hdd/logs", "/media/usb/logs", "/ba/", "/ba/logs"
 	]
 
-
-import glob
-import os
-
+# In find_log_files:
 def find_log_files(base_path=LOG_BASE_PATH):
-    """
-    Sucht alle relevanten Log-Dateien (Crash, Debug, Network) und gibt
-    die vollständigen Pfade als Liste zurück.
-    """
     patterns = [
         os.path.join(base_path, "*crash*.log"),
         os.path.join(base_path, "*debug*.log"),
@@ -283,15 +274,10 @@ def find_log_files(base_path=LOG_BASE_PATH):
         "/media/hdd/logs/*debug*.log",
         "/media/hdd/logs/*network*.log",
     ]
-
     log_files = []
     for pattern in patterns:
         log_files.extend(glob.glob(pattern))
-
-    # Duplikate entfernen und sortieren
     return sorted(list(set(log_files)))
-
-
 
 def delete_log_files(files):
 	for file in files:
@@ -303,73 +289,100 @@ def delete_log_files(files):
 
 class CrashLogScreen(Screen):
     sz_w = getDesktop(0).size().width()
+
     if sz_w == 2560:
         skin = """
-        <screen name="crashlogscreen" position="center,center" size="1280,1000" title="%s">
-        <widget source="Redkey" render="Label" position="160,900" size="250,45" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="white" />
-        <widget source="Greenkey" render="Label" position="415,900" size="250,45" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="white" />
-        <widget source="Yellowkey" render="Label" position="670,900" size="250,45" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="white" />
-        <widget source="Bluekey" render="Label" position="925,900" size="250,45" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="white" />
-        <widget source="menu" render="Listbox" position="80,67" size="1137,781" scrollbarMode="showOnDemand">
-        <convert type="TemplatedMultiContent">
-        {"template": [
-            MultiContentEntryText(pos = (80, 5), size = (580, 46), font=0, flags = RT_HALIGN_LEFT | RT_VALIGN_CENTER, text = 0),
-            MultiContentEntryText(pos = (80, 55), size = (580, 38), font=1, flags = RT_HALIGN_LEFT | RT_VALIGN_CENTER, text = 1),
-            MultiContentEntryPixmapAlphaTest(pos = (5, 35), size = (51, 40), png = 2),
-            ],
-        "fonts": [gFont("Regular", 42), gFont("Regular", 34)],
-        "itemHeight": 100
-        }
+<screen name="crashlogscreen" position="320,40" size="1280,1000" title="%s">
+  <eLabel name="button ok" font="Regular; 30" position="1177,928" size="103,48" cornerRadius="4" halign="center" valign="center" text="OK" backgroundColor="black" zPosition="3" foregroundColor="red" />
+  <eLabel name="button info" font="Regular; 30" position="1068,930" size="103,48" cornerRadius="4" halign="center" valign="center" text="INFO" backgroundColor="black" zPosition="3" foregroundColor="red" />
+  <eLabel name="button ext" font="Regular; 30" position="1121,874" size="103,48" cornerRadius="4" halign="center" valign="center" text="EXIT" backgroundColor="black" zPosition="3" foregroundColor="red" />
+  <eLabel backgroundColor="listRecording" position="25,976" size="250,6" zPosition="12" />
+  <eLabel backgroundColor="unff00" position="285,974" size="250,6" zPosition="12" />
+  <eLabel backgroundColor="yellow" position="547,974" size="250,6" zPosition="12" />
+  <eLabel backgroundColor="unff" position="807,974" size="250,8" zPosition="12" />
+  <widget source="Redkey" render="Label" position="25,928" size="250,45" font="Regular;30" />
+  <widget source="Greenkey" render="Label" position="283,928" size="250,45" font="Regular;30" foregroundColor="green" />
+  <widget source="Yellowkey" render="Label" position="544,928" size="250,45" font="Regular;30" foregroundColor="yellow" />
+  <widget source="Bluekey" render="Label" position="806,928" size="250,45" font="Regular;30" foregroundColor="blue" />
+  <widget source="menu" render="Listbox" position="80,67" size="1137,781" scrollbarMode="showOnDemand">
+    <convert type="TemplatedMultiContent">
+        {"template":[
+            MultiContentEntryText(pos=(80,5),size=(580,46),font=0,flags=RT_HALIGN_LEFT|RT_VALIGN_CENTER,text=0),
+            MultiContentEntryText(pos=(80,55),size=(580,38),font=1,flags=RT_HALIGN_LEFT|RT_VALIGN_CENTER,text=1),
+            MultiContentEntryPixmapAlphaTest(pos=(5,35),size=(51,40),png=2)],
+        "fonts":[gFont("Regular",42),gFont("Regular",34)],
+        "itemHeight":100}
         </convert>
-        </widget>
-        </screen>
-        """  % _("View or Remove Crashlog files")
+  </widget>
+</screen>
+""" % _("View or Remove Crashlog files")
+
     elif sz_w == 1920:
         skin = """
-        <screen name="crashlogscreen" position="center,center" size="1000,880" title="%s">
-        <widget source="Redkey" render="Label" position="0,814" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" />
-        <widget source="Greenkey" render="Label" position="252,813" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="green" />
-        <widget source="Yellowkey" render="Label" position="499,814" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="yellow" />
-        <widget source="Bluekey" render="Label" position="749,814" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="blue" />
-        <widget source="menu" render="Listbox" position="20,10" size="961,781" scrollbarMode="showOnDemand">
-        <convert type="TemplatedMultiContent">
-        {"template": [
-            MultiContentEntryText(pos = (70, 2), size = (580, 34), font=0, flags = RT_HALIGN_LEFT, text = 0),
-            MultiContentEntryText(pos = (80, 29), size = (580, 30), font=1, flags = RT_HALIGN_LEFT, text = 1),
-            MultiContentEntryPixmapAlphaTest(pos = (5, 15), size = (51, 40), png = 2),
-            ],
-        "fonts": [gFont("Regular", 30), gFont("Regular", 30)],
-        "itemHeight": 70
-        }
+<screen name="crashlogscreen" position="center,center" size="1000,880" title="%s">
+  <eLabel name="button info" font="Regular; 30" position="881,761" size="103,48" cornerRadius="4" halign="center" valign="center" text="INFO" backgroundColor="black" zPosition="3" foregroundColor="red" />
+  <eLabel name="button ext" font="Regular; 30" position="773,761" size="103,48" cornerRadius="4" halign="center" valign="center" text="EXIT" backgroundColor="black" zPosition="3" foregroundColor="red" />
+  <eLabel name="button ok" font="Regular; 30" position="663,761" size="103,48" cornerRadius="4" halign="center" valign="center" text="OK" backgroundColor="black" zPosition="3" foregroundColor="red" />
+  <eLabel backgroundColor="listRecording" position="0,858" size="250,6" zPosition="12" />
+  <eLabel backgroundColor="unff00" position="250,858" size="250,6" zPosition="12" />
+  <eLabel backgroundColor="yellow" position="500,858" size="250,6" zPosition="12" />
+  <eLabel backgroundColor="unff" position="750,858" size="250,6" zPosition="12" />
+  <widget source="Redkey" render="Label" position="0,814" size="250,45" font="Regular;26" />
+  <widget source="Greenkey" render="Label" position="252,813" size="250,45" font="Regular;26" foregroundColor="green" />
+  <widget source="Yellowkey" render="Label" position="499,814" size="250,45" font="Regular;26" foregroundColor="yellow" />
+  <widget source="Bluekey" render="Label" position="749,814" size="250,45" font="Regular;26" foregroundColor="blue" />
+  <widget source="menu" render="Listbox" position="20,10" size="961,740" scrollbarMode="showOnDemand">
+    <convert type="TemplatedMultiContent">
+        {"template":[
+            MultiContentEntryText(pos=(70,2),size=(580,34),font=0,flags=RT_HALIGN_LEFT,text=0),
+            MultiContentEntryText(pos=(80,29),size=(580,30),font=1,flags=RT_HALIGN_LEFT,text=1),
+            MultiContentEntryPixmapAlphaTest(pos=(5,20),size=(45,32),png=2)],
+        "fonts":[gFont("Regular",28),gFont("Regular",24)],
+        "itemHeight":75}
         </convert>
-        </widget>
-        </screen>
-        """  % _("View or Remove Crashlog files")
+  </widget>
+</screen>
+""" % _("View or Remove Crashlog files")
+
     else:
         skin = """
-        <screen name="crashlogscreen" position="center,center" size="640,586" title="%s">
-        <widget source="Redkey" render="Label" position="6,536" size="160,35" zPosition="11" font="Regular; 22" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" />
-        <widget source="Greenkey" render="Label" position="166,536" size="160,35" zPosition="11" font="Regular; 22" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="green" />
-        <widget source="Yellowkey" render="Label" position="325,536" size="160,35" zPosition="11" font="Regular; 22" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="yellow" />
-        <widget source="Bluekey" render="Label" position="485,536" size="160,35" zPosition="11" font="Regular; 22" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="blue" />
-        <widget source="menu" render="Listbox" position="13,6" size="613,517" scrollbarMode="showOnDemand">
-        <convert type="TemplatedMultiContent">
-        {"template": [
-            MultiContentEntryText(pos = (46, 1), size = (386, 22), font=0, flags = RT_HALIGN_LEFT, text = 0),
-            MultiContentEntryText(pos = (53, 19), size = (386, 20), font=1, flags = RT_HALIGN_LEFT, text = 1),
-            MultiContentEntryPixmapAlphaTest(pos = (3, 10), size = (34, 26), png = 2),
-            ],
-        "fonts": [gFont("Regular", 20), gFont("Regular", 20)],
-        "itemHeight": 50
-        }
+<screen name="crashlogscreen" position="center,center" size="800,600" title="%s">
+  <eLabel name="button ext" font="Regular; 30" position="578,495" size="103,48" cornerRadius="4" halign="center" valign="center" text="EXIT" backgroundColor="black" zPosition="3" foregroundColor="red" />
+  <eLabel name="button ok" font="Regular; 30" position="468,495" size="103,48" cornerRadius="4" halign="center" valign="center" text="OK" backgroundColor="black" zPosition="3" foregroundColor="red" />
+  <eLabel name="button info" font="Regular; 30" position="689,496" size="103,48" cornerRadius="4" halign="center" valign="center" text="INFO" backgroundColor="black" zPosition="3" foregroundColor="red" />
+  <eLabel backgroundColor="listRecording" position="9,596" size="180,6" zPosition="12" />
+  <eLabel backgroundColor="unff00" position="200,596" size="180,6" zPosition="12" />
+  <eLabel backgroundColor="yellow" position="389,596" size="180,6" zPosition="12" />
+  <eLabel backgroundColor="unff" position="579,596" size="180,6" zPosition="12" />
+  <widget source="Redkey" render="Label" position="10,550" size="180,40" font="Regular;22" />
+  <widget source="Greenkey" render="Label" position="200,550" size="180,40" font="Regular;22" foregroundColor="green" />
+  <widget source="Yellowkey" render="Label" position="390,550" size="180,40" font="Regular;22" foregroundColor="yellow" />
+  <widget source="Bluekey" render="Label" position="580,550" size="180,40" font="Regular;22" foregroundColor="blue" />
+  <widget source="menu" render="Listbox" position="10,10" size="780,480" scrollbarMode="showOnDemand">
+    <convert type="TemplatedMultiContent">
+        {"template":[
+            MultiContentEntryText(pos=(10,0),size=(580,30),font=0,flags=RT_HALIGN_LEFT,text=0),
+            MultiContentEntryText(pos=(10,30),size=(580,25),font=1,flags=RT_HALIGN_LEFT,text=1),
+            MultiContentEntryPixmapAlphaTest(pos=(5,15),size=(40,30),png=2)],
+        "fonts":[gFont("Regular",20),gFont("Regular",18)],
+        "itemHeight":60}
         </convert>
-        </widget>
-        </screen>
-        """  % _("View or Remove Crashlog files")
+  </widget>
+</screen>
+""" % _("View or Remove Crashlog files")
 
     def __init__(self, session):
         self.session = session
         Screen.__init__(self, session)
+
+        self["Redkey"] = StaticText(_("Close"))
+        self["Greenkey"] = StaticText(_("View"))
+        self["Yellowkey"] = StaticText(_("Remove"))
+        self["Bluekey"] = StaticText(_("Remove All"))
+
+        self.list = []
+        self["menu"] = List(self.list)
+
         self["shortcuts"] = ActionMap(
             ["ShortcutActions", "WizardActions", "EPGSelectActions"],
             {
@@ -380,16 +393,9 @@ class CrashLogScreen(Screen):
                 "green": self.Ok,
                 "yellow": self.YellowKey,
                 "blue": self.BlueKey,
-                "info": self.infoKey,
-                "epg": self.infoKey,
             }
         )
-        self["Redkey"] = StaticText(_("Close"))
-        self["Greenkey"] = StaticText(_("View"))
-        self["Yellowkey"] = StaticText(_("Remove"))
-        self["Bluekey"] = StaticText(_("Remove All"))
-        self.list = []
-        self["menu"] = List(self.list)
+
         self.CfgMenu()
 
     def CfgMenu(self):
@@ -400,105 +406,84 @@ class CrashLogScreen(Screen):
             return
 
         sz_w = getDesktop(0).size().width()
-        if sz_w == 2560:
-            minipng = LoadPixmap(cached=True, path=resolveFilename(SCOPE_PLUGINS, "Extensions/CrashlogViewer/images/crashminiwq.png"))
-        elif sz_w == 1920:
+        if sz_w >= 1920:
             minipng = LoadPixmap(cached=True, path=resolveFilename(SCOPE_PLUGINS, "Extensions/CrashlogViewer/images/crashmini.png"))
         else:
             minipng = LoadPixmap(cached=True, path=resolveFilename(SCOPE_PLUGINS, "Extensions/CrashlogViewer/images/crashmini1.png"))
 
         for file_path in log_files:
             try:
-                file_stat = os.stat(file_path)
-                file_size = file_stat.st_size
-                file_date = time.strftime("%Y-%m-%d %H:%M", time.localtime(file_stat.st_mtime))
-                display_name = (
-                    os.path.basename(file_path),
-                    "Dimensione: %s - Data: %s" % (file_size, file_date),
-                    minipng,
-                    file_path
-                )
-                self.list.append(display_name)
+                stat = os.stat(file_path)
+                file_size = stat.st_size
+                file_date = time.strftime("%Y-%m-%d %H:%M", time.localtime(stat.st_mtime))
+                self.list.append((os.path.basename(file_path),
+                                  "Size: %s - Date: %s" % (file_size, file_date),
+                                  minipng,
+                                  file_path))
             except Exception as e:
-                print("Error accessing file %s: %s" % (file_path, e))
+                log("Error accessing file %s: %s" % (file_path, e))
 
         self["menu"].setList(self.list)
-        self["actions"] = ActionMap(["OkCancelActions"], {"cancel": self.close}, -1)
 
     def Ok(self):
         item = self["menu"].getCurrent()
+        if not item or len(item) < 4:
+            self.session.open(MessageBox, _("No log file selected!"), MessageBox.TYPE_INFO, timeout=4)
+            return
+        crashfile = str(item[3])
         try:
-            crashfile = str(item[3])
             self.session.openWithCallback(self.CfgMenu, LogScreen, crashfile)
         except Exception as e:
-            print("CrashLogScreen error to select: %s" % e)
+            self.session.open(MessageBox, _("Error opening log file:\n%s") % e, MessageBox.TYPE_ERROR, timeout=6)
 
     def YellowKey(self):
         item = self["menu"].getCurrent()
+        if not item or len(item) < 4: return
+        file_path = str(item[3])
         try:
-            file_path = str(item[3])
             os.remove(file_path)
-            self.mbox = self.session.open(MessageBox, (_("Removed %s") % file_path), MessageBox.TYPE_INFO, timeout=4)
+            self.session.open(MessageBox, _("Removed %s") % file_path, MessageBox.TYPE_INFO, timeout=4)
         except Exception as e:
-            self.mbox = self.session.open(MessageBox, (_("Failed to remove file: %s") % e), MessageBox.TYPE_INFO, timeout=4)
+            self.session.open(MessageBox, _("Failed to remove file:\n%s") % e, MessageBox.TYPE_INFO, timeout=4)
         self.CfgMenu()
 
     def BlueKey(self):
-        """
-        Entfernt alle Crash-, Debug- und Network-Logs.
-        """
         log_files = find_log_files()
         deleted_files = 0
         failed_files = []
-
-        for file_path in log_files:
-            if not isMountReadonly(os.path.dirname(file_path)):
+        for f in log_files:
+            if not isMountReadonly(os.path.dirname(f)):
                 try:
-                    os.remove(file_path)
+                    os.remove(f)
                     deleted_files += 1
-                except OSError as e:
-                    failed_files.append(f"{file_path} ({e})")
-
-        if deleted_files > 0:
-            msg = _("Removed %d log files") % deleted_files
-        else:
-            msg = _("No log files found to remove")
-
+                except Exception as e:
+                    failed_files.append(f"{f} ({e})")
+        msg = _("Removed %d log files") % deleted_files if deleted_files else _("No log files found to remove")
         if failed_files:
-            msg += "\n\n" + _("Failed to remove some files:\n") + "\n".join(failed_files)
-
-        self.mbox = self.session.open(MessageBox, msg, MessageBox.TYPE_INFO, timeout=6)
+            msg += "\n" + _("Failed to remove some files:\n") + "\n".join(failed_files)
+        self.session.open(MessageBox, msg, MessageBox.TYPE_INFO, timeout=6)
         self.CfgMenu()
-
-    def infoKey(self):
-        self.session.open(MessageBox, _("Crashlog Viewer  ver. %s\n\nDeveloper: 2boom\n\nModifier: Evg77734\n\nUpdate from Lululla\nHomepage: gisclub.tv") % get_local_version(), MessageBox.TYPE_INFO)
 
     def exit(self):
         self.close()
 
 
 
-
-
-
 class LogScreen(Screen):
-	sz_w = getDesktop(0).size().width()
-	if sz_w == 2560:
-		skin = """
-		<screen name="crashlogview" position="center,center" size="2560,1440" title="%s">
-		<widget source="Redkey" render="Label" position="32,1326" size="250,69" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="white" />
-		<widget source="Greenkey" render="Label" position="321,1326" size="250,69" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="white" />
+    sz_w = getDesktop(0).size().width()
+
+    if sz_w == 2560:
+        skin = """<screen name="crashlogview" position="center,center" size="2560,1440" title="%s">
+		<widget source="Redkey" render="Label" position="32,1326" size="250,69" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" />
+		<widget source="Greenkey" render="Label" position="321,1326" size="250,69" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="green" />
 		<eLabel backgroundColor="#00ff0000" position="32,1394" size="250,6" zPosition="12" />
 		<eLabel backgroundColor="#0000ff00" position="321,1396" size="250,6" zPosition="12" />
-		<widget name="text" position="0,10" size="2560,1092" font="Console; 42" text="text" />
+		<widget name="text" position="0,10" size="2560,1092" font="Console; 42" text="text" foregroundColor="green" />
 		<widget name="text2" position="-279,1123" size="2560,190" font="Console; 42" text="text2" foregroundColor="#ff0000" />
 		<eLabel position="10,1110" size="2560,4" backgroundColor="#555555" zPosition="1" />
-		</screen>
-		"""  % _("View Crashlog file")
-
-	elif sz_w == 1920:
-		skin = """
-		<screen name="crashlogview" position="center,center" size="1880,980" title="%s">
+		</screen>""" % _("View Crashlog file")
+    elif sz_w == 1920:
+        skin = """<screen name="crashlogview" position="center,center" size="1880,980" title="%s">
 		<widget source="Redkey" render="Label" position="30,915" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" />
 		<widget source="Greenkey" render="Label" position="282,915" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="green" />
 		<eLabel backgroundColor="#00ff0000" position="32,962" size="250,6" zPosition="12" />
@@ -506,11 +491,9 @@ class LogScreen(Screen):
 		<widget name="text" position="10,10" size="1860,695" font="Console; 28" text="text" foregroundColor="green" />
 		<widget name="text2" position="10,720" size="1860,190" font="Console; 28" text="text2" foregroundColor="#ff0000" />
 		<eLabel position="10,710" size="1860,2" backgroundColor="#555555" zPosition="1" />
-		</screen>
-		"""  % _("View Crashlog file")
-	else:
-		skin = """
-		<screen name="crashlogview" position="center,center" size="1253,653" title="%s">
+		</screen>""" % _("View Crashlog file")
+    else:
+        skin = """<screen name="crashlogview" position="center,center" size="1253,653" title="%s">
 		<widget source="Redkey" render="Label" position="30,608" size="160,35" zPosition="11" font="Regular; 22" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" />
 		<widget source="Greenkey" render="Label" position="192,608" size="160,35" zPosition="11" font="Regular; 22" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="green" />
 		<eLabel backgroundColor="#00ff0000" position="33,642" size="160,6" zPosition="12" />
@@ -518,58 +501,61 @@ class LogScreen(Screen):
 		<widget name="text" position="8,4" size="1240,463" font="Console; 20" text="text" foregroundColor="green" />
 		<widget name="text2" position="6,480" size="1240,126" font="Console; 20" text="text2" foregroundColor="#ff0000" />
 		<eLabel position="6,473" size="1240,1" backgroundColor="#555555" zPosition="1" />
-		</screen>
-		"""  % _("View Crashlog file")
+		</screen>""" % _("View Crashlog file")
 
-	def __init__(self, session, crashfile):
-		self.session = session
-		Screen.__init__(self, session)
-		# global Crashfile
-		self.crashfile = crashfile
-		self.setTitle('View Crashlog file:  ' + str(self.crashfile))
-		self["shortcuts"] = ActionMap(
-			["ShortcutActions", "WizardActions"],
-			{
-				"cancel": self.exit,
-				"back": self.exit,
-				"red": self.exit,
-			}
-		)
-		self["Redkey"] = StaticText(_("Close"))
-		self["Greenkey"] = StaticText(_("Restart GUI"))
-		self["text"] = ScrollLabel("")
-		self["text2"] = ScrollLabel("")
-		self.list = []
-		self["menu"] = List(self.list)
-		self.listcrah()
+    def __init__(self, session, crashfile):
+        self.session = session
+        Screen.__init__(self, session)
+        self.crashfile = crashfile
 
-	def exit(self):
-		self.close()
+        self["Redkey"] = StaticText(_("Close"))
+        self["text"] = ScrollLabel("")
+        self["text2"] = ScrollLabel("")
 
-	def listcrah(self):
-		# global Crashfile
-		list = "No data error"
-		list2 = "No data error"
-		try:
-			crashfiles = open(self.crashfile, "r")
-			for line in crashfiles:
-				if line.find("Traceback (most recent call last):") != -1 or line.find("Backtrace:") != -1:
-					list = " "
-					list2 = " "
-					for line in crashfiles:
-						list += line
-						if line.find("Error: ") != -1:
-							list2 += line
-						if line.find("]]>") != -1 or line.find("dmesg") != -1 or line.find("StackTrace") != -1 or line.find("FATAL SIGNAL") != -1:
-							if line.find("FATAL SIGNAL") != -1:
-								list2 = "FATAL SIGNAL"
-							break
-			self["text"].setText(list)
-			crashfiles.close()
-		except Exception as e:
-			print('error to open crashfile: %s' % e)
-		self["text2"].setText(list2)
-		self["actions"] = ActionMap(["OkCancelActions", "DirectionActions"], {"cancel": self.close, "up": self["text"].pageUp, "left": self["text"].pageUp, "down": self["text"].pageDown, "right": self["text"].pageDown}, -1)
+        self["shortcuts"] = ActionMap(
+            ["ShortcutActions", "WizardActions"],
+            {
+                "cancel": self.exit,
+                "back": self.exit,
+                "red": self.exit,
+            }
+        )
+
+        self.loadLogFile()
+
+    def loadLogFile(self):
+        full_text = ""
+        error_text = ""
+        try:
+            if not os.path.exists(self.crashfile):
+                full_text = "File not found: %s" % self.crashfile
+            else:
+                with open(self.crashfile, "r", encoding="utf-8", errors="replace") as f:
+                    for line in f:
+                        full_text += line
+                        if "Error:" in line or "FATAL SIGNAL" in line:
+                            error_text += line
+        except Exception as e:
+            full_text = "Error opening file:\n%s" % e
+
+        self["text"].setText(full_text)
+        self["text2"].setText(error_text)
+
+        self["actions"] = ActionMap(
+            ["OkCancelActions", "DirectionActions"],
+            {
+                "cancel": self.close,
+                "up": self["text"].pageUp,
+                "left": self["text"].pageUp,
+                "down": self["text"].pageDown,
+                "right": self["text"].pageDown
+            },
+            -1
+        )
+
+    def exit(self):
+        self.close()
+
 
 # --- Menüeinträge & Main ---
 def menu(menuid, **kwargs):
