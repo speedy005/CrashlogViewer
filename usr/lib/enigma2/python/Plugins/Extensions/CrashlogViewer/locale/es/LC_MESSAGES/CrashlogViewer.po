@@ -1,103 +1,96 @@
-# Signed-off-by: speedy005 <speedy005@gmail.com>
-#
-#, fuzzy
+# Spanish translations for CrashlogViewer
+# Copyright (C) 2024 Lululla, speedy005, Evg77734
+# This file is distributed under the same license as the CrashlogViewer package.
+# Translators: <tus datos aquí>
 msgid ""
 msgstr ""
-"Project-Id-Version: CrashlogViewer v0.6\n"
-"POT-Creation-Date: 2025-09-06 20:31+0200\n"
-"PO-Revision-Date: 2025-09-06 20:33+0200\n"
-"Last-Translator: Dario Croci <speedy005@gmail.com>\n"
-"Language-Team: \"Last-Translator: speedy005 <speedy005@gmail.com>\n"
-"Language: es_ES\n"
+"Project-Id-Version: CrashlogViewer 1.8\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-09-07 12:00+0000\n"
+"PO-Revision-Date: 2025-09-07 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Spanish\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.6\n"
-"X-Poedit-Basepath: ../../../../../../../../..\n"
-"X-Poedit-SearchPath-0: .\n"
 
-#: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:195
-#: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:357
+#: CrashlogViewer.py
+msgid "Update installed successfully!\nDo you want to restart the GUI now?"
+msgstr "¡Actualización instalada con éxito!\n¿Desea reiniciar la GUI ahora?"
+
+#: CrashlogViewer.py
+msgid "A new version %s is available.\nDo you want to install the update?"
+msgstr "Hay una nueva versión %s disponible.\n¿Desea instalar la actualización?"
+
+#: CrashlogViewer.py
+msgid "Kein Update verfügbar"
+msgstr "No hay actualizaciones disponibles"
+
+#: CrashlogViewer.py
+msgid "Error during update:\n%s"
+msgstr "Error durante la actualización:\n%s"
+
+#: CrashlogViewer.py
 msgid "Close"
 msgstr "Cerrar"
 
-#: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:196
+#: CrashlogViewer.py
 msgid "View"
 msgstr "Ver"
 
-#: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:197
+#: CrashlogViewer.py
 msgid "Remove"
 msgstr "Eliminar"
 
-#: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:198
+#: CrashlogViewer.py
 msgid "Remove All"
 msgstr "Eliminar todo"
 
-#: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:267
-#, python-format
+#: CrashlogViewer.py
 msgid "Removed %s"
-msgstr "Eliminado %s"
+msgstr "%s eliminado"
 
-#: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:269
-#, python-format
+#: CrashlogViewer.py
+msgid "Removed All Crashlog Files"
+msgstr "Todos los archivos de crashlog eliminados"
+
+#: CrashlogViewer.py
 msgid "Failed to remove file due to an error: %s"
 msgstr "No se pudo eliminar el archivo debido a un error: %s"
 
-#: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:271
-#, python-format
+#: CrashlogViewer.py
 msgid "Failed to remove file: %s"
 msgstr "No se pudo eliminar el archivo: %s"
 
-#: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:273
-#: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:293
-#, python-format
+#: CrashlogViewer.py
 msgid "An unexpected error occurred: %s"
 msgstr "Ocurrió un error inesperado: %s"
 
-#: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:289
-msgid "Removed All Crashlog Files"
-msgstr "Eliminados todos los archivos de Crashlog"
-
-#: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:291
-#, python-format
+#: CrashlogViewer.py
 msgid "Failed to remove some files: %s"
 msgstr "No se pudieron eliminar algunos archivos: %s"
 
-#: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:297
-#, python-format
-msgid ""
-"Crashlog Viewer  ver. %s\n"
-"\n"
-"Developer: 2boom\n"
-"\n"
-"Modifier: Evg77734\n"
-"\n"
-"Update from Lululla\n"
-"Homepage: gisclub.tv"
-msgstr ""
-"Crashlog Viewer  versión %s\n"
-"\n"
-"Desarrollador: speedy005\n"
-"\n"
-"Modificado por: speedy005\n"
-"\n"
-"Actualización de speedy005\n"
-"Página web: github.com/speedy005"
+#: CrashlogViewer.py
+msgid "Crashlog Viewer  ver. %s\n\nDeveloper: 2boom\n\nModifier: Evg77734\n\nUpdate from Lululla\nHomepage: gisclub.tv"
+msgstr "Crashlog Viewer ver. %s\n\nDesarrollador: 2boom\n\nModificación: Evg77734\n\nActualización de Lululla\nPágina web: gisclub.tv"
 
-#: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:358
-msgid "Restart GUI"
-msgstr "Reiniciar la GUI"
-
-#: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:400
-msgid "Crashlog  Viewer"
-msgstr "Visor de Crashlog"
-
-#: lib/enigma2/python/Plugins/Extensions/CrashlogViewer/plugin.py:401
-msgid "View and remove crashlog files"
-msgstr "Ver y eliminar archivos de Crashlog"
-
+#: CrashlogViewer.py
 msgid "View or Remove Crashlog files"
-msgstr "Ver o eliminar archivos de Crashlog"
+msgstr "Ver o eliminar archivos de crashlog"
 
+#: CrashlogViewer.py
 msgid "View Crashlog file"
-msgstr "Ver archivo de Crashlog"
+msgstr "Ver archivo de crashlog"
+
+#: CrashlogViewer.py
+msgid "Restart GUI"
+msgstr "Reiniciar GUI"
+
+#: CrashlogViewer.py
+msgid "Crashlog Viewer"
+msgstr "Visor de crashlog"
+
+#: CrashlogViewer.py
+msgid "View and remove crashlog files"
+msgstr "Ver y eliminar archivos de crashlog"
