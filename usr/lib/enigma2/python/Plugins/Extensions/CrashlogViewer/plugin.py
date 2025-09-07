@@ -25,7 +25,8 @@ from enigma import getDesktop
 PLUGIN_PATH = "/usr/lib/enigma2/python/Plugins/Extensions/CrashlogViewer/"
 LOCALE_DIR = os.path.join(PLUGIN_PATH, "locale")
 DOMAIN = "CrashlogViewer"
-path_folder_log = '/media/hdd/'
+# --- Basis-Pfad für Logs ---
+LOG_BASE_PATH = "/home/root/logs/"
 
 def localeInit():
     # Sprache aus den Box-Einstellungen holen
@@ -260,18 +261,36 @@ def paths():
 	]
 
 
-def find_log_files():
-	log_files = []
-	possible_paths = paths()
-	for path in possible_paths:
-		if exists(path) and not isMountReadonly(path):
-			try:
-				for file in listdir(path):
-					if file.endswith(".log") and ("crashlog" in file or "twiste" in file):
-						log_files.append(join(path, file))
-			except OSError as e:
-				print("Error %s while file access to: %s" % (str(e), path))
-	return log_files
+import glob
+import os
+
+def find_log_files(base_path=LOG_BASE_PATH):
+    """
+    Sucht alle relevanten Log-Dateien (Crash, Debug, Network) und gibt
+    die vollständigen Pfade als Liste zurück.
+    """
+    patterns = [
+        os.path.join(base_path, "*crash*.log"),
+        os.path.join(base_path, "*debug*.log"),
+        os.path.join(base_path, "*network*.log"),
+        os.path.join(base_path, "logs", "*crash*.log"),
+        os.path.join(base_path, "logs", "*debug*.log"),
+        os.path.join(base_path, "logs", "*network*.log"),
+        "/media/usb/logs/*crash*.log",
+        "/media/usb/logs/*debug*.log",
+        "/media/usb/logs/*network*.log",
+        "/media/hdd/logs/*crash*.log",
+        "/media/hdd/logs/*debug*.log",
+        "/media/hdd/logs/*network*.log",
+    ]
+
+    log_files = []
+    for pattern in patterns:
+        log_files.extend(glob.glob(pattern))
+
+    # Duplikate entfernen und sortieren
+    return sorted(list(set(log_files)))
+
 
 
 def delete_log_files(files):
@@ -283,212 +302,183 @@ def delete_log_files(files):
 			print("Error while deleting %s error %s:" % (file,  str(e)))
 
 class CrashLogScreen(Screen):
-	sz_w = getDesktop(0).size().width()
-	if sz_w == 2560:
-		skin = """
-		<screen name="crashlogscreen" position="center,center" size="1280,1000" title="%s">
-		<widget source="Redkey" render="Label" position="160,900" size="250,45" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="white" />
-		<widget source="Greenkey" render="Label" position="415,900" size="250,45" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="white" />
-		<widget source="Yellowkey" render="Label" position="670,900" size="250,45" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="white" />
-		<widget source="Bluekey" render="Label" position="925,900" size="250,45" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="white" />
-		<eLabel backgroundColor="#00ff0000" position="160,948" size="250,6" zPosition="12" />
-		<eLabel backgroundColor="#0000ff00" position="415,948" size="250,6" zPosition="12" />
-		<eLabel backgroundColor="#00ffff00" position="670,948" size="250,6" zPosition="12" />
-		<eLabel backgroundColor="#000000ff" position="925,948" size="250,6" zPosition="12" />
-		<eLabel name="" position="1194,901" size="52,52" backgroundColor="#003e4b53" halign="center" valign="center" transparent="0" cornerRadius="26" font="Regular; 17" zPosition="1" text="INFO" />
-		<widget source="menu" render="Listbox" position="80,67" size="1137,781" scrollbarMode="showOnDemand">
-		<convert type="TemplatedMultiContent">
-		{"template": [
-			MultiContentEntryText(pos = (80, 5), size = (580, 46), font=0, flags = RT_HALIGN_LEFT | RT_VALIGN_CENTER, text = 0), # index 2 is the Menu Titel
-			MultiContentEntryText(pos = (80, 55), size = (580, 38), font=1, flags = RT_HALIGN_LEFT | RT_VALIGN_CENTER, text = 1), # index 3 is the Description
-			MultiContentEntryPixmapAlphaTest(pos = (5, 35), size = (51, 40), png = 2), # index 4 is the pixmap
-				],
-		"fonts": [gFont("Regular", 42),gFont("Regular", 34)],
-		"itemHeight": 100
-		}
-				</convert>
-			</widget>
-		</screen>
-		"""  % _("View or Remove Crashlog files")
+    sz_w = getDesktop(0).size().width()
+    if sz_w == 2560:
+        skin = """
+        <screen name="crashlogscreen" position="center,center" size="1280,1000" title="%s">
+        <widget source="Redkey" render="Label" position="160,900" size="250,45" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="white" />
+        <widget source="Greenkey" render="Label" position="415,900" size="250,45" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="white" />
+        <widget source="Yellowkey" render="Label" position="670,900" size="250,45" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="white" />
+        <widget source="Bluekey" render="Label" position="925,900" size="250,45" zPosition="11" font="Regular; 30" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="white" />
+        <widget source="menu" render="Listbox" position="80,67" size="1137,781" scrollbarMode="showOnDemand">
+        <convert type="TemplatedMultiContent">
+        {"template": [
+            MultiContentEntryText(pos = (80, 5), size = (580, 46), font=0, flags = RT_HALIGN_LEFT | RT_VALIGN_CENTER, text = 0),
+            MultiContentEntryText(pos = (80, 55), size = (580, 38), font=1, flags = RT_HALIGN_LEFT | RT_VALIGN_CENTER, text = 1),
+            MultiContentEntryPixmapAlphaTest(pos = (5, 35), size = (51, 40), png = 2),
+            ],
+        "fonts": [gFont("Regular", 42), gFont("Regular", 34)],
+        "itemHeight": 100
+        }
+        </convert>
+        </widget>
+        </screen>
+        """  % _("View or Remove Crashlog files")
+    elif sz_w == 1920:
+        skin = """
+        <screen name="crashlogscreen" position="center,center" size="1000,880" title="%s">
+        <widget source="Redkey" render="Label" position="0,814" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" />
+        <widget source="Greenkey" render="Label" position="252,813" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="green" />
+        <widget source="Yellowkey" render="Label" position="499,814" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="yellow" />
+        <widget source="Bluekey" render="Label" position="749,814" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="blue" />
+        <widget source="menu" render="Listbox" position="20,10" size="961,781" scrollbarMode="showOnDemand">
+        <convert type="TemplatedMultiContent">
+        {"template": [
+            MultiContentEntryText(pos = (70, 2), size = (580, 34), font=0, flags = RT_HALIGN_LEFT, text = 0),
+            MultiContentEntryText(pos = (80, 29), size = (580, 30), font=1, flags = RT_HALIGN_LEFT, text = 1),
+            MultiContentEntryPixmapAlphaTest(pos = (5, 15), size = (51, 40), png = 2),
+            ],
+        "fonts": [gFont("Regular", 30), gFont("Regular", 30)],
+        "itemHeight": 70
+        }
+        </convert>
+        </widget>
+        </screen>
+        """  % _("View or Remove Crashlog files")
+    else:
+        skin = """
+        <screen name="crashlogscreen" position="center,center" size="640,586" title="%s">
+        <widget source="Redkey" render="Label" position="6,536" size="160,35" zPosition="11" font="Regular; 22" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" />
+        <widget source="Greenkey" render="Label" position="166,536" size="160,35" zPosition="11" font="Regular; 22" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="green" />
+        <widget source="Yellowkey" render="Label" position="325,536" size="160,35" zPosition="11" font="Regular; 22" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="yellow" />
+        <widget source="Bluekey" render="Label" position="485,536" size="160,35" zPosition="11" font="Regular; 22" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="blue" />
+        <widget source="menu" render="Listbox" position="13,6" size="613,517" scrollbarMode="showOnDemand">
+        <convert type="TemplatedMultiContent">
+        {"template": [
+            MultiContentEntryText(pos = (46, 1), size = (386, 22), font=0, flags = RT_HALIGN_LEFT, text = 0),
+            MultiContentEntryText(pos = (53, 19), size = (386, 20), font=1, flags = RT_HALIGN_LEFT, text = 1),
+            MultiContentEntryPixmapAlphaTest(pos = (3, 10), size = (34, 26), png = 2),
+            ],
+        "fonts": [gFont("Regular", 20), gFont("Regular", 20)],
+        "itemHeight": 50
+        }
+        </convert>
+        </widget>
+        </screen>
+        """  % _("View or Remove Crashlog files")
 
-	elif sz_w == 1920:
-		skin = """
-		<screen name="crashlogscreen" position="center,center" size="1000,880" title="%s">
-		<widget source="Redkey" render="Label" position="0,814" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" />
-		<widget source="Greenkey" render="Label" position="252,813" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="green" />
-		<widget source="Yellowkey" render="Label" position="499,814" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="yellow" />
-		<widget source="Bluekey" render="Label" position="749,814" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="blue" />
-		<eLabel backgroundColor="#00ff0000" position="0,858" size="250,6" zPosition="12" />
-		<eLabel backgroundColor="#0000ff00" position="250,858" size="250,6" zPosition="12" />
-		<eLabel backgroundColor="#00ffff00" position="500,858" size="250,6" zPosition="12" />
-		<eLabel backgroundColor="#000000ff" position="750,858" size="250,6" zPosition="12" />
-		<eLabel name="" position="933,753" size="52,52" backgroundColor="#003e4b53" halign="center" valign="center" transparent="0" cornerRadius="26" font="Regular; 17" zPosition="1" text="INFO" />
-		<widget source="menu" render="Listbox" position="20,10" size="961,781" scrollbarMode="showOnDemand">
-		<convert type="TemplatedMultiContent">
-		{"template": [
-			MultiContentEntryText(pos = (70, 2), size = (580, 34), font=0, flags = RT_HALIGN_LEFT, text = 0), # index 2 is the Menu Titel
-			MultiContentEntryText(pos = (80, 29), size = (580, 30), font=1, flags = RT_HALIGN_LEFT, text = 1), # index 3 is the Description
-			MultiContentEntryPixmapAlphaTest(pos = (5, 15), size = (51, 40), png = 2), # index 4 is the pixmap
-				],
-		"fonts": [gFont("Regular", 30),gFont("Regular", 30)],
-		"itemHeight": 70
-		}
-				</convert>
-			</widget>
-		</screen>
-		"""  % _("View or Remove Crashlog files")
-	else:
-		skin = """
-		<screen name="crashlogscreen" position="center,center" size="640,586" title="%s">
-		<widget source="Redkey" render="Label" position="6,536" size="160,35" zPosition="11" font="Regular; 22" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" />
-		<widget source="Greenkey" render="Label" position="166,536" size="160,35" zPosition="11" font="Regular; 22" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="green" />
-		<widget source="Yellowkey" render="Label" position="325,536" size="160,35" zPosition="11" font="Regular; 22" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="yellow" />
-		<widget source="Bluekey" render="Label" position="485,536" size="160,35" zPosition="11" font="Regular; 22" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="blue" />
-		<eLabel backgroundColor="#00ff0000" position="5,570" size="160,6" zPosition="12" />
-		<eLabel backgroundColor="#0000ff00" position="165,570" size="160,6" zPosition="12" />
-		<eLabel backgroundColor="#00ffff00" position="325,570" size="160,6" zPosition="12" />
-		<eLabel backgroundColor="#000000ff" position="480,570" size="160,6" zPosition="12" />
-		<eLabel name="" position="586,495" size="42,35" backgroundColor="#003e4b53" halign="center" valign="center" transparent="0" cornerRadius="26" font="Regular; 14" zPosition="1" text="INFO" />
-		<widget source="menu" render="Listbox" position="13,6" size="613,517" scrollbarMode="showOnDemand">
-		<convert type="TemplatedMultiContent">
-		{"template": [
-			MultiContentEntryText(pos = (46, 1), size = (386, 22), font=0, flags = RT_HALIGN_LEFT, text = 0), # index 2 is the Menu Titel
-			MultiContentEntryText(pos = (53, 19), size = (386, 20), font=1, flags = RT_HALIGN_LEFT, text = 1), # index 3 is the Description
-			MultiContentEntryPixmapAlphaTest(pos = (3, 10), size = (34, 26), png = 2), # index 4 is the pixmap
-				],
-		"fonts": [gFont("Regular", 20),gFont("Regular", 20)],
-		"itemHeight": 50
-		}
-				</convert>
-		</widget>
-		</screen>
-		"""  % _("View or Remove Crashlog files")
+    def __init__(self, session):
+        self.session = session
+        Screen.__init__(self, session)
+        self["shortcuts"] = ActionMap(
+            ["ShortcutActions", "WizardActions", "EPGSelectActions"],
+            {
+                "ok": self.Ok,
+                "cancel": self.exit,
+                "back": self.exit,
+                "red": self.exit,
+                "green": self.Ok,
+                "yellow": self.YellowKey,
+                "blue": self.BlueKey,
+                "info": self.infoKey,
+                "epg": self.infoKey,
+            }
+        )
+        self["Redkey"] = StaticText(_("Close"))
+        self["Greenkey"] = StaticText(_("View"))
+        self["Yellowkey"] = StaticText(_("Remove"))
+        self["Bluekey"] = StaticText(_("Remove All"))
+        self.list = []
+        self["menu"] = List(self.list)
+        self.CfgMenu()
 
-	def __init__(self, session):
-		self.session = session
-		Screen.__init__(self, session)
-		self["shortcuts"] = ActionMap(
-			["ShortcutActions", "WizardActions", "EPGSelectActions"],
-			{
-				"ok": self.Ok,
-				"cancel": self.exit,
-				"back": self.exit,
-				"red": self.exit,
-				"green": self.Ok,
-				"yellow": self.YellowKey,
-				"blue": self.BlueKey,
-				"info": self.infoKey,
-				"epg": self.infoKey,
-			}
-		)
-		self["Redkey"] = StaticText(_("Close"))
-		self["Greenkey"] = StaticText(_("View"))
-		self["Yellowkey"] = StaticText(_("Remove"))
-		self["Bluekey"] = StaticText(_("Remove All"))
-		self.list = []
-		self["menu"] = List(self.list)
-		self.CfgMenu()
+    def CfgMenu(self):
+        self.list = []
+        log_files = find_log_files()
+        if not log_files:
+            self["menu"].setList([])
+            return
 
-	def CfgMenu(self):
-		self.list = []
-		path_folder_log = "/tmp/"
-		log_files = find_log_files()
-		if log_files:
-			paths_to_search = " ".join(log_files)
-		else:
-			paths_to_search = (
-				"%s*crash*.log "
-				"%slogs/*crash*.log "
-				"/home/root/*crash*.log "
-				"/home/root/logs/*debug*.log "
-				"/home/root/logs/*crash*.log "
-				"/home/root/logs/*network*.log "
-				"%stwisted.log "
-				"/media/usb/logs/*crash*.log "
-				"/media/usb/*crash*.log "
-				"/media/hdd/logs/*crash*.log "
-				"/media/mmc/*crash*.log "
-				"/media/hdd/*crash*.log "
-				"/ba/*crash*.log "
-				"/ba/logs/*crash*.log"
-			) % (path_folder_log, path_folder_log, path_folder_log)
+        sz_w = getDesktop(0).size().width()
+        if sz_w == 2560:
+            minipng = LoadPixmap(cached=True, path=resolveFilename(SCOPE_PLUGINS, "Extensions/CrashlogViewer/images/crashminiwq.png"))
+        elif sz_w == 1920:
+            minipng = LoadPixmap(cached=True, path=resolveFilename(SCOPE_PLUGINS, "Extensions/CrashlogViewer/images/crashmini.png"))
+        else:
+            minipng = LoadPixmap(cached=True, path=resolveFilename(SCOPE_PLUGINS, "Extensions/CrashlogViewer/images/crashmini1.png"))
 
-		crashfiles = popen("ls -lh " + paths_to_search).read()
-		crashfiles = popen("ls -lh " + paths_to_search).read()
-		sz_w = getDesktop(0).size().width()
-		if sz_w == 2560:
-			minipng = LoadPixmap(cached=True, path=resolveFilename(SCOPE_PLUGINS, "Extensions/CrashlogViewer/images/crashminiwq.png"))
-		elif sz_w == 1920:
-			minipng = LoadPixmap(cached=True, path=resolveFilename(SCOPE_PLUGINS, "Extensions/CrashlogViewer/images/crashmini.png"))
-		else:
-			minipng = LoadPixmap(cached=True, path=resolveFilename(SCOPE_PLUGINS, "Extensions/CrashlogViewer/images/crashmini1.png"))
-		for line in crashfiles.splitlines():
-			item = line.split()
-			if len(item) >= 9:
-				file_size = item[4]
-				file_date = " ".join(item[5:8])
-				file_name = item[8]
-				display_name = (file_name.split("/")[-1],
-								"Dimensione: %s - Data: %s" % (file_size, file_date),
-								minipng,
-								file_name)
-				if display_name not in self.list:
-					self.list.append(display_name)
-		self["menu"].setList(self.list)
-		self["actions"] = ActionMap(["OkCancelActions"], {"cancel": self.close}, -1)
+        for file_path in log_files:
+            try:
+                file_stat = os.stat(file_path)
+                file_size = file_stat.st_size
+                file_date = time.strftime("%Y-%m-%d %H:%M", time.localtime(file_stat.st_mtime))
+                display_name = (
+                    os.path.basename(file_path),
+                    "Dimensione: %s - Data: %s" % (file_size, file_date),
+                    minipng,
+                    file_path
+                )
+                self.list.append(display_name)
+            except Exception as e:
+                print("Error accessing file %s: %s" % (file_path, e))
 
-	def Ok(self):
-		item = self["menu"].getCurrent()
-		# global Crashfile
-		try:
-			base_dir = item[3]
-			# filename = item[0]
-			crashfile = str(base_dir)
-			self.session.openWithCallback(self.CfgMenu, LogScreen, crashfile)
-		except (IndexError, TypeError, KeyError) as e:
-			print('CrashLogScreen error to select: %s' % e)
-			crashfile = " "
+        self["menu"].setList(self.list)
+        self["actions"] = ActionMap(["OkCancelActions"], {"cancel": self.close}, -1)
 
-	def YellowKey(self):
-		item = self["menu"].getCurrent()
-		try:
-			base_dir = item[3]
-			file_path = str(base_dir)
-			remove(file_path)
-			self.mbox = self.session.open(MessageBox, (_("Removed %s") % (file_path)), MessageBox.TYPE_INFO, timeout=4)
-		except (IndexError, TypeError, KeyError) as e:
-			self.mbox = self.session.open(MessageBox, (_("Failed to remove file due to an error: %s") % str(e)), MessageBox.TYPE_INFO, timeout=4)
-		except OSError as e:
-			self.mbox = self.session.open(MessageBox, (_("Failed to remove file: %s") % str(e)), MessageBox.TYPE_INFO, timeout=4)
-		except Exception as e:
-			self.mbox = self.session.open(MessageBox, (_("An unexpected error occurred: %s") % str(e)), MessageBox.TYPE_INFO, timeout=4)
-		self.CfgMenu()
+    def Ok(self):
+        item = self["menu"].getCurrent()
+        try:
+            crashfile = str(item[3])
+            self.session.openWithCallback(self.CfgMenu, LogScreen, crashfile)
+        except Exception as e:
+            print("CrashLogScreen error to select: %s" % e)
 
-	def BlueKey(self):
-		try:
-			log_files = find_log_files()
-			if log_files:
-				paths_to_search = ' '.join(log_files)
-			else:
-				paths_to_search = "%s*crash*.log %s*debug*.log %slogs/*crash*.log %slogs/*debug*.log /home/root/*crash*.log /home/root/*debug*.log /home/root/logs/*crash*.log /home/root/logs/*debug*.log %stwisted.log /media/usb/logs/*crash*.log /media/usb/logs/*debug*.log /media/usb/*crash*.log /media/usb/*debug*.log" % (path_folder_log, path_folder_log, path_folder_log, path_folder_log, path_folder_log)
-			crashfiles = popen("ls -lh " + paths_to_search).read()
-			for line in crashfiles.splitlines():  # Dividi l'output in linee
-				item = line.split()
-				if len(item) >= 9:
-					file_name = item[8]
-					remove(file_name)
-			self.mbox = self.session.open(MessageBox, (_("Removed All Crashlog Files")), MessageBox.TYPE_INFO, timeout=4)
-		except (OSError, IOError) as e:
-			self.mbox = self.session.open(MessageBox, (_("Failed to remove some files: %s") % str(e)), MessageBox.TYPE_INFO, timeout=4)
-		except Exception as e:
-			self.mbox = self.session.open(MessageBox, (_("An unexpected error occurred: %s") % str(e)), MessageBox.TYPE_INFO, timeout=4)
-		self.CfgMenu()
+    def YellowKey(self):
+        item = self["menu"].getCurrent()
+        try:
+            file_path = str(item[3])
+            os.remove(file_path)
+            self.mbox = self.session.open(MessageBox, (_("Removed %s") % file_path), MessageBox.TYPE_INFO, timeout=4)
+        except Exception as e:
+            self.mbox = self.session.open(MessageBox, (_("Failed to remove file: %s") % e), MessageBox.TYPE_INFO, timeout=4)
+        self.CfgMenu()
 
-	def infoKey(self):
-		self.session.open(MessageBox, _("Crashlog Viewer  ver. %s\n\nDeveloper: 2boom\n\nModifier: Evg77734\n\nUpdate from Lululla\nHomepage: gisclub.tv") % get_local_version(), MessageBox.TYPE_INFO)
+    def BlueKey(self):
+        """
+        Entfernt alle Crash-, Debug- und Network-Logs.
+        """
+        log_files = find_log_files()
+        deleted_files = 0
+        failed_files = []
 
-	def exit(self):
-		self.close()
+        for file_path in log_files:
+            if not isMountReadonly(os.path.dirname(file_path)):
+                try:
+                    os.remove(file_path)
+                    deleted_files += 1
+                except OSError as e:
+                    failed_files.append(f"{file_path} ({e})")
+
+        if deleted_files > 0:
+            msg = _("Removed %d log files") % deleted_files
+        else:
+            msg = _("No log files found to remove")
+
+        if failed_files:
+            msg += "\n\n" + _("Failed to remove some files:\n") + "\n".join(failed_files)
+
+        self.mbox = self.session.open(MessageBox, msg, MessageBox.TYPE_INFO, timeout=6)
+        self.CfgMenu()
+
+    def infoKey(self):
+        self.session.open(MessageBox, _("Crashlog Viewer  ver. %s\n\nDeveloper: 2boom\n\nModifier: Evg77734\n\nUpdate from Lululla\nHomepage: gisclub.tv") % get_local_version(), MessageBox.TYPE_INFO)
+
+    def exit(self):
+        self.close()
+
+
+
+
 
 
 class LogScreen(Screen):
