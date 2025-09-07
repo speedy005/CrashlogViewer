@@ -57,7 +57,6 @@ except Exception:
     import urllib.request as urllib_request
 
 # --- Plugin Version & Pfade ---
-version = '1.8'
 VERSION_FILE = os.path.join(PLUGIN_PATH, "version.txt")
 LAST_UPDATE_FILE = os.path.join(PLUGIN_PATH, "last_update_version.txt")
 GITHUB_VERSION_URL = "https://raw.githubusercontent.com/speedy005/CrashlogViewer/main/version.txt"
@@ -80,6 +79,16 @@ def log(msg):
         print(msg)
     except Exception:
         pass
+
+def get_local_version():
+    try:
+        with open(VERSION_FILE, 'r') as f:
+            return f.read().strip()
+    except Exception:
+        return "0.0"
+
+version = get_local_version()
+
 
 # --- Update Funktionen ---
 def get_current_version():
@@ -128,24 +137,37 @@ def download_and_install_update(session):
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
             zip_ref.extractall(tmp_dir)
 
-        # Alten Plugin-Ordner löschen
-        if os.path.exists(PLUGIN_PATH):
-            shutil.rmtree(PLUGIN_PATH, ignore_errors=True)
-            log("Old plugin folder deleted.")
-
-        # Den extrahierten CrashlogViewer-Ordner finden
-        new_plugin_folder = None
+        # GitHub ZIP enthält oft "CrashlogViewer-main/usr/lib/enigma2/python/Plugins/Extensions/CrashlogViewer"
+        extracted_folder = None
         for root, dirs, files in os.walk(tmp_dir):
-            if "CrashlogViewer" in dirs:
-                new_plugin_folder = os.path.join(root, "CrashlogViewer")
+            if "CrashlogViewer" in dirs and "Extensions" in root:
+                extracted_folder = os.path.join(root, "CrashlogViewer")
                 break
 
-        if not new_plugin_folder:
-            raise Exception("CrashlogViewer-Ordner im ZIP nicht gefunden!")
+        if not extracted_folder:
+            # Alternative direkt aus der bekannten Struktur
+            extracted_folder = os.path.join(tmp_dir, "CrashlogViewer-main", "usr", "lib", "enigma2", "python", "Plugins", "Extensions", "CrashlogViewer")
+            if not os.path.exists(extracted_folder):
+                raise Exception("CrashlogViewer folder not found in extracted ZIP!")
 
-        # Den neuen Ordner kopieren
-        shutil.copytree(new_plugin_folder, PLUGIN_PATH)
-        log("New plugin folder copied to %s" % PLUGIN_PATH)
+        log("Found new plugin folder: %s" % extracted_folder)
+
+        # Alten Plugin-Ordner löschen
+        if os.path.exists(PLUGIN_PATH):
+            try:
+                shutil.rmtree(PLUGIN_PATH)
+                log("Old plugin folder deleted.")
+            except Exception as e:
+                log("Failed to delete old plugin folder: %s" % e)
+                raise
+
+        # Neuen Plugin-Ordner kopieren
+        try:
+            shutil.copytree(extracted_folder, PLUGIN_PATH)
+            log("New plugin folder copied to %s" % PLUGIN_PATH)
+        except Exception as e:
+            log("Failed to copy new plugin folder: %s" % e)
+            raise
 
         # Remote Version speichern
         remote_version = get_remote_version()
@@ -184,6 +206,7 @@ def download_and_install_update(session):
                 shutil.rmtree(tmp_dir, ignore_errors=True)
             except Exception:
                 pass
+
 
 def check_for_update(session, callback=None):
     current_version = get_current_version()
@@ -463,7 +486,7 @@ class CrashLogScreen(Screen):
 		self.CfgMenu()
 
 	def infoKey(self):
-		self.session.open(MessageBox, _("Crashlog Viewer  ver. %s\n\nDeveloper: 2boom\n\nModifier: Evg77734\n\nUpdate from Lululla\nHomepage: gisclub.tv") % version, MessageBox.TYPE_INFO)
+		self.session.open(MessageBox, _("Crashlog Viewer  ver. %s\n\nDeveloper: 2boom\n\nModifier: Evg77734\n\nUpdate from Lululla\nHomepage: gisclub.tv") % get_local_version(), MessageBox.TYPE_INFO)
 
 	def exit(self):
 		self.close()
@@ -562,7 +585,7 @@ class LogScreen(Screen):
 # --- Menüeinträge & Main ---
 def menu(menuid, **kwargs):
     if menuid == "mainmenu":
-        plugin_name = _("Crashlog Viewer") + " ver. " + version
+        plugin_name = _("Crashlog Viewer") + " ver. " + get_local_version()
         return [(plugin_name, main, "CrashlogViewer_mainmenu", 50)]
     return []
 
@@ -572,7 +595,7 @@ def main(session, **kwargs):
 def Plugins(**kwargs):
     return [
         PluginDescriptor(
-            name=(_("Crashlog Viewer") + " ver. " + version),
+            name=_("Crashlog Viewer") + " ver. " + get_local_version(),
             description=_("View and remove crashlog files"),
             where=[PluginDescriptor.WHERE_PLUGINMENU, PluginDescriptor.WHERE_EXTENSIONSMENU],
             icon="crash.png",
