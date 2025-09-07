@@ -241,9 +241,9 @@ class CrashLogScreen(Screen):
   <eLabel name="button info" font="Regular; 30" position="1068,930" size="103,48" cornerRadius="4" halign="center" valign="center" text="INFO" backgroundColor="black" zPosition="3" foregroundColor="red" />
   <eLabel name="button ext" font="Regular; 30" position="1121,874" size="103,48" cornerRadius="4" halign="center" valign="center" text="EXIT" backgroundColor="black" zPosition="3" foregroundColor="red" />
   <eLabel backgroundColor="listRecording" position="25,976" size="250,6" zPosition="12" />
-  <eLabel backgroundColor="unff00" position="285,974" size="250,6" zPosition="12" />
+  <eLabel backgroundColor="green" position="285,974" size="250,6" zPosition="12" foregroundColor="green" />
   <eLabel backgroundColor="yellow" position="547,974" size="250,6" zPosition="12" />
-  <eLabel backgroundColor="unff" position="807,974" size="250,8" zPosition="12" />
+  <eLabel backgroundColor="blue" position="807,974" size="250,8" zPosition="12" foregroundColor="blue" />
   <widget source="Redkey" render="Label" position="25,928" size="250,45" font="Regular;30" />
   <widget source="Greenkey" render="Label" position="283,928" size="250,45" font="Regular;30" foregroundColor="green" />
   <widget source="Yellowkey" render="Label" position="544,928" size="250,45" font="Regular;30" foregroundColor="yellow" />
@@ -434,7 +434,7 @@ class LogScreen(Screen):
         <eLabel position="10,1110" size="2560,4" backgroundColor="#555555" zPosition="1" />
         </screen>""" % _("View Crashlog file")
     elif sz_w == 1920:
-        skin = """<screen name="crashlogview" position="center,center" size="1880,980" title="%s">
+        skin = """<screen name="crashlogview" position="17,73" size="1880,980" title="%s">
         <widget source="Redkey" render="Label" position="30,915" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" />
         <widget source="Greenkey" render="Label" position="282,915" size="250,45" zPosition="11" font="Regular; 26" valign="center" halign="center" backgroundColor="#050c101b" transparent="1" foregroundColor="green" />
         <eLabel backgroundColor="#00ff0000" position="32,962" size="250,6" zPosition="12" />
