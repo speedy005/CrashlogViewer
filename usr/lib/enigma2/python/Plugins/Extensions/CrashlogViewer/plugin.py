@@ -241,9 +241,9 @@ class CrashLogScreen(Screen):
   <eLabel name="button ext" font="Regular; 30" position="773,761" size="103,48" cornerRadius="4" halign="center" valign="center" text="EXIT" backgroundColor="black" zPosition="3" foregroundColor="red" />
   <eLabel name="button ok" font="Regular; 30" position="663,761" size="103,48" cornerRadius="4" halign="center" valign="center" text="OK" backgroundColor="black" zPosition="3" foregroundColor="red" />
   <eLabel backgroundColor="listRecording" position="0,858" size="250,6" zPosition="12" />
-  <eLabel backgroundColor="unff00" position="250,858" size="250,6" zPosition="12" />
+  <eLabel backgroundColor="green" position="250,858" size="250,6" zPosition="12" />
   <eLabel backgroundColor="yellow" position="500,858" size="250,6" zPosition="12" />
-  <eLabel backgroundColor="unff" position="750,858" size="250,6" zPosition="12" />
+  <eLabel backgroundColor="blue" position="750,858" size="250,6" zPosition="12" />
   <widget source="Redkey" render="Label" position="0,814" size="250,45" font="Regular;26" />
   <widget source="Greenkey" render="Label" position="252,813" size="250,45" font="Regular;26" foregroundColor="green" />
   <widget source="Yellowkey" render="Label" position="499,814" size="250,45" font="Regular;26" foregroundColor="yellow" />
@@ -262,15 +262,14 @@ class CrashLogScreen(Screen):
 """ % _("View or Remove Crashlog files")
 
     elif sz_w == 1920:
-        skin = """
-<screen name="crashlogscreen" position="center,center" size="1000,880" title="%s">
+        skin = """<screen name="crashlogscreen" position="center,center" size="1000,880" title="%s">
   <eLabel name="button info" font="Regular; 30" position="881,761" size="103,48" cornerRadius="4" halign="center" valign="center" text="INFO" backgroundColor="black" zPosition="3" foregroundColor="red" />
   <eLabel name="button ext" font="Regular; 30" position="773,761" size="103,48" cornerRadius="4" halign="center" valign="center" text="EXIT" backgroundColor="black" zPosition="3" foregroundColor="red" />
   <eLabel name="button ok" font="Regular; 30" position="663,761" size="103,48" cornerRadius="4" halign="center" valign="center" text="OK" backgroundColor="black" zPosition="3" foregroundColor="red" />
   <eLabel backgroundColor="listRecording" position="0,858" size="250,6" zPosition="12" />
-  <eLabel backgroundColor="unff00" position="250,858" size="250,6" zPosition="12" />
+  <eLabel backgroundColor="green" position="250,858" size="250,6" zPosition="12" />
   <eLabel backgroundColor="yellow" position="500,858" size="250,6" zPosition="12" />
-  <eLabel backgroundColor="unff" position="750,858" size="250,6" zPosition="12" />
+  <eLabel backgroundColor="blue" position="750,858" size="250,6" zPosition="12" />
   <widget source="Redkey" render="Label" position="0,814" size="250,45" font="Regular;26" />
   <widget source="Greenkey" render="Label" position="252,813" size="250,45" font="Regular;26" foregroundColor="green" />
   <widget source="Yellowkey" render="Label" position="499,814" size="250,45" font="Regular;26" foregroundColor="yellow" />
@@ -278,8 +277,8 @@ class CrashLogScreen(Screen):
   <widget source="menu" render="Listbox" position="20,10" size="961,740" scrollbarMode="showOnDemand">
     <convert type="TemplatedMultiContent">
         {"template":[
-            MultiContentEntryText(pos=(70,2),size=(880,70),font=0,flags=RT_HALIGN_LEFT,text=0),
-            MultiContentEntryText(pos=(80,35),size=(880,70),font=1,flags=RT_HALIGN_LEFT,text=1),
+            MultiContentEntryText(pos=(70,2),size=(880,50),font=0,flags=RT_HALIGN_LEFT,text=0),
+            MultiContentEntryText(pos=(80,29),size=(880,50),font=1,flags=RT_HALIGN_LEFT,text=1),
             MultiContentEntryPixmapAlphaTest(pos=(5,20),size=(45,32),png=2)],
         "fonts":[gFont("Regular",35),gFont("Regular",35)],
         "itemHeight":90}
@@ -295,9 +294,9 @@ class CrashLogScreen(Screen):
   <eLabel name="button ext" font="Regular; 30" position="773,761" size="103,48" cornerRadius="4" halign="center" valign="center" text="EXIT" backgroundColor="black" zPosition="3" foregroundColor="red" />
   <eLabel name="button ok" font="Regular; 30" position="663,761" size="103,48" cornerRadius="4" halign="center" valign="center" text="OK" backgroundColor="black" zPosition="3" foregroundColor="red" />
   <eLabel backgroundColor="listRecording" position="0,858" size="250,6" zPosition="12" />
-  <eLabel backgroundColor="unff00" position="250,858" size="250,6" zPosition="12" />
+  <eLabel backgroundColor="green" position="250,858" size="250,6" zPosition="12" />
   <eLabel backgroundColor="yellow" position="500,858" size="250,6" zPosition="12" />
-  <eLabel backgroundColor="unff" position="750,858" size="250,6" zPosition="12" />
+  <eLabel backgroundColor="blue" position="750,858" size="250,6" zPosition="12" />
   <widget source="Redkey" render="Label" position="0,814" size="250,45" font="Regular;26" />
   <widget source="Greenkey" render="Label" position="252,813" size="250,45" font="Regular;26" foregroundColor="green" />
   <widget source="Yellowkey" render="Label" position="499,814" size="250,45" font="Regular;26" foregroundColor="yellow" />

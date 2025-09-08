@@ -1,10 +1,10 @@
 # Arabic translations for CrashlogViewer
 # Copyright (C) 2024 Lululla, speedy005, Evg77734
 # This file is distributed under the same license as the CrashlogViewer package.
-# Translators: <بياناتك هنا>
+# Translators: <اسمك هنا>
 msgid ""
 msgstr ""
-"Project-Id-Version: CrashlogViewer 1.8\n"
+"Project-Id-Version: CrashlogViewer 2.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-09-07 12:00+0000\n"
 "PO-Revision-Date: 2025-09-07 12:00+0000\n"
@@ -15,82 +15,94 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: CrashlogViewer.py
+#: plugin.py:176
 msgid "Update installed successfully!\nDo you want to restart the GUI now?"
-msgstr "تم تثبيت التحديث بنجاح!\nهل ترغب في إعادة تشغيل واجهة المستخدم الآن؟"
+msgstr "تم تثبيت التحديث بنجاح!\nهل تريد إعادة تشغيل الواجهة الآن؟"
 
-#: CrashlogViewer.py
+#: plugin.py:192
 msgid "A new version %s is available.\nDo you want to install the update?"
-msgstr "هناك إصدار جديد %s متاح.\nهل تريد تثبيت التحديث؟"
+msgstr "يتوفر إصدار جديد %s.\nهل تريد تثبيت التحديث؟"
 
-#: CrashlogViewer.py
+#: plugin.py:196
 msgid "Kein Update verfügbar"
 msgstr "لا يوجد تحديث متاح"
 
-#: CrashlogViewer.py
+#: plugin.py:218
 msgid "Error during update:\n%s"
 msgstr "حدث خطأ أثناء التحديث:\n%s"
 
-#: CrashlogViewer.py
-msgid "Close"
-msgstr "إغلاق"
+#: plugin.py:297
+msgid "No log file selected!"
+msgstr "لم يتم اختيار أي ملف سجل!"
 
-#: CrashlogViewer.py
-msgid "View"
-msgstr "عرض"
-
-#: CrashlogViewer.py
-msgid "Remove"
-msgstr "حذف"
-
-#: CrashlogViewer.py
-msgid "Remove All"
-msgstr "حذف الكل"
-
-#: CrashlogViewer.py
+#: plugin.py:325
 msgid "Removed %s"
 msgstr "تم حذف %s"
 
-#: CrashlogViewer.py
-msgid "Removed All Crashlog Files"
-msgstr "تم حذف جميع ملفات الكراش"
+#: plugin.py:329
+msgid "Failed to remove file:\n%s"
+msgstr "فشل في حذف الملف:\n%s"
 
-#: CrashlogViewer.py
-msgid "Failed to remove file due to an error: %s"
-msgstr "فشل في حذف الملف بسبب خطأ: %s"
+#: plugin.py:349
+msgid "Removed %d log files"
+msgstr "تم حذف %d من ملفات السجل"
 
-#: CrashlogViewer.py
-msgid "Failed to remove file: %s"
-msgstr "فشل في حذف الملف: %s"
+#: plugin.py:351
+msgid "No log files found to remove"
+msgstr "لم يتم العثور على ملفات سجل للحذف"
 
-#: CrashlogViewer.py
-msgid "An unexpected error occurred: %s"
-msgstr "حدث خطأ غير متوقع: %s"
+#: plugin.py:353
+msgid "Failed to remove some files:\n"
+msgstr "فشل في حذف بعض الملفات:\n"
 
-#: CrashlogViewer.py
-msgid "Failed to remove some files: %s"
-msgstr "فشل في حذف بعض الملفات: %s"
-
-#: CrashlogViewer.py
+#: plugin.py:362
 msgid "Crashlog Viewer  ver. %s\n\nDeveloper: 2boom\n\nModifier: Evg77734\n\nUpdate from Lululla\nHomepage: gisclub.tv"
-msgstr "عارض الكراش ver. %s\n\nالمطور: 2boom\n\nالمعدل: Evg77734\n\nتحديث من Lululla\nالموقع: gisclub.tv"
+msgstr "عارض ملفات الأعطال ver. %s\n\nالمطور: 2boom\n\nالتعديل: Evg77734\n\nتحديث من: Lululla\nالموقع: gisclub.tv"
 
-#: CrashlogViewer.py
-msgid "View or Remove Crashlog files"
-msgstr "عرض أو حذف ملفات الكراش"
+#: plugin.py:404
+msgid "File not found: %s"
+msgstr "الملف غير موجود: %s"
 
-#: CrashlogViewer.py
-msgid "View Crashlog file"
-msgstr "عرض ملف الكراش"
+#: plugin.py:409
+msgid "Error opening file:\n%s"
+msgstr "خطأ في فتح الملف:\n%s"
 
-#: CrashlogViewer.py
+#: plugin.py:504
+msgid "Close"
+msgstr "إغلاق"
+
+#: plugin.py:505
 msgid "Restart GUI"
-msgstr "إعادة تشغيل واجهة المستخدم"
+msgstr "إعادة تشغيل الواجهة"
 
-#: CrashlogViewer.py
+#: plugin.py:506
+msgid "View"
+msgstr "عرض"
+
+#: plugin.py:507
+msgid "Remove"
+msgstr "حذف"
+
+#: plugin.py:508
+msgid "Remove All"
+msgstr "حذف الكل"
+
+#: plugin.py:535
+msgid "View Crashlog file"
+msgstr "عرض ملف الأعطال"
+
+#: plugin.py:262
+msgid "View or Remove Crashlog files"
+msgstr "عرض أو حذف ملفات الأعطال"
+
+#: plugin.py:635
 msgid "Crashlog Viewer"
-msgstr "عارض الكراش"
+msgstr "عارض ملفات الأعطال"
 
-#: CrashlogViewer.py
+#: plugin.py
 msgid "View and remove crashlog files"
-msgstr "عرض وحذف ملفات الكراش"
+msgstr "عرض وحذف ملفات الأعطال"
+
+#: locale.py:46
+msgid "fallback to default translation for %s"
+msgstr "الرجوع إلى الترجمة الافتراضية لـ %s"

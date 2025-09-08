@@ -1,96 +1,145 @@
 # Greek translations for CrashlogViewer
 # Copyright (C) 2024 Lululla, speedy005, Evg77734
 # This file is distributed under the same license as the CrashlogViewer package.
-# Translators: <τα στοιχεία σας εδώ>
+# Translators: <το όνομά σας εδώ>
 msgid ""
 msgstr ""
-"Project-Id-Version: CrashlogViewer 1.8\n"
+"Project-Id-Version: CrashlogViewer 2.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-09-07 12:00+0000\n"
-"PO-Revision-Date: 2025-09-07 12:00+0000\n"
+"PO-Revision-Date: 2025-09-08 15:50+0200\n"
 "Last-Translator: \n"
 "Language-Team: Greek\n"
 "Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.7\n"
 
-#: CrashlogViewer.py
-msgid "Update installed successfully!\nDo you want to restart the GUI now?"
-msgstr "Η ενημέρωση εγκαταστάθηκε με επιτυχία!\nΘέλετε να επανεκκινήσετε το GUI τώρα;"
+#: plugin.py:176
+msgid ""
+"Update installed successfully!\n"
+"Do you want to restart the GUI now?"
+msgstr ""
+"Η ενημέρωση εγκαταστάθηκε με επιτυχία!\n"
+"Θέλετε να επανεκκινήσετε το GUI τώρα;"
 
-#: CrashlogViewer.py
-msgid "A new version %s is available.\nDo you want to install the update?"
-msgstr "Μια νέα έκδοση %s είναι διαθέσιμη.\nΘέλετε να εγκαταστήσετε την ενημέρωση;"
+#: plugin.py:192
+msgid ""
+"A new version %s is available.\n"
+"Do you want to install the update?"
+msgstr ""
+"Μια νέα έκδοση %s είναι διαθέσιμη.\n"
+"Θέλετε να εγκαταστήσετε την ενημέρωση;"
 
-#: CrashlogViewer.py
+#: plugin.py:196
 msgid "Kein Update verfügbar"
-msgstr "Δεν υπάρχουν διαθέσιμες ενημερώσεις"
+msgstr "Καμία διαθέσιμη ενημέρωση"
 
-#: CrashlogViewer.py
-msgid "Error during update:\n%s"
-msgstr "Σφάλμα κατά την ενημέρωση:\n%s"
+#: plugin.py:218
+msgid ""
+"Error during update:\n"
+"%s"
+msgstr ""
+"Σφάλμα κατά την ενημέρωση:\n"
+"%s"
 
-#: CrashlogViewer.py
+#: plugin.py:297
+msgid "No log file selected!"
+msgstr "Δεν επιλέχθηκε αρχείο καταγραφής!"
+
+#: plugin.py:325
+msgid "Removed %s"
+msgstr "Διαγράφηκε: %s"
+
+#: plugin.py:329
+msgid ""
+"Failed to remove file:\n"
+"%s"
+msgstr ""
+"Αποτυχία διαγραφής αρχείου:\n"
+"%s"
+
+#: plugin.py:349
+msgid "Removed %d log files"
+msgstr "Διαγράφηκαν %d αρχεία καταγραφής"
+
+#: plugin.py:351
+msgid "No log files found to remove"
+msgstr "Δεν βρέθηκαν αρχεία καταγραφής για διαγραφή"
+
+#: plugin.py:353
+msgid "Failed to remove some files:\n"
+msgstr "Αποτυχία διαγραφής ορισμένων αρχείων:\n"
+
+#: plugin.py:362
+msgid ""
+"Crashlog Viewer  ver. %s\n"
+"\n"
+"Developer: 2boom\n"
+"\n"
+"Modifier: Evg77734\n"
+"\n"
+"Update from Lululla\n"
+"Homepage: gisclub.tv"
+msgstr ""
+"Εφαρμογή προβολής Crashlog ver. %s\n"
+"\n"
+"Προγραμματιστής: 2boom\n"
+"\n"
+"Τροποποιητής: Evg77734\n"
+"\n"
+"Ενημέρωση από: Lululla\n"
+"Ιστοσελίδα: gisclub.tv"
+
+#: plugin.py:404
+msgid "File not found: %s"
+msgstr "Το αρχείο δεν βρέθηκε: %s"
+
+#: plugin.py:409
+msgid ""
+"Error opening file:\n"
+"%s"
+msgstr ""
+"Σφάλμα κατά το άνοιγμα του αρχείου:\n"
+"%s"
+
+#: plugin.py:504
 msgid "Close"
 msgstr "Κλείσιμο"
 
-#: CrashlogViewer.py
-msgid "View"
-msgstr "Προβολή"
-
-#: CrashlogViewer.py
-msgid "Remove"
-msgstr "Αφαίρεση"
-
-#: CrashlogViewer.py
-msgid "Remove All"
-msgstr "Αφαίρεση όλων"
-
-#: CrashlogViewer.py
-msgid "Removed %s"
-msgstr "Το %s αφαιρέθηκε"
-
-#: CrashlogViewer.py
-msgid "Removed All Crashlog Files"
-msgstr "Όλα τα αρχεία crashlog αφαιρέθηκαν"
-
-#: CrashlogViewer.py
-msgid "Failed to remove file due to an error: %s"
-msgstr "Αποτυχία αφαίρεσης του αρχείου λόγω σφάλματος: %s"
-
-#: CrashlogViewer.py
-msgid "Failed to remove file: %s"
-msgstr "Αποτυχία αφαίρεσης αρχείου: %s"
-
-#: CrashlogViewer.py
-msgid "An unexpected error occurred: %s"
-msgstr "Παρουσιάστηκε ένα απρόβλεπτο σφάλμα: %s"
-
-#: CrashlogViewer.py
-msgid "Failed to remove some files: %s"
-msgstr "Αποτυχία αφαίρεσης ορισμένων αρχείων: %s"
-
-#: CrashlogViewer.py
-msgid "Crashlog Viewer  ver. %s\n\nDeveloper: 2boom\n\nModifier: Evg77734\n\nUpdate from Lululla\nHomepage: gisclub.tv"
-msgstr "Crashlog Viewer έκδ. %s\n\nΠρογραμματιστής: 2boom\n\nΤροποποιητής: Evg77734\n\nΕνημέρωση από Lululla\nΙστοσελίδα: gisclub.tv"
-
-#: CrashlogViewer.py
-msgid "View or Remove Crashlog files"
-msgstr "Προβολή ή αφαίρεση αρχείων crashlog"
-
-#: CrashlogViewer.py
-msgid "View Crashlog file"
-msgstr "Προβολή αρχείου crashlog"
-
-#: CrashlogViewer.py
+#: plugin.py:505
 msgid "Restart GUI"
 msgstr "Επανεκκίνηση GUI"
 
-#: CrashlogViewer.py
-msgid "Crashlog Viewer"
-msgstr "Crashlog Viewer"
+#: plugin.py:506
+msgid "View"
+msgstr "Προβολή"
 
-#: CrashlogViewer.py
+#: plugin.py:507
+msgid "Remove"
+msgstr "Διαγραφή"
+
+#: plugin.py:508
+msgid "Remove All"
+msgstr "Διαγραφή όλων"
+
+#: plugin.py:535
+msgid "View Crashlog file"
+msgstr "Προβολή αρχείου crashlog"
+
+#: plugin.py:262
+msgid "View or Remove Crashlog files"
+msgstr "Προβολή ή διαγραφή αρχείων crashlog"
+
+#: plugin.py:635
+msgid "Crashlog Viewer"
+msgstr "Προβολέας Crashlog"
+
+#: plugin.py
 msgid "View and remove crashlog files"
-msgstr "Προβολή και αφαίρεση αρχείων crashlog"
+msgstr "Προβολή και διαγραφή αρχείων crashlog"
+
+#: locale.py:46
+msgid "fallback to default translation for %s"
+msgstr "eπιστροφή στην προεπιλεγμένη μετάφραση για %s"

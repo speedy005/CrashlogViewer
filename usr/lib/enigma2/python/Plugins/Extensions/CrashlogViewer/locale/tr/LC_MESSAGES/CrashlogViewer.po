@@ -1,10 +1,10 @@
 # Turkish translations for CrashlogViewer
 # Copyright (C) 2024 Lululla, speedy005, Evg77734
 # This file is distributed under the same license as the CrashlogViewer package.
-# Translators: <veri giriniz>
+# Translators: <adınız buraya>
 msgid ""
 msgstr ""
-"Project-Id-Version: CrashlogViewer 1.8\n"
+"Project-Id-Version: CrashlogViewer 2.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-09-07 12:00+0000\n"
 "PO-Revision-Date: 2025-09-07 12:00+0000\n"
@@ -15,82 +15,94 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: CrashlogViewer.py
+#: plugin.py:176
 msgid "Update installed successfully!\nDo you want to restart the GUI now?"
 msgstr "Güncelleme başarıyla yüklendi!\nGUI'yi şimdi yeniden başlatmak ister misiniz?"
 
-#: CrashlogViewer.py
+#: plugin.py:192
 msgid "A new version %s is available.\nDo you want to install the update?"
-msgstr "Yeni bir %s sürümü mevcut.\nGüncellemeyi yüklemek ister misiniz?"
+msgstr "Yeni bir sürüm %s mevcut.\nGüncellemeyi yüklemek ister misiniz?"
 
-#: CrashlogViewer.py
+#: plugin.py:196
 msgid "Kein Update verfügbar"
-msgstr "Güncelleme yok"
+msgstr "Güncelleme mevcut değil"
 
-#: CrashlogViewer.py
+#: plugin.py:218
 msgid "Error during update:\n%s"
-msgstr "Güncelleme sırasında hata oluştu:\n%s"
+msgstr "Güncelleme sırasında hata:\n%s"
 
-#: CrashlogViewer.py
+#: plugin.py:297
+msgid "No log file selected!"
+msgstr "Hiçbir günlük dosyası seçilmedi!"
+
+#: plugin.py:325
+msgid "Removed %s"
+msgstr "%s kaldırıldı"
+
+#: plugin.py:329
+msgid "Failed to remove file:\n%s"
+msgstr "Dosya kaldırılamadı:\n%s"
+
+#: plugin.py:349
+msgid "Removed %d log files"
+msgstr "%d günlük dosyası kaldırıldı"
+
+#: plugin.py:351
+msgid "No log files found to remove"
+msgstr "Kaldırılacak günlük dosyası bulunamadı"
+
+#: plugin.py:353
+msgid "Failed to remove some files:\n"
+msgstr "Bazı dosyalar kaldırılamadı:\n"
+
+#: plugin.py:362
+msgid "Crashlog Viewer  ver. %s\n\nDeveloper: 2boom\n\nModifier: Evg77734\n\nUpdate from Lululla\nHomepage: gisclub.tv"
+msgstr "Crashlog Viewer sür. %s\n\nGeliştirici: 2boom\n\nDüzenleyen: Evg77734\n\nGüncelleme: Lululla\nAna sayfa: gisclub.tv"
+
+#: plugin.py:404
+msgid "File not found: %s"
+msgstr "Dosya bulunamadı: %s"
+
+#: plugin.py:409
+msgid "Error opening file:\n%s"
+msgstr "Dosya açılırken hata:\n%s"
+
+#: plugin.py:504
 msgid "Close"
 msgstr "Kapat"
 
-#: CrashlogViewer.py
-msgid "View"
-msgstr "Görüntüle"
-
-#: CrashlogViewer.py
-msgid "Remove"
-msgstr "Sil"
-
-#: CrashlogViewer.py
-msgid "Remove All"
-msgstr "Tümünü Sil"
-
-#: CrashlogViewer.py
-msgid "Removed %s"
-msgstr "%s silindi"
-
-#: CrashlogViewer.py
-msgid "Removed All Crashlog Files"
-msgstr "Tüm crashlog dosyaları silindi"
-
-#: CrashlogViewer.py
-msgid "Failed to remove file due to an error: %s"
-msgstr "Dosya bir hata nedeniyle silinemedi: %s"
-
-#: CrashlogViewer.py
-msgid "Failed to remove file: %s"
-msgstr "Dosya silinemedi: %s"
-
-#: CrashlogViewer.py
-msgid "An unexpected error occurred: %s"
-msgstr "Beklenmeyen bir hata oluştu: %s"
-
-#: CrashlogViewer.py
-msgid "Failed to remove some files: %s"
-msgstr "Bazı dosyalar silinemedi: %s"
-
-#: CrashlogViewer.py
-msgid "Crashlog Viewer  ver. %s\n\nDeveloper: 2boom\n\nModifier: Evg77734\n\nUpdate from Lululla\nHomepage: gisclub.tv"
-msgstr "Crashlog Viewer sürüm %s\n\nGeliştirici: 2boom\n\nDeğiştiren: Evg77734\n\nLululla'dan güncelleme\nWeb sitesi: gisclub.tv"
-
-#: CrashlogViewer.py
-msgid "View or Remove Crashlog files"
-msgstr "Crashlog dosyalarını görüntüle veya sil"
-
-#: CrashlogViewer.py
-msgid "View Crashlog file"
-msgstr "Crashlog dosyasını görüntüle"
-
-#: CrashlogViewer.py
+#: plugin.py:505
 msgid "Restart GUI"
 msgstr "GUI'yi yeniden başlat"
 
-#: CrashlogViewer.py
+#: plugin.py:506
+msgid "View"
+msgstr "Göster"
+
+#: plugin.py:507
+msgid "Remove"
+msgstr "Sil"
+
+#: plugin.py:508
+msgid "Remove All"
+msgstr "Tümünü sil"
+
+#: plugin.py:535
+msgid "View Crashlog file"
+msgstr "Crashlog dosyasını görüntüle"
+
+#: plugin.py:262
+msgid "View or Remove Crashlog files"
+msgstr "Crashlog dosyalarını görüntüle veya sil"
+
+#: plugin.py:635
 msgid "Crashlog Viewer"
 msgstr "Crashlog Görüntüleyici"
 
-#: CrashlogViewer.py
+#: plugin.py
 msgid "View and remove crashlog files"
 msgstr "Crashlog dosyalarını görüntüle ve sil"
+
+#: locale.py:46
+msgid "fallback to default translation for %s"
+msgstr "%s için varsayılan çeviriye dönülüyor"
