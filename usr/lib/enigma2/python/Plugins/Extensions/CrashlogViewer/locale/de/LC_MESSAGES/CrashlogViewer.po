@@ -15,87 +15,87 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: plugin.py:176
+#: plugin.py:240
 msgid "Update installed successfully!\nDo you want to restart the GUI now?"
 msgstr "Update erfolgreich installiert!\nMöchten Sie die GUI jetzt neu starten?"
 
-#: plugin.py:192
+#: plugin.py:256
 msgid "A new version %s is available.\nDo you want to install the update?"
 msgstr "Eine neue Version %s ist verfügbar.\nMöchten Sie das Update installieren?"
 
-#: plugin.py:196
+#: plugin.py:260
 msgid "Kein Update verfügbar"
 msgstr "Kein Update verfügbar"
 
-#: plugin.py:218
+#: plugin.py:282
 msgid "Error during update:\n%s"
 msgstr "Fehler beim Update:\n%s"
 
-#: plugin.py:297
+#: plugin.py:361
 msgid "No log file selected!"
 msgstr "Keine Log-Datei ausgewählt!"
 
-#: plugin.py:325
+#: plugin.py:389
 msgid "Removed %s"
 msgstr "Entfernt: %s"
 
-#: plugin.py:329
+#: plugin.py:393
 msgid "Failed to remove file:\n%s"
 msgstr "Datei konnte nicht entfernt werden:\n%s"
 
-#: plugin.py:349
+#: plugin.py:413
 msgid "Removed %d log files"
 msgstr "Entfernt: %d Log-Dateien"
 
-#: plugin.py:351
+#: plugin.py:415
 msgid "No log files found to remove"
 msgstr "Keine Log-Dateien zum Entfernen gefunden"
 
-#: plugin.py:353
+#: plugin.py:417
 msgid "Failed to remove some files:\n"
 msgstr "Fehler beim Entfernen einiger Dateien:\n"
 
-#: plugin.py:362
+#: plugin.py:426
 msgid "Crashlog Viewer  ver. %s\n\nDeveloper: 2boom\n\nModifier: Evg77734\n\nUpdate from Lululla\nHomepage: gisclub.tv"
 msgstr "Crashlog Viewer ver. %s\n\nEntwickler: speedy005\n\nModifiziert von: speedy005\n\nUpdate von: speedy005\nHomepage: github.com/speedy005"
 
-#: plugin.py:404
+#: plugin.py:468
 msgid "File not found: %s"
 msgstr "Datei nicht gefunden: %s"
 
-#: plugin.py:409
+#: plugin.py:473
 msgid "Error opening file:\n%s"
 msgstr "Fehler beim Öffnen der Datei:\n%s"
 
-#: plugin.py:504
+#: plugin.py:568
 msgid "Close"
 msgstr "Schließen"
 
-#: plugin.py:505
+#: plugin.py:569
 msgid "Restart GUI"
 msgstr "GUI neu starten"
 
-#: plugin.py:506
+#: plugin.py:570
 msgid "View"
 msgstr "Anzeigen"
 
-#: plugin.py:507
+#: plugin.py:571
 msgid "Remove"
 msgstr "Löschen"
 
-#: plugin.py:508
+#: plugin.py:572
 msgid "Remove All"
 msgstr "Alle löschen"
 
-#: plugin.py:535
+#: plugin.py:602
 msgid "View Crashlog file"
 msgstr "Crashlog-Datei anzeigen"
 
-#: plugin.py:262
+#: plugin.py:329
 msgid "View or Remove Crashlog files"
 msgstr "Crashlog-Dateien anzeigen oder löschen"
 
-#: plugin.py:635
+#: plugin.py:684
 msgid "Crashlog Viewer"
 msgstr "Crashlog Viewer"
 
