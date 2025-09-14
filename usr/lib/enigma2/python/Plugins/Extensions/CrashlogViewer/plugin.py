@@ -290,7 +290,7 @@ class CrashLogScreen(Screen):
     def __init__(self, session):
         self.session = session
         Screen.__init__(self, session)
-
+        self.setTitle(_("View or Remove Crashlog files"))
         self["Redkey"] = StaticText(_("Close"))
         self["Greenkey"] = StaticText(_("View"))
         self["Yellowkey"] = StaticText(_("Remove"))
@@ -394,7 +394,7 @@ class LogScreen(Screen):
 
     if sz_w == 1920:
         # Full HD Skin
-        skin = """<screen name="crashlogview" position="70,68" size="1780,980" title="%s" flags="wfBorder">
+        skin = """<screen name="LogScreen" position="70,68" size="1780,980" title="%s" flags="wfBorder">
             <eLabel name="button info" font="Regular; 30" position="1667,924" size="103,48" cornerRadius="4" halign="center" valign="center" text="INFO" backgroundColor="black" zPosition="3" foregroundColor="red" />
             <eLabel name="button ext" font="Regular; 30" position="1555,924" size="103,48" cornerRadius="4" halign="center" valign="center" text="EXIT" backgroundColor="black" zPosition="3" foregroundColor="red" />
             <eLabel name="button ok" font="Regular; 30" position="1444,924" size="103,48" cornerRadius="4" halign="center" valign="center" text="OK" backgroundColor="black" zPosition="3" foregroundColor="red" />
@@ -409,7 +409,7 @@ class LogScreen(Screen):
 
     else:
         # HD / Fallback Skin
-        skin = """<screen name="crashlogview" position="240,140" size="1440,800" title="%s" flags="wfBorder">
+        skin = """<screen name="LogScreen" position="240,140" size="1440,800" title="%s" flags="wfBorder">
             <eLabel name="button info" font="Regular; 30" position="1323,741" size="103,48" cornerRadius="4" halign="center" valign="center" text="INFO" backgroundColor="black" zPosition="3" foregroundColor="red" />
             <eLabel name="button ext" font="Regular; 30" position="1206,741" size="103,48" cornerRadius="4" halign="center" valign="center" text="EXIT" backgroundColor="black" zPosition="3" foregroundColor="red" />
             <eLabel name="button ok" font="Regular; 30" position="1092,741" size="103,48" cornerRadius="4" halign="center" valign="center" text="OK" backgroundColor="black" zPosition="3" foregroundColor="red" />
@@ -427,7 +427,7 @@ class LogScreen(Screen):
         Screen.__init__(self, session)
         self.session = session
         self.crashfile = crashfile
-
+        self.setTitle(_("View Crashlog file"))
         self["Redkey"] = StaticText(_("Close"))
         self["Greenkey"] = StaticText(_("Restart GUI"))
         self["text"] = ScrollLabel("")
@@ -508,6 +508,7 @@ def Plugins(**kwargs):
     return [
         PluginDescriptor(
             name=_("Crashlog Viewer") + " ver. " + get_local_version(),
+            # Beschreibung wird erst bei Anzeige übersetzt, nicht beim Laden
             description=_("View and remove crashlog files"),
             where=[PluginDescriptor.WHERE_PLUGINMENU, PluginDescriptor.WHERE_EXTENSIONSMENU],
             icon="crash.png",
@@ -515,3 +516,4 @@ def Plugins(**kwargs):
         ),
         PluginDescriptor(where=PluginDescriptor.WHERE_MENU, fnc=menu),
     ]
+

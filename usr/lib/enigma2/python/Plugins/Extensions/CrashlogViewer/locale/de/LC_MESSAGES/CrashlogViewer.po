@@ -1,108 +1,110 @@
-# German translations for CrashlogViewer
-# Copyright (C) 2024 Lululla, speedy005, Evg77734
-# This file is distributed under the same license as the CrashlogViewer package.
-# Translators: speedy005
 msgid ""
 msgstr ""
 "Project-Id-Version: CrashlogViewer 2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-07 12:00+0000\n"
-"PO-Revision-Date: 2025-09-07 12:00+0000\n"
+"POT-Creation-Date: 2025-09-14 12:00+0000\n"
+"PO-Revision-Date: 2025-09-14 12:00+0000\n"
 "Last-Translator: speedy005\n"
-"Language-Team: German\n"
+"Language-Team: Deutsch\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: plugin.py:240
+#: plugin.py
 msgid "Update installed successfully!\nDo you want to restart the GUI now?"
 msgstr "Update erfolgreich installiert!\nMöchten Sie die GUI jetzt neu starten?"
 
-#: plugin.py:256
-msgid "A new version %s is available.\nDo you want to install the update?"
-msgstr "Eine neue Version %s ist verfügbar.\nMöchten Sie das Update installieren?"
-
-#: plugin.py:260
-msgid "Kein Update verfügbar"
-msgstr "Kein Update verfügbar"
-
-#: plugin.py:282
+#: plugin.py
 msgid "Error during update:\n%s"
 msgstr "Fehler beim Update:\n%s"
 
-#: plugin.py:361
-msgid "No log file selected!"
-msgstr "Keine Log-Datei ausgewählt!"
+#: plugin.py
+msgid "A new version %s is available.\nDo you want to install the update?"
+msgstr "Eine neue Version %s ist verfügbar.\nMöchten Sie das Update installieren?"
 
-#: plugin.py:389
-msgid "Removed %s"
-msgstr "Entfernt: %s"
+#: plugin.py
+msgid "Kein Update verfügbar"
+msgstr "Kein Update verfügbar"
 
-#: plugin.py:393
-msgid "Failed to remove file:\n%s"
-msgstr "Datei konnte nicht entfernt werden:\n%s"
-
-#: plugin.py:413
-msgid "Removed %d log files"
-msgstr "Entfernt: %d Log-Dateien"
-
-#: plugin.py:415
-msgid "No log files found to remove"
-msgstr "Keine Log-Dateien zum Entfernen gefunden"
-
-#: plugin.py:417
-msgid "Failed to remove some files:\n"
-msgstr "Fehler beim Entfernen einiger Dateien:\n"
-
-#: plugin.py:426
-msgid "Crashlog Viewer  ver. %s\n\nDeveloper: 2boom\n\nModifier: Evg77734\n\nUpdate from Lululla\nHomepage: gisclub.tv"
-msgstr "Crashlog Viewer ver. %s\n\nEntwickler: speedy005\n\nModifiziert von: speedy005\n\nUpdate von: speedy005\nHomepage: github.com/speedy005"
-
-#: plugin.py:468
-msgid "File not found: %s"
-msgstr "Datei nicht gefunden: %s"
-
-#: plugin.py:473
-msgid "Error opening file:\n%s"
-msgstr "Fehler beim Öffnen der Datei:\n%s"
-
-#: plugin.py:568
-msgid "Close"
-msgstr "Schließen"
-
-#: plugin.py:569
-msgid "Restart GUI"
-msgstr "GUI neu starten"
-
-#: plugin.py:570
-msgid "View"
-msgstr "Anzeigen"
-
-#: plugin.py:571
-msgid "Remove"
-msgstr "Löschen"
-
-#: plugin.py:572
-msgid "Remove All"
-msgstr "Alle löschen"
-
-#: plugin.py:602
-msgid "View Crashlog file"
-msgstr "Crashlog-Datei anzeigen"
-
-#: plugin.py:329
+#: plugin.py
 msgid "View or Remove Crashlog files"
 msgstr "Crashlog-Dateien anzeigen oder löschen"
 
-#: plugin.py:684
+#: plugin.py
+msgid "Close"
+msgstr "Schließen"
+
+#: plugin.py
+msgid "View"
+msgstr "Ansehen"
+
+#: plugin.py
+msgid "Remove"
+msgstr "Löschen"
+
+#: plugin.py
+msgid "Remove All"
+msgstr "Alle löschen"
+
+#: plugin.py
+msgid "No log file selected!"
+msgstr "Keine Logdatei ausgewählt!"
+
+#: plugin.py
+msgid "Removed %s"
+msgstr "%s wurde gelöscht"
+
+#: plugin.py
+msgid "Failed to remove file:\n%s"
+msgstr "Datei konnte nicht gelöscht werden:\n%s"
+
+#: plugin.py
+msgid "Removed %d log files"
+msgstr "%d Logdateien gelöscht"
+
+#: plugin.py
+msgid "No log files found to remove"
+msgstr "Keine Logdateien zum Löschen gefunden"
+
+#: plugin.py
+msgid "Failed to remove some files:\n"
+msgstr "Einige Dateien konnten nicht gelöscht werden:\n"
+
+#: plugin.py
+msgid ""
+"Crashlog Viewer  ver. %s\n\n"
+"Developer: 2boom\n\n"
+"Modifier: Evg77734\n\n"
+"Update from Lululla\n"
+"Homepage: gisclub.tv"
+msgstr ""
+"Crashlog Viewer  Ver. %s\n\n"
+"Entwickler: speedy005\n\n"
+"Bearbeiter: speedy005\n\n"
+"Update von speedy005\n"
+"Homepage: github.com/speedy005"
+
+#: plugin.py
+msgid "View Crashlog file"
+msgstr "Crashlog-Datei anzeigen"
+
+#: plugin.py
+msgid "Restart GUI"
+msgstr "GUI neu starten"
+
+#: plugin.py
+msgid "File not found: %s"
+msgstr "Datei nicht gefunden: %s"
+
+#: plugin.py
+msgid "Error opening file:\n%s"
+msgstr "Fehler beim Öffnen der Datei:\n%s"
+
+#: plugin.py
 msgid "Crashlog Viewer"
 msgstr "Crashlog Viewer"
 
 #: plugin.py
 msgid "View and remove crashlog files"
-msgstr "Crashlog-Dateien ansehen und löschen"
-
-#: locale.py:46
-msgid "fallback to default translation for %s"
-msgstr "Fällt auf Standardübersetzung für %s zurück"
+msgstr "Crashlog-Dateien anzeigen und löschen"
