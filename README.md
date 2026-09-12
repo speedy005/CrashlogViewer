@@ -1,145 +1,510 @@
-CrashlogViewer für Enigma2
-Projektbeschreibung
+# 💥 CrashlogViewer for Enigma2
 
-Der CrashlogViewer ist ein Enigma2-Plugin, das speziell für Benutzer von Dreamboxen und anderen Enigma2-basierten Set-Top-Boxen entwickelt wurde. Dieses Plugin dient der Anzeige und Analyse von Crashlogs, die vom System erzeugt werden, wenn ein Fehler oder Absturz auftritt. Benutzer können mit dem CrashlogViewer schnell und effizient Fehlerprotokolle durchsuchen, um die Ursache für Systemabstürze zu ermitteln und gegebenenfalls Maßnahmen zur Fehlerbehebung zu ergreifen.
+> **Ein moderner und benutzerfreundlicher Crashlog-Viewer für Enigma2-basierte Receiver.**
+> **A modern and user-friendly crash log viewer for Enigma2-based receivers.**
 
-Wichtige Merkmale
+[![Enigma2](https://img.shields.io/badge/Enigma2-Plugin-blue.svg)](#) [![Python](https://img.shields.io/badge/Python-2%20%7C%203-yellow.svg)](#) [![License](https://img.shields.io/badge/License-GPL--v2-green.svg)](#lizenz--license)
 
-Crashlog-Ansicht: Das Plugin bietet eine benutzerfreundliche Oberfläche zur Anzeige von Crashlogs und deren Analyse.
+---
 
-Sprache und Lokalisierung: Der CrashlogViewer unterstützt mehrere Sprachen und kann an die jeweilige Systemsprache des Benutzers angepasst werden.
+# 🇩🇪 Deutsch
 
-Dreambox-Unterstützung: Das Plugin ist besonders für Dreamboxen optimiert, funktioniert aber auch auf anderen Enigma2-Boxen.
+## 📖 Über das Projekt
 
-Hauptfunktionen
+**CrashlogViewer** ist ein Enigma2-Plugin zur einfachen Anzeige und Analyse von Crashlogs.
 
-Anzeige von Crashlogs: Das Plugin zeigt alle gespeicherten Crashlogs auf einer einfachen und übersichtlichen Oberfläche an. So können Benutzer schnell Absturzursachen identifizieren.
+Das Plugin wurde speziell für **Dreamboxen und andere Enigma2-basierte Receiver** entwickelt und hilft dabei, Systemabstürze und Fehler schneller zu analysieren.
 
-Sprache und Übersetzungen: Der Plugin ist mehrsprachig und kann je nach Systemsprache des Benutzers angepasst werden.
+Statt Crashlogs manuell über FTP, SSH oder das Dateisystem suchen zu müssen, bietet CrashlogViewer eine übersichtliche Oberfläche direkt auf dem Receiver.
 
-Einfache Integration: Als Plugin für Enigma2-Systeme lässt sich der CrashlogViewer problemlos installieren und in das System integrieren.
+### 🎯 Ziel
 
-Benutzerfreundliche Oberfläche: Das Plugin bietet eine einfache, intuitive Benutzeroberfläche zur schnellen Anzeige und Navigation von Crashlogs.
+**CrashlogViewer soll die Fehlersuche so einfach wie möglich machen.**
 
-Installation
+```text
+Crash
+  ↓
+CrashlogViewer öffnen
+  ↓
+Crashlog auswählen
+  ↓
+Log analysieren
+  ↓
+Fehlerursache finden
+```
 
-Voraussetzungen:
+---
 
-Eine Enigma2-basierte Set-Top-Box (z. B. Dreambox).
+## ✨ Funktionen
 
-Python 2 oder Python 3 (abhängig von der Enigma2-Version).
+* 💥 **Crashlog-Übersicht**
+  Alle verfügbaren Crashlogs übersichtlich anzeigen.
 
-Plugin-Installation:
+* 🔎 **Einfache Analyse**
+  Crashlogs direkt auf dem Receiver öffnen und untersuchen.
 
-Das Plugin kann direkt über das Enigma2-Plugin-Menü installiert werden.
+* 🌍 **Mehrsprachigkeit**
+  Unterstützung verschiedener Sprachen und Anpassung an die Enigma2-Systemsprache.
 
-Alternativ kann es manuell auf die Box hochgeladen und über das Web-Interface von Enigma2 aktiviert werden.
+* 📺 **Enigma2-Integration**
+  Nahtlose Integration in das Enigma2-System.
 
-Verzeichnisse und Dateistruktur:
+* ⭐ **Dreambox-Unterstützung**
+  Optimiert für Dreamboxen, aber auch für andere Enigma2-Receiver geeignet.
 
-Der Hauptcode des Plugins befindet sich unter usr/lib/enigma2/python/Plugins/Extensions/CrashlogViewer.
+* 🎨 **Übersichtliche Benutzeroberfläche**
+  Einfaches und intuitives Design für eine schnelle Fehlersuche.
 
-Sprachdateien und Übersetzungen werden in dem Verzeichnis locale gespeichert, während sich die Logik des Plugins in Python-Dateien im angegebenen Verzeichnis befindet.
+* 🧩 **Erweiterbar**
+  Die übersichtliche Projektstruktur erleichtert zukünftige Erweiterungen und Anpassungen.
 
-Code-Beschreibung
+---
 
-Die Dateien im Repository befinden sich im Hauptordner des Plugins und beinhalten alles, was zur Ausführung erforderlich ist:
+## 🚀 Warum CrashlogViewer?
 
-CrashlogViewer.py: Der Hauptcode des Plugins, der die Logik zur Anzeige und Verwaltung von Crashlogs enthält. Hier wird die Benutzeroberfläche aufgebaut und mit den Logdaten verbunden.
+Wenn Enigma2 abstürzt, ist die Ursache häufig in einem Crashlog zu finden.
 
-locale (Verzeichnis): In diesem Verzeichnis werden Übersetzungsdateien für verschiedene Sprachen abgelegt, die das Plugin unterstützt. Übersetzungen können einfach hinzugefügt oder angepasst werden.
+CrashlogViewer macht den Zugriff darauf deutlich einfacher.
 
-utils.py: Helferfunktionen, die von verschiedenen Teilen des Codes verwendet werden, um Aufgaben wie das Parsen von Crashlogs oder die Sprachumgebung zu verwalten.
+Keine komplizierte Dateisuche und kein SSH notwendig:
 
-Benutzung
+**Öffnen → Auswählen → Lesen → Analysieren**
 
-Nach der Installation des Plugins kann der CrashlogViewer über das Menü von Enigma2 aufgerufen werden. Beim Start zeigt das Plugin eine Liste aller verfügbaren Crashlogs an. Benutzer können dann einzelne Logs auswählen und detaillierte Informationen einsehen, um die Ursache für Systemprobleme oder Abstürze zu finden.
+Das Plugin kann unter anderem bei der Untersuchung von folgenden Problemen helfen:
 
-Entwickler und Wartung
+* Enigma2-Abstürzen
+* Plugin-Abstürzen
+* Python-Exceptions
+* GUI-Problemen
+* Treiberproblemen
+* unerwartetem Systemverhalten
 
-Das Plugin wird aktiv von der Enigma2-Community gewartet und weiterentwickelt. Weitere Beiträge, Bugfixes und Erweiterungen sind willkommen.
+---
 
-Support und Dokumentation
+## 📦 Installation
 
-Weitere Informationen und Unterstützung finden sich in der README-Datei.
+### Voraussetzungen
 
-Bei Problemen oder Fragen kann das GitHub-Issues-System genutzt werden, um Unterstützung von anderen Nutzern oder den Entwicklern zu erhalten.
+* Enigma2-basierter Receiver
+* Dreambox oder kompatibler Enigma2-Receiver
+* Python 2 oder Python 3, abhängig von der verwendeten Enigma2-Version
 
-Lizenz
+### Installation über den Plugin-Feed
 
-Das Plugin ist unter der GPL-v2-Lizenz veröffentlicht. Dies bedeutet, dass der Code frei verwendet, geändert und weiterverbreitet werden kann, solange alle Lizenzbedingungen eingehalten werden.
-CrashlogViewer for Enigma2
-Project Overview
+Falls CrashlogViewer über den verwendeten Plugin-Feed verfügbar ist:
 
-The CrashlogViewer is an Enigma2 plugin specifically designed for Dreambox and other Enigma2-based set-top boxes. This plugin allows users to view and analyze crash logs generated by the system when a crash or error occurs. With CrashlogViewer, users can quickly and efficiently browse through crash logs to identify the cause of system crashes and take corrective actions as needed.
+1. Enigma2 **Plugin-Browser** öffnen
+2. Nach **CrashlogViewer** suchen
+3. Plugin installieren
+4. Falls erforderlich, Enigma2 neu starten
 
-Key Features
+### Manuelle Installation
 
-Crash Log View: The plugin provides an easy-to-use interface for viewing and analyzing crash logs.
+Das Plugin kann auch manuell auf den Receiver kopiert werden.
 
-Language and Localization: The CrashlogViewer supports multiple languages and can be customized according to the user's system language.
+Installationspfad:
 
-Dreambox Support: Although optimized for Dreambox, the plugin works well on other Enigma2-based boxes.
+```text
+/usr/lib/enigma2/python/Plugins/Extensions/CrashlogViewer/
+```
 
-Main Features
+Nach der Installation sollte Enigma2 gegebenenfalls neu gestartet werden.
 
-Display Crash Logs: The plugin displays all saved crash logs in a simple, easy-to-navigate interface, allowing users to quickly identify crash causes.
+---
 
-Language Support: The plugin is multilingual and adapts to the user's system language settings.
+## 📁 Projektstruktur
 
-Easy Integration: As an Enigma2 plugin, CrashlogViewer integrates seamlessly into the system.
+```text
+CrashlogViewer/
+├── CrashlogViewer.py
+├── utils.py
+├── locale/
+│   ├── de/
+│   ├── en/
+│   └── ...
+└── ...
+```
 
-User-Friendly Interface: It provides a clean and intuitive interface to quickly view and navigate through crash logs.
+### Wichtige Dateien
 
-Installation
+| Datei / Verzeichnis | Beschreibung                                    |
+| ------------------- | ----------------------------------------------- |
+| `CrashlogViewer.py` | Hauptlogik und Benutzeroberfläche               |
+| `utils.py`          | Hilfsfunktionen für Verarbeitung und Verwaltung |
+| `locale/`           | Übersetzungen und Sprachdateien                 |
 
-Requirements:
+---
 
-An Enigma2-based set-top box (e.g., Dreambox).
+## 🌍 Übersetzungen
 
-Python 2 or Python 3 (depending on your Enigma2 version).
+CrashlogViewer unterstützt verschiedene Sprachen.
 
-Plugin Installation:
+Die Übersetzungen befinden sich im Verzeichnis:
 
-The plugin can be installed directly via the Enigma2 plugin menu.
+```text
+locale/
+```
 
-Alternatively, it can be manually uploaded to the box and activated through Enigma2's web interface.
+Neue Übersetzungen können einfach hinzugefügt oder bestehende Übersetzungen verbessert werden.
 
-Directories and File Structure:
+**Du möchtest bei einer Übersetzung helfen? Contributions are welcome! ❤️**
 
-The main code for the plugin resides under usr/lib/enigma2/python/Plugins/Extensions/CrashlogViewer.
+---
 
-Language files and translations are stored in the locale directory, while the plugin's logic is contained in Python files within the specified folder.
+## 🖥️ Verwendung
 
-Code Overview
+Nach der Installation kann CrashlogViewer über das Enigma2-Menü gestartet werden.
 
-The files in the repository reside in the main plugin folder and include everything necessary for the plugin to function:
+Beim Start wird eine Liste der verfügbaren Crashlogs angezeigt.
 
-CrashlogViewer.py: The main code file for the plugin, handling the logic for displaying and managing crash logs. This file builds the user interface and connects it to the log data.
+Anschließend kann ein Crashlog ausgewählt und detailliert betrachtet werden.
 
-locale (Directory): This folder contains translation files for various languages supported by the plugin. Translations can be easily added or modified here.
+```text
+┌───────────────────────┐
+│   CrashlogViewer      │
+├───────────────────────┤
+│ 📄 crashlog_01        │
+│ 📄 crashlog_02        │
+│ 📄 crashlog_03        │
+│ 📄 crashlog_04        │
+└───────────────────────┘
+          ↓
+     🔍 Analysieren
+```
 
-utils.py: Helper functions used across the code to handle tasks such as parsing crash logs or managing the language environment.
+---
 
-Usage
+## 📸 Screenshots
 
-After installation, the CrashlogViewer can be accessed from the Enigma2 menu. Upon launch, it displays a list of available crash logs. Users can then select a specific log to view detailed information, helping to pinpoint the root cause of system issues or crashes.
+Screenshots können hier ergänzt werden:
 
-Developer and Maintenance
+```text
+docs/
+└── screenshots/
+    ├── main.png
+    ├── crashlog.png
+    └── viewer.png
+```
 
-The plugin is actively maintained and developed by the Enigma2 community. Contributions, bug fixes, and feature enhancements are welcome.
+Beispiel:
 
-Support and Documentation
+```markdown
+![CrashlogViewer](docs/screenshots/main.png)
+```
 
-Additional information and support can be found in the README file.
+---
 
-For issues or questions, the GitHub Issues system can be used to get support from other users or the developers.
+## 🤝 Mitmachen
 
-License
+Beiträge zur Weiterentwicklung sind jederzeit willkommen.
 
-The plugin is released under the GPL-v2 license, which means the code can be freely used, modified, and redistributed as long as the license terms are followed.
+Besonders hilfreich sind:
 
-This description provides a comprehensive overview of the CrashlogViewer plugin and is suitable for use in a GitHub repository description or similar platforms.
+* 🐛 Bugfixes
+* 💡 neue Funktionen
+* 🎨 Verbesserungen der Benutzeroberfläche
+* 🌍 neue Übersetzungen
+* ⚡ Performance-Optimierungen
+* 📺 Verbesserungen der Receiver-Kompatibilität
+
+### 🐛 Fehler gefunden?
+
+Bitte erstelle ein **GitHub Issue** und füge möglichst folgende Informationen hinzu:
+
+* Receiver-Modell
+* verwendetes Enigma2-Image
+* Plugin-Version
+* Beschreibung des Problems
+* Schritte zur Reproduktion
+* relevanter Crashlog
+* Screenshots, falls vorhanden
+
+---
+
+## 💬 Support
+
+Bei Problemen oder Fragen kann das **GitHub Issues-System** verwendet werden.
+
+Bitte überprüfe zunächst, ob bereits ein ähnliches Issue existiert.
+
+Je mehr Informationen bereitgestellt werden, desto einfacher ist es, ein Problem nachzustellen und zu beheben.
+
+---
+
+## 📜 Lizenz
+
+CrashlogViewer wird unter der **GNU General Public License v2.0 (GPL-2.0)** veröffentlicht.
+
+Der Quellcode darf entsprechend den Bedingungen der GPL-v2:
+
+* ✅ verwendet
+* ✅ untersucht
+* ✅ verändert
+* ✅ weitergegeben
+
+werden.
+
+---
+
+# 🇬🇧 English
+
+## 📖 About
+
+**CrashlogViewer** is an Enigma2 plugin designed to make viewing and analyzing crash logs simple and convenient.
+
+It was developed specifically for **Dreambox and other Enigma2-based receivers** and helps users investigate system crashes and errors quickly.
+
+Instead of manually searching through files via FTP, SSH or the filesystem, CrashlogViewer provides a clean interface directly on the receiver.
+
+### 🎯 Goal
+
+**CrashlogViewer makes troubleshooting as simple as possible.**
+
+```text
+Crash
+  ↓
+Open CrashlogViewer
+  ↓
+Select crash log
+  ↓
+Inspect log
+  ↓
+Find the problem
+```
+
+---
+
+## ✨ Features
+
+* 💥 **Crash Log Browser**
+  Browse all available crash logs in one place.
+
+* 🔎 **Easy Log Analysis**
+  Open and inspect crash logs directly on your receiver.
+
+* 🌍 **Multi-Language Support**
+  Supports multiple languages and follows the Enigma2 system language.
+
+* 📺 **Enigma2 Integration**
+  Seamlessly integrates into the Enigma2 environment.
+
+* ⭐ **Dreambox Support**
+  Optimized for Dreambox receivers while remaining suitable for other Enigma2 devices.
+
+* 🎨 **Clean User Interface**
+  Simple and intuitive interface focused on fast troubleshooting.
+
+* 🧩 **Easy to Extend**
+  A clean project structure makes future improvements and extensions easier.
+
+---
+
+## 🚀 Why CrashlogViewer?
+
+When Enigma2 crashes, the cause can often be found in the generated crash log.
+
+CrashlogViewer makes accessing these logs much easier.
+
+No complicated file browsing and no SSH required:
+
+**Open → Select → Read → Analyze**
+
+CrashlogViewer can help investigate issues such as:
+
+* Enigma2 crashes
+* Plugin crashes
+* Python exceptions
+* GUI problems
+* Driver-related issues
+* Unexpected system behavior
+
+---
+
+## 📦 Installation
+
+### Requirements
+
+* An Enigma2-based receiver
+* Dreambox or compatible Enigma2 set-top box
+* Python 2 or Python 3, depending on your Enigma2 version
+
+### Installation via Plugin Feed
+
+If CrashlogViewer is available through your image's plugin feed:
+
+1. Open the **Enigma2 Plugin Browser**
+2. Search for **CrashlogViewer**
+3. Install the plugin
+4. Restart Enigma2 if required
+
+### Manual Installation
+
+The plugin can also be copied manually to the receiver.
+
+Installation path:
+
+```text
+/usr/lib/enigma2/python/Plugins/Extensions/CrashlogViewer/
+```
+
+Restart Enigma2 after installation if required.
+
+---
+
+## 📁 Project Structure
+
+```text
+CrashlogViewer/
+├── CrashlogViewer.py
+├── utils.py
+├── locale/
+│   ├── de/
+│   ├── en/
+│   └── ...
+└── ...
+```
+
+### Important Files
+
+| File / Directory    | Description                                       |
+| ------------------- | ------------------------------------------------- |
+| `CrashlogViewer.py` | Main plugin logic and user interface              |
+| `utils.py`          | Helper functions for processing and handling data |
+| `locale/`           | Translation and localization files                |
+
+---
+
+## 🌍 Translations
+
+CrashlogViewer supports multiple languages.
+
+Translation files are stored in:
+
+```text
+locale/
+```
+
+New languages can easily be added, and existing translations can be improved.
+
+**Want to help with translations? Contributions are welcome! ❤️**
+
+---
+
+## 🖥️ Usage
+
+After installation, CrashlogViewer can be launched from the Enigma2 menu.
+
+The plugin displays a list of available crash logs.
+
+Select a crash log to open and inspect its contents.
+
+```text
+┌───────────────────────┐
+│   CrashlogViewer      │
+├───────────────────────┤
+│ 📄 crashlog_01        │
+│ 📄 crashlog_02        │
+│ 📄 crashlog_03        │
+│ 📄 crashlog_04        │
+└───────────────────────┘
+          ↓
+      🔍 Analyze
+```
+
+---
+
+## 📸 Screenshots
+
+Screenshots can be added here:
+
+```text
+docs/
+└── screenshots/
+    ├── main.png
+    ├── crashlog.png
+    └── viewer.png
+```
+
+Example:
+
+```markdown
+![CrashlogViewer](docs/screenshots/main.png)
+```
+
+---
+
+## 🤝 Contributing
+
+Contributions are always welcome!
+
+Especially useful contributions include:
+
+* 🐛 Bug fixes
+* 💡 New features
+* 🎨 UI improvements
+* 🌍 New translations
+* ⚡ Performance improvements
+* 📺 Compatibility improvements
+
+### 🐛 Found a Bug?
+
+Please open a **GitHub Issue** and provide as much information as possible:
+
+* Receiver model
+* Enigma2 image
+* Plugin version
+* Description of the problem
+* Steps to reproduce
+* Relevant crash log
+* Screenshots, if available
+
+---
+
+## 💬 Support
+
+For problems, questions or suggestions, please use the **GitHub Issues** system.
+
+Before opening a new issue, please check whether a similar issue already exists.
+
+The more information you provide, the easier it is to reproduce and fix the problem.
+
+---
+
+## 📜 License
+
+CrashlogViewer is released under the **GNU General Public License v2.0 (GPL-2.0)**.
+
+Under the terms of the GPL-v2 license, the software may be:
+
+* ✅ Used
+* ✅ Studied
+* ✅ Modified
+* ✅ Redistributed
+
+as long as the license requirements are respected.
+
+---
+
+## ⭐ Support the Project
+
+If you find **CrashlogViewer** useful:
+
+⭐ **Star the repository**
+🐛 **Report bugs**
+💡 **Suggest improvements**
+🔧 **Contribute code**
+🌍 **Improve translations**
+
+Every contribution helps make CrashlogViewer better for the Enigma2 community.
+
+---
+
+# 🚀 Crash less. Understand more.
+
+### CrashlogViewer
+
+**Making Enigma2 crash logs easier to find, read and understand.**
+
 
 
 
