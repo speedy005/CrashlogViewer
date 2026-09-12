@@ -25,7 +25,7 @@ PLUGIN_PATH = "/usr/lib/enigma2/python/Plugins/Extensions/CrashlogViewer/"
 LOCALE_DIR = os.path.join(PLUGIN_PATH, "locale")
 DOMAIN = "CrashlogViewer"
 LOG_BASE_PATH = "/home/root/logs/"
-version = "2.0" 
+version = "2.5.0" 
 # --- Locale ---
 def localeInit():
     lang = language.getLanguage()[:2]
