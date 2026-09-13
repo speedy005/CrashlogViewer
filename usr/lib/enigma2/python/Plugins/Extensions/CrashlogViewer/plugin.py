@@ -12,7 +12,6 @@ from Components.Language import language
 import os
 import sys
 import re
-import traceback
 import time
 import glob
 
@@ -25,6 +24,7 @@ from Components.Sources.StaticText import StaticText
 from Plugins.Plugin import PluginDescriptor
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
+from Screens.Console import Console
 from Tools.Directories import SCOPE_PLUGINS, resolveFilename
 from Tools.LoadPixmap import LoadPixmap
 
@@ -35,8 +35,15 @@ from enigma import getDesktop
 # Plugin
 # =========================================================
 
-PLUGIN_PATH = "/usr/lib/enigma2/python/Plugins/Extensions/CrashlogViewer/"
-LOCALE_DIR = os.path.join(PLUGIN_PATH, "locale")
+PLUGIN_PATH = resolveFilename(
+    SCOPE_PLUGINS,
+    "Extensions/CrashlogViewer/"
+)
+
+LOCALE_DIR = os.path.join(
+    PLUGIN_PATH,
+    "locale"
+)
 
 DOMAIN = "CrashlogViewer"
 
@@ -71,6 +78,7 @@ def _(txt):
     )
 
     if t == txt:
+
         t = gettext.gettext(txt)
 
     return t
@@ -109,10 +117,17 @@ def log(msg):
 
     try:
 
-        with open(LOGFILE, "a") as f:
-            f.write(msg + "\n")
+        with open(
+            LOGFILE,
+            "a"
+        ) as f:
+
+            f.write(
+                msg + "\n"
+            )
 
     except Exception:
+
         pass
 
     try:
@@ -120,6 +135,7 @@ def log(msg):
         print(msg)
 
     except Exception:
+
         pass
 
 
@@ -162,24 +178,27 @@ def get_local_version():
 
     try:
 
-        with open(VERSION_FILE, "r") as f:
-            return f.read().strip()
+        with open(
+            VERSION_FILE,
+            "r"
+        ) as f:
+
+            local_version = f.read().strip()
+
+            if local_version:
+
+                return local_version
 
     except Exception:
 
-        return version
+        pass
+
+    return version
 
 
 def get_current_version():
 
-    try:
-
-        with open(VERSION_FILE, "r") as f:
-            return f.read().strip()
-
-    except Exception:
-
-        return version
+    return get_local_version()
 
 
 # =========================================================
@@ -193,7 +212,8 @@ def get_remote_version():
         request = urllib_request.Request(
             GITHUB_VERSION_URL,
             headers={
-                "User-Agent": "CrashlogViewer-Updater/2.5.0"
+                "User-Agent":
+                    "CrashlogViewer-Updater/2.5.0"
             }
         )
 
@@ -208,7 +228,13 @@ def get_remote_version():
                 "utf-8"
             )
 
-        remote_version = response.strip().split()[0]
+        response = response.strip()
+
+        if not response:
+
+            return None
+
+        remote_version = response.split()[0]
 
         log(
             "[CrashlogViewer] Remote version: %s"
@@ -239,7 +265,8 @@ def get_remote_changelog():
         request = urllib_request.Request(
             GITHUB_CHANGELOG_URL,
             headers={
-                "User-Agent": "CrashlogViewer-Updater/2.5.0"
+                "User-Agent":
+                    "CrashlogViewer-Updater/2.5.0"
             }
         )
 
@@ -308,52 +335,83 @@ def parse_version(version_str):
 # Update starten
 # =========================================================
 
-def install_update(session, answer, installer_url):
+def install_update(
+    session,
+    answer,
+    installer_url
+):
 
-    """Runs the update installer if the user confirmed."""
+    """
+    Starts the external CrashlogViewer installer.
 
-    if answer:
+    The installer itself does NOT restart Enigma2.
+    After the installer finishes, update_finished()
+    asks the user whether the GUI should be restarted.
+    """
 
-        # -------------------------------------------------
-        # Installer herunterladen und mit Bash ausführen
-        # -------------------------------------------------
-
-        cmd = (
-            "TMP=/tmp/CrashlogViewer-installer.sh; "
-            "wget -q --no-check-certificate "
-            "\"%s\" -O \"$TMP\" && "
-            "chmod 755 \"$TMP\" && "
-            "/bin/bash \"$TMP\"; "
-            "RET=$?; "
-            "rm -f \"$TMP\"; "
-            "exit $RET"
-        ) % installer_url
-
-        try:
-
-            from Screens.Console import Console
-
-        except Exception as e:
-
-            log(
-                "[CrashlogViewer] Could not import Console: %s"
-                % e
-            )
-
-            session.open(
-                MessageBox,
-                _(
-                    "Could not start the update installer."
-                ),
-                MessageBox.TYPE_ERROR,
-                timeout=5
-            )
-
-            return
+    if not answer:
 
         log(
-            "[CrashlogViewer] Starting update installer..."
+            "[CrashlogViewer] Update canceled by user."
         )
+
+        session.open(
+            MessageBox,
+            _("Update canceled."),
+            MessageBox.TYPE_INFO,
+            timeout=3
+        )
+
+        return
+
+
+    # -----------------------------------------------------
+    # Installer temporär herunterladen und mit Bash
+    # ausführen.
+    #
+    # Wichtig:
+    # Der Installer wird NICHT über /bin/sh gepiped,
+    # sondern explizit mit /bin/bash gestartet.
+    # -----------------------------------------------------
+
+    installer_tmp = (
+        "/tmp/CrashlogViewer-installer.sh"
+    )
+
+    cmd = (
+        "rm -f \"%s\"; "
+        "wget -q --no-check-certificate "
+        "\"%s\" -O \"%s\" && "
+        "chmod 755 \"%s\" && "
+        "/bin/bash \"%s\"; "
+        "RET=$?; "
+        "rm -f \"%s\"; "
+        "exit $RET"
+    ) % (
+        installer_tmp,
+        installer_url,
+        installer_tmp,
+        installer_tmp,
+        installer_tmp,
+        installer_tmp
+    )
+
+
+    log(
+        "[CrashlogViewer] Starting update installer..."
+    )
+
+    log(
+        "[CrashlogViewer] Installer URL: %s"
+        % installer_url
+    )
+
+
+    # -----------------------------------------------------
+    # Console öffnen
+    # -----------------------------------------------------
+
+    try:
 
         session.open(
             Console,
@@ -369,17 +427,21 @@ def install_update(session, answer, installer_url):
             closeOnSuccess=True
         )
 
-    else:
+    except Exception as e:
 
         log(
-            "[CrashlogViewer] Update canceled by user."
+            "[CrashlogViewer] Could not start "
+            "update installer: %s"
+            % e
         )
 
         session.open(
             MessageBox,
-            _("Update canceled."),
-            MessageBox.TYPE_INFO,
-            timeout=3
+            _(
+                "Could not start the update installer."
+            ),
+            MessageBox.TYPE_ERROR,
+            timeout=5
         )
 
 
@@ -387,22 +449,37 @@ def install_update(session, answer, installer_url):
 # Update abgeschlossen
 # =========================================================
 
-def update_finished(session, result=None):
+def update_finished(
+    session,
+    result=None
+):
 
-    """Callback executed when the installation finishes."""
+    """
+    Called after the external installer has finished.
+
+    IMPORTANT:
+    This is a normal function, NOT a class method.
+    Therefore there is NO self here.
+    """
 
     log(
         "[CrashlogViewer] Update installer finished."
     )
 
+    log(
+        "[CrashlogViewer] Installer result: %s"
+        % result
+    )
+
+
     # -----------------------------------------------------
-    # GUI Neustart Abfrage
+    # GUI Neustart Callback
     # -----------------------------------------------------
 
     def restart_gui_callback(answer):
 
         # -------------------------------------------------
-        # YES
+        # JA
         # -------------------------------------------------
 
         if answer:
@@ -442,7 +519,7 @@ def update_finished(session, result=None):
                 )
 
         # -------------------------------------------------
-        # NO
+        # NEIN
         # -------------------------------------------------
 
         else:
@@ -461,6 +538,7 @@ def update_finished(session, result=None):
                 MessageBox.TYPE_INFO,
                 timeout=5
             )
+
 
     # -----------------------------------------------------
     # YES / NO Dialog
@@ -481,7 +559,10 @@ def update_finished(session, result=None):
 # Update prüfen
 # =========================================================
 
-def check_for_update(session, callback=None):
+def check_for_update(
+    session,
+    callback=None
+):
 
     current_version = get_current_version()
 
@@ -490,7 +571,13 @@ def check_for_update(session, callback=None):
         % current_version
     )
 
+
     remote_version = get_remote_version()
+
+
+    # -----------------------------------------------------
+    # Remote Version konnte nicht geladen werden
+    # -----------------------------------------------------
 
     if not remote_version:
 
@@ -509,14 +596,16 @@ def check_for_update(session, callback=None):
 
         return
 
+
     log(
         "[CrashlogViewer] Remote version: %s"
         % remote_version
     )
 
-    # -----------------------------------------------------
+
+    # =====================================================
     # Neue Version vorhanden
-    # -----------------------------------------------------
+    # =====================================================
 
     if parse_version(remote_version) > parse_version(
         current_version
@@ -524,25 +613,33 @@ def check_for_update(session, callback=None):
 
         remote_changelog = get_remote_changelog()
 
+
         msg = _(
             "New version {version} is available."
         ).format(
             version=remote_version
         )
 
+
         if remote_changelog:
 
             msg += (
-                "\n\n" +
-                _("Changelog:") +
-                "\n" +
+                "\n\n"
+                +
+                _("Changelog:")
+                +
+                "\n"
+                +
                 remote_changelog
             )
 
+
         msg += (
-            "\n\n" +
+            "\n\n"
+            +
             _("Do you want to install it now?")
         )
+
 
         session.openWithCallback(
             lambda answer:
@@ -558,9 +655,10 @@ def check_for_update(session, callback=None):
 
         return
 
-    # -----------------------------------------------------
+
+    # =====================================================
     # Gleiche Version
-    # -----------------------------------------------------
+    # =====================================================
 
     elif parse_version(remote_version) == parse_version(
         current_version
@@ -572,10 +670,13 @@ def check_for_update(session, callback=None):
             version=remote_version
         )
 
+
         msg += (
-            "\n\n" +
+            "\n\n"
+            +
             _("Do you want to reinstall it?")
         )
+
 
         session.openWithCallback(
             lambda answer:
@@ -591,9 +692,10 @@ def check_for_update(session, callback=None):
 
         return
 
-    # -----------------------------------------------------
+
+    # =====================================================
     # Remote Version älter
-    # -----------------------------------------------------
+    # =====================================================
 
     else:
 
@@ -680,13 +782,16 @@ def find_log_files(
 
     ]
 
+
     log_files = []
+
 
     for pattern in patterns:
 
         log_files.extend(
             glob.glob(pattern)
         )
+
 
     return sorted(
         list(
@@ -722,9 +827,12 @@ class CrashLogScreen(Screen):
 
     sz_w = getDesktop(0).size().width()
 
+
     if sz_w == 1920:
 
+        # -------------------------------------------------
         # Full HD Skin
+        # -------------------------------------------------
 
         skin = """<screen name="crashlogscreen" position="260,100" size="1400,880" title="%s">
         <eLabel name="button info" font="Regular; 30" position="1063,821" size="103,48" cornerRadius="4" halign="center" valign="center" text="INFO" backgroundColor="black" zPosition="3" foregroundColor="red" />
@@ -748,11 +856,16 @@ class CrashLogScreen(Screen):
                 "itemHeight":90}
             </convert>
         </widget>
-        </screen>""" % _("View or Remove Crashlog files")
+        </screen>""" % _(
+            "View or Remove Crashlog files"
+        )
+
 
     else:
 
+        # -------------------------------------------------
         # HD / Fallback Skin
+        # -------------------------------------------------
 
         skin = """<screen name="crashlogscreen" position="center,center" size="1000,880" title="%s">
         <eLabel name="button info" font="Regular; 30" position="881,761" size="103,48" cornerRadius="4" halign="center" valign="center" text="INFO" backgroundColor="black" zPosition="3" foregroundColor="red" />
@@ -776,10 +889,15 @@ class CrashLogScreen(Screen):
                 "itemHeight":90}
             </convert>
         </widget>
-        </screen>""" % _("View or Remove Crashlog files")
+        </screen>""" % _(
+            "View or Remove Crashlog files"
+        )
 
 
-    def __init__(self, session):
+    def __init__(
+        self,
+        session
+    ):
 
         self.session = session
 
@@ -791,6 +909,7 @@ class CrashLogScreen(Screen):
         self.setTitle(
             _("View or Remove Crashlog files")
         )
+
 
         self["Redkey"] = StaticText(
             _("Close")
@@ -808,11 +927,14 @@ class CrashLogScreen(Screen):
             _("Remove All")
         )
 
+
         self.list = []
+
 
         self["menu"] = List(
             self.list
         )
+
 
         self["shortcuts"] = ActionMap(
             [
@@ -832,6 +954,7 @@ class CrashLogScreen(Screen):
             }
         )
 
+
         self.CfgMenu()
 
 
@@ -841,13 +964,16 @@ class CrashLogScreen(Screen):
 
         log_files = find_log_files()
 
+
         if not log_files:
 
             self["menu"].setList([])
 
             return
 
+
         sz_w = getDesktop(0).size().width()
+
 
         minipng = LoadPixmap(
             cached=True,
@@ -855,12 +981,14 @@ class CrashLogScreen(Screen):
                 SCOPE_PLUGINS,
                 "Extensions/CrashlogViewer/images/crashmini.png"
             )
-            if sz_w >= 1920 else
+            if sz_w >= 1920
+            else
             resolveFilename(
                 SCOPE_PLUGINS,
                 "Extensions/CrashlogViewer/images/crashmini1.png"
             )
         )
+
 
         for file_path in log_files:
 
@@ -879,20 +1007,25 @@ class CrashLogScreen(Screen):
                     )
                 )
 
+
                 self.list.append(
                     (
                         os.path.basename(
                             file_path
                         ),
+
                         "Size: %s - Date: %s"
                         % (
                             file_size,
                             file_date
                         ),
+
                         minipng,
+
                         file_path
                     )
                 )
+
 
             except Exception as e:
 
@@ -904,6 +1037,7 @@ class CrashLogScreen(Screen):
                     )
                 )
 
+
         self["menu"].setList(
             self.list
         )
@@ -912,6 +1046,7 @@ class CrashLogScreen(Screen):
     def Ok(self):
 
         item = self["menu"].getCurrent()
+
 
         if not item or len(item) < 4:
 
@@ -924,10 +1059,13 @@ class CrashLogScreen(Screen):
 
             return
 
+
         self.session.openWithCallback(
             self.CfgMenu,
             LogScreen,
-            str(item[3])
+            str(
+                item[3]
+            )
         )
 
 
@@ -935,14 +1073,18 @@ class CrashLogScreen(Screen):
 
         item = self["menu"].getCurrent()
 
+
         if not item or len(item) < 4:
 
             return
 
+
         try:
 
             os.remove(
-                str(item[3])
+                str(
+                    item[3]
+                )
             )
 
             self.session.open(
@@ -952,6 +1094,7 @@ class CrashLogScreen(Screen):
                 MessageBox.TYPE_INFO,
                 timeout=4
             )
+
 
         except Exception as e:
 
@@ -963,6 +1106,7 @@ class CrashLogScreen(Screen):
                 timeout=4
             )
 
+
         self.CfgMenu()
 
 
@@ -973,6 +1117,7 @@ class CrashLogScreen(Screen):
         deleted_files = 0
 
         failed_files = []
+
 
         for f in log_files:
 
@@ -996,6 +1141,7 @@ class CrashLogScreen(Screen):
                         )
                     )
 
+
         if deleted_files:
 
             msg = _(
@@ -1008,17 +1154,21 @@ class CrashLogScreen(Screen):
                 "No log files found to remove"
             )
 
+
         if failed_files:
 
             msg += (
-                "\n" +
+                "\n"
+                +
                 _(
                     "Failed to remove some files:\n"
-                ) +
+                )
+                +
                 "\n".join(
                     failed_files
                 )
             )
+
 
         self.session.open(
             MessageBox,
@@ -1026,6 +1176,7 @@ class CrashLogScreen(Screen):
             MessageBox.TYPE_INFO,
             timeout=6
         )
+
 
         self.CfgMenu()
 
@@ -1058,9 +1209,12 @@ class LogScreen(Screen):
 
     sz_w = getDesktop(0).size().width()
 
+
     if sz_w == 1920:
 
-        # Full HD Skin
+        # -------------------------------------------------
+        # Full HD
+        # -------------------------------------------------
 
         skin = """<screen name="LogScreen" position="70,68" size="1780,980" title="%s" flags="wfBorder">
             <eLabel name="button info" font="Regular; 30" position="1667,924" size="103,48" cornerRadius="4" halign="center" valign="center" text="INFO" backgroundColor="black" zPosition="3" foregroundColor="red" />
@@ -1073,11 +1227,16 @@ class LogScreen(Screen):
             <widget name="text" position="2,1" size="1770,800" font="Console; 28" foregroundColor="green" />
             <widget name="text2" position="3,805" size="1770,110" font="Console; 28" foregroundColor="#ff0000" />
             <eLabel position="3,801" size="1770,2" backgroundColor="#555555" zPosition="1" />
-        </screen>""" % _("View Crashlog file")
+        </screen>""" % _(
+            "View Crashlog file"
+        )
+
 
     else:
 
-        # HD / Fallback Skin
+        # -------------------------------------------------
+        # HD / Fallback
+        # -------------------------------------------------
 
         skin = """<screen name="LogScreen" position="240,140" size="1440,800" title="%s" flags="wfBorder">
             <eLabel name="button info" font="Regular; 30" position="1323,741" size="103,48" cornerRadius="4" halign="center" valign="center" text="INFO" backgroundColor="black" zPosition="3" foregroundColor="red" />
@@ -1090,7 +1249,9 @@ class LogScreen(Screen):
             <widget name="text" position="3,3" size="1430,610" font="Console; 28" foregroundColor="green" />
             <widget name="text2" position="3,619" size="1430,110" font="Console; 28" foregroundColor="#ff0000" />
             <eLabel position="3,615" size="1430,2" backgroundColor="#555555" zPosition="1" />
-        </screen>""" % _("View Crashlog file")
+        </screen>""" % _(
+            "View Crashlog file"
+        )
 
 
     def __init__(
@@ -1108,9 +1269,11 @@ class LogScreen(Screen):
 
         self.crashfile = crashfile
 
+
         self.setTitle(
             _("View Crashlog file")
         )
+
 
         self["Redkey"] = StaticText(
             _("Close")
@@ -1120,6 +1283,7 @@ class LogScreen(Screen):
             _("Restart GUI")
         )
 
+
         self["text"] = ScrollLabel(
             ""
         )
@@ -1128,9 +1292,6 @@ class LogScreen(Screen):
             ""
         )
 
-        # -------------------------------------------------
-        # Scroll- und Farb-Tasten
-        # -------------------------------------------------
 
         self["actions"] = ActionMap(
             [
@@ -1154,6 +1315,7 @@ class LogScreen(Screen):
             -1
         )
 
+
         self.loadLogFile()
 
 
@@ -1162,6 +1324,7 @@ class LogScreen(Screen):
         full_text = ""
 
         error_text = ""
+
 
         try:
 
@@ -1172,6 +1335,7 @@ class LogScreen(Screen):
                 full_text = _(
                     "File not found: %s"
                 ) % self.crashfile
+
 
             else:
 
@@ -1186,6 +1350,7 @@ class LogScreen(Screen):
 
                         full_text += line
 
+
                         if (
                             "Error:" in line
                             or
@@ -1194,11 +1359,13 @@ class LogScreen(Screen):
 
                             error_text += line
 
+
         except Exception as e:
 
             full_text = _(
                 "Error opening file:\n%s"
             ) % e
+
 
         self["text"].setText(
             full_text
@@ -1209,9 +1376,9 @@ class LogScreen(Screen):
         )
 
 
-    # -----------------------------------------------------
-    # Scrollsteuerung
-    # -----------------------------------------------------
+    # =====================================================
+    # Scroll
+    # =====================================================
 
     def scrollUp(self):
 
@@ -1241,15 +1408,19 @@ class LogScreen(Screen):
         self["text2"].pageDown()
 
 
-    # -----------------------------------------------------
+    # =====================================================
     # GUI Neustart über grüne Taste
-    # -----------------------------------------------------
+    # =====================================================
 
     def restartGUI(self):
 
         try:
 
             from enigma import quitMainloop
+
+            log(
+                "[CrashlogViewer] Manual GUI restart."
+            )
 
             quitMainloop(3)
 
@@ -1268,7 +1439,7 @@ class LogScreen(Screen):
 
 
 # =========================================================
-# Menü & Plugins
+# Menü
 # =========================================================
 
 def menu(
@@ -1286,6 +1457,7 @@ def menu(
             get_local_version()
         )
 
+
         return [
             (
                 plugin_name,
@@ -1294,6 +1466,7 @@ def menu(
                 50
             )
         ]
+
 
     return []
 
@@ -1327,11 +1500,13 @@ def Plugins(
     return [
 
         PluginDescriptor(
-            name=_("Crashlog Viewer")
-            +
-            " ver. "
-            +
-            get_local_version(),
+            name=(
+                _("Crashlog Viewer")
+                +
+                " ver. "
+                +
+                get_local_version()
+            ),
 
             description=_(
                 "View and remove crashlog files"
@@ -1346,6 +1521,7 @@ def Plugins(
 
             fnc=main,
         ),
+
 
         PluginDescriptor(
             where=PluginDescriptor.WHERE_MENU,
