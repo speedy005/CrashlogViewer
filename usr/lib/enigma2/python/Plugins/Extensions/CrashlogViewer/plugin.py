@@ -308,19 +308,25 @@ def parse_version(version_str):
 # Update starten
 # =========================================================
 
-def install_update(self, answer, installer_url):
+def install_update(session, answer, installer_url):
 
     """Runs the update installer if the user confirmed."""
 
     if answer:
 
         # -------------------------------------------------
-        # Installer ausführen
+        # Installer herunterladen und mit Bash ausführen
         # -------------------------------------------------
 
         cmd = (
+            "TMP=/tmp/CrashlogViewer-installer.sh; "
             "wget -q --no-check-certificate "
-            "\"%s\" -O - | /bin/sh"
+            "\"%s\" -O \"$TMP\" && "
+            "chmod 755 \"$TMP\" && "
+            "/bin/bash \"$TMP\"; "
+            "RET=$?; "
+            "rm -f \"$TMP\"; "
+            "exit $RET"
         ) % installer_url
 
         try:
@@ -334,7 +340,7 @@ def install_update(self, answer, installer_url):
                 % e
             )
 
-            self.session.open(
+            session.open(
                 MessageBox,
                 _(
                     "Could not start the update installer."
@@ -349,13 +355,17 @@ def install_update(self, answer, installer_url):
             "[CrashlogViewer] Starting update installer..."
         )
 
-        self.session.open(
+        session.open(
             Console,
             _("Updating..."),
             cmdlist=[
                 cmd
             ],
-            finishedCallback=self.update_finished,
+            finishedCallback=lambda result=None:
+                update_finished(
+                    session,
+                    result
+                ),
             closeOnSuccess=True
         )
 
@@ -365,7 +375,7 @@ def install_update(self, answer, installer_url):
             "[CrashlogViewer] Update canceled by user."
         )
 
-        self.session.open(
+        session.open(
             MessageBox,
             _("Update canceled."),
             MessageBox.TYPE_INFO,
