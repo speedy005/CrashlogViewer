@@ -57,7 +57,7 @@ LOG_BASE_PATH = "/home/root/logs/"
 # Fallback-Version.
 # Die tatsächlich installierte Version wird bevorzugt aus
 # version.txt gelesen.
-version = "2.5.2"
+version = "2.5.3"
 
 LOGFILE = "/tmp/CrashlogViewer.log"
 UPDATE_LOGFILE = "/tmp/CrashlogViewer-update.log"
@@ -1158,14 +1158,10 @@ def update_finished(
                     % e
                 )
 
-                session.open(
-                    MessageBox,
-                    _(
-                        "The GUI could not be restarted "
-                        "automatically.\n\n%s"
-                    ) % e,
-                    MessageBox.TYPE_ERROR,
-                    timeout=8
+                log(
+                    "[CrashlogViewer] The GUI could not be "
+                    "restarted automatically: %s"
+                    % e
                 )
 
         else:
@@ -1175,17 +1171,18 @@ def update_finished(
                 "to restart the Enigma2 GUI."
             )
 
-            session.open(
-                MessageBox,
-                _(
-                    "CrashlogViewer was updated successfully "
-                    "to version %s.\n\n"
-                    "Please restart the Enigma2 GUI manually "
-                    "to activate the new version."
-                ) % installed_version,
-                MessageBox.TYPE_INFO,
-                timeout=8
+            log(
+                "[CrashlogViewer] CrashlogViewer was updated "
+                "successfully to version %s."
+                % installed_version
             )
+
+            log(
+                "[CrashlogViewer] Please restart the "
+                "Enigma2 GUI manually to activate the "
+                "new version."
+            )
+
 
     session.openWithCallback(
         restart_gui_callback,
