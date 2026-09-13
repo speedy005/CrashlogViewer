@@ -2045,10 +2045,8 @@ def menu(
 
     if menuid == "mainmenu":
 
-        plugin_name = (
-            _("Crashlog Viewer")
-            + " ver. "
-            + get_local_version()
+        plugin_name = _(
+            "Crashlog Viewer"
         )
 
         return [
