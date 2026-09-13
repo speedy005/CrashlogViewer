@@ -57,7 +57,7 @@ LOG_BASE_PATH = "/home/root/logs/"
 # Fallback-Version.
 # Die tatsächlich installierte Version wird bevorzugt aus
 # version.txt gelesen.
-version = "2.5.3"
+version = "2.5.4"
 
 LOGFILE = "/tmp/CrashlogViewer.log"
 UPDATE_LOGFILE = "/tmp/CrashlogViewer-update.log"
@@ -1560,6 +1560,10 @@ class CrashLogScreen(Screen):
 
         self["Bluekey"] = StaticText(
             _("Remove All")
+        )
+
+        self["Version"] = StaticText(
+            "v%s" % get_local_version()
         )
 
         self.list = []
