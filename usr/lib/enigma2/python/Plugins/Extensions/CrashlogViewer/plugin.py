@@ -153,7 +153,7 @@ def log(msg):
 
 INSTALLER_URL = (
     "https://raw.githubusercontent.com/"
-    "speedy005/CrashlogViewer/main/install.sh"
+    "speedy005/CrashlogViewer/main/installer.sh"
 )
 
 GITHUB_VERSION_URL = (
