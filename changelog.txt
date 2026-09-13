@@ -1,0 +1,9 @@
+CrashlogViewer 2.5.1
+
+- Improved the update and installation system.
+- Improved version detection using version.txt.
+- Added reliable installer status handling.
+- Improved Enigma2 GUI restart handling after updates.
+- Fixed issues with the update process and installer execution.
+- Improved compatibility with Python 3 Enigma2 images.
+- General stability and reliability improvements.
