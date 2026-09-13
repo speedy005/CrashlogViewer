@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: CrashlogViewer 2.5\n"
+"Project-Id-Version: CrashlogViewer 2.5.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-09-13 12:00+0000\n"
 "PO-Revision-Date: 2026-09-13 12:00+0000\n"
@@ -50,14 +50,6 @@ msgstr "Änderungen:"
 #: plugin.py
 msgid "Do you want to install it now?"
 msgstr "Möchten Sie das Update jetzt installieren?"
-
-#: plugin.py
-msgid "You already have version {version} installed."
-msgstr "Sie haben bereits Version {version} installiert."
-
-#: plugin.py
-msgid "Do you want to reinstall it?"
-msgstr "Möchten Sie die Version erneut installieren?"
 
 #: plugin.py
 msgid "The remote version ({remote}) is older than the current one ({current})."
