@@ -987,8 +987,7 @@ def install_update(
                 command
             ],
             finishedCallback=installer_finished,
-            closeOnSuccess=True,
-            closeOnCancel=True
+            closeOnSuccess=True
         )
 
     except Exception as e:
