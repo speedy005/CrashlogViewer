@@ -14,6 +14,7 @@ import sys
 import re
 import time
 import glob
+import io
 
 from os import remove
 
@@ -67,7 +68,9 @@ def localeInit():
         LOCALE_DIR
     )
 
-    gettext.textdomain(DOMAIN)
+    gettext.textdomain(
+        DOMAIN
+    )
 
 
 def _(txt):
@@ -117,13 +120,18 @@ def log(msg):
 
     try:
 
-        with open(
+        with io.open(
             LOGFILE,
-            "a"
+            "a",
+            encoding="utf-8"
         ) as f:
 
             f.write(
-                msg + "\n"
+                unicode(msg) if PY2 else str(msg)
+            )
+
+            f.write(
+                u"\n"
             )
 
     except Exception:
@@ -168,19 +176,15 @@ VERSION_FILE = os.path.join(
     "version.txt"
 )
 
-LAST_UPDATE_FILE = os.path.join(
-    PLUGIN_PATH,
-    "last_update_version.txt"
-)
-
 
 def get_local_version():
 
     try:
 
-        with open(
+        with io.open(
             VERSION_FILE,
-            "r"
+            "r",
+            encoding="utf-8"
         ) as f:
 
             local_version = f.read().strip()
@@ -189,9 +193,12 @@ def get_local_version():
 
                 return local_version
 
-    except Exception:
+    except Exception as e:
 
-        pass
+        log(
+            "[CrashlogViewer] Error reading local version: %s"
+            % e
+        )
 
     return version
 
@@ -213,7 +220,7 @@ def get_remote_version():
             GITHUB_VERSION_URL,
             headers={
                 "User-Agent":
-                    "CrashlogViewer-Updater/2.5.0"
+                    "CrashlogViewer-Updater/2.5.1"
             }
         )
 
@@ -223,6 +230,12 @@ def get_remote_version():
         ).read()
 
         if PY3:
+
+            response = response.decode(
+                "utf-8"
+            )
+
+        else:
 
             response = response.decode(
                 "utf-8"
@@ -266,7 +279,7 @@ def get_remote_changelog():
             GITHUB_CHANGELOG_URL,
             headers={
                 "User-Agent":
-                    "CrashlogViewer-Updater/2.5.0"
+                    "CrashlogViewer-Updater/2.5.1"
             }
         )
 
@@ -276,6 +289,12 @@ def get_remote_changelog():
         ).read()
 
         if PY3:
+
+            response = response.decode(
+                "utf-8"
+            )
+
+        else:
 
             response = response.decode(
                 "utf-8"
@@ -332,22 +351,111 @@ def parse_version(version_str):
 
 
 # =========================================================
+# Installer Ergebnis prüfen
+# =========================================================
+
+def installer_success(result):
+
+    """
+    Enigma2 Console liefert je nach Image meistens eine
+    Liste oder ein Tuple mit den Returncodes der ausgeführten
+    Befehle.
+
+    Beispiel:
+
+        (0,)     = erfolgreich
+        (1,)     = Fehler
+        (8,)     = Fehler
+
+    Wir akzeptieren Erfolg ausschließlich bei Returncode 0.
+    """
+
+    log(
+        "[CrashlogViewer] Checking installer result: %s"
+        % result
+    )
+
+    if result is None:
+
+        log(
+            "[CrashlogViewer] Installer result is None."
+        )
+
+        return False
+
+    try:
+
+        if isinstance(
+            result,
+            (tuple, list)
+        ):
+
+            if len(result) == 0:
+
+                return False
+
+            for ret in result:
+
+                try:
+
+                    if int(ret) != 0:
+
+                        log(
+                            "[CrashlogViewer] "
+                            "Installer returned error: %s"
+                            % ret
+                        )
+
+                        return False
+
+                except Exception:
+
+                    return False
+
+            return True
+
+        return int(result) == 0
+
+    except Exception as e:
+
+        log(
+            "[CrashlogViewer] Could not evaluate "
+            "installer result: %s"
+            % e
+        )
+
+        return False
+
+
+# =========================================================
 # Update starten
 # =========================================================
 
 def install_update(
     session,
     answer,
-    installer_url
+    installer_url,
+    callback=None
 ):
 
     """
     Starts the external CrashlogViewer installer.
 
-    The installer itself does NOT restart Enigma2.
-    After the installer finishes, update_finished()
-    asks the user whether the GUI should be restarted.
+    IMPORTANT:
+    The installer itself MUST NOT restart Enigma2.
+
+    The installer must exit with:
+
+        0 = successful installation
+        !=0 = installation failed
+
+    Only after a successful installation does
+    update_finished() ask for a GUI restart.
     """
+
+    # =====================================================
+    # Update abgebrochen
+    # =====================================================
 
     if not answer:
 
@@ -355,34 +463,53 @@ def install_update(
             "[CrashlogViewer] Update canceled by user."
         )
 
-        session.open(
-            MessageBox,
-            _("Update canceled."),
-            MessageBox.TYPE_INFO,
-            timeout=3
-        )
+        if callback:
+
+            callback()
+
+        else:
+
+            session.open(
+                MessageBox,
+                _("Update canceled."),
+                MessageBox.TYPE_INFO,
+                timeout=3
+            )
 
         return
 
 
-    # -----------------------------------------------------
-    # Installer temporär herunterladen und mit Bash
-    # ausführen.
-    #
-    # Wichtig:
-    # Der Installer wird NICHT über /bin/sh gepiped,
-    # sondern explizit mit /bin/bash gestartet.
-    # -----------------------------------------------------
+    # =====================================================
+    # Temporärer Installer
+    # =====================================================
 
     installer_tmp = (
         "/tmp/CrashlogViewer-installer.sh"
     )
 
+
+    # =====================================================
+    # Installer Befehl
+    # =====================================================
+
     cmd = (
         "rm -f \"%s\"; "
         "wget -q --no-check-certificate "
-        "\"%s\" -O \"%s\" && "
-        "chmod 755 \"%s\" && "
+        "--timeout=30 "
+        "--tries=3 "
+        "\"%s\" -O \"%s\"; "
+        "RET=$?; "
+        "if [ $RET -ne 0 ]; then "
+        "echo 'ERROR: Could not download installer'; "
+        "rm -f \"%s\"; "
+        "exit $RET; "
+        "fi; "
+        "chmod 755 \"%s\"; "
+        "if [ $? -ne 0 ]; then "
+        "echo 'ERROR: Could not make installer executable'; "
+        "rm -f \"%s\"; "
+        "exit 1; "
+        "fi; "
         "/bin/bash \"%s\"; "
         "RET=$?; "
         "rm -f \"%s\"; "
@@ -390,6 +517,8 @@ def install_update(
     ) % (
         installer_tmp,
         installer_url,
+        installer_tmp,
+        installer_tmp,
         installer_tmp,
         installer_tmp,
         installer_tmp,
@@ -407,23 +536,28 @@ def install_update(
     )
 
 
-    # -----------------------------------------------------
+    # =====================================================
     # Console öffnen
-    # -----------------------------------------------------
+    # =====================================================
 
     try:
 
         session.open(
             Console,
+
             _("Updating..."),
+
             cmdlist=[
                 cmd
             ],
+
             finishedCallback=lambda result=None:
                 update_finished(
                     session,
-                    result
+                    result,
+                    callback
                 ),
+
             closeOnSuccess=True
         )
 
@@ -451,7 +585,8 @@ def install_update(
 
 def update_finished(
     session,
-    result=None
+    result=None,
+    callback=None
 ):
 
     """
@@ -472,15 +607,48 @@ def update_finished(
     )
 
 
-    # -----------------------------------------------------
+    # =====================================================
+    # Installer Ergebnis prüfen
+    # =====================================================
+
+    if not installer_success(result):
+
+        log(
+            "[CrashlogViewer] Update installer FAILED."
+        )
+
+
+        session.open(
+            MessageBox,
+            _(
+                "The update could not be installed."
+            ),
+            MessageBox.TYPE_ERROR,
+            timeout=7
+        )
+
+        return
+
+
+    # =====================================================
+    # Installer erfolgreich
+    # =====================================================
+
+    log(
+        "[CrashlogViewer] Update installer completed "
+        "successfully."
+    )
+
+
+    # =====================================================
     # GUI Neustart Callback
-    # -----------------------------------------------------
+    # =====================================================
 
     def restart_gui_callback(answer):
 
-        # -------------------------------------------------
+        # =================================================
         # JA
-        # -------------------------------------------------
+        # =================================================
 
         if answer:
 
@@ -518,9 +686,9 @@ def update_finished(
                     timeout=5
                 )
 
-        # -------------------------------------------------
+        # =================================================
         # NEIN
-        # -------------------------------------------------
+        # =================================================
 
         else:
 
@@ -540,17 +708,20 @@ def update_finished(
             )
 
 
-    # -----------------------------------------------------
+    # =====================================================
     # YES / NO Dialog
-    # -----------------------------------------------------
+    # =====================================================
 
     session.openWithCallback(
         restart_gui_callback,
+
         MessageBox,
+
         _(
             "The update has been installed successfully.\n\n"
             "Would you like to restart the Enigma2 GUI now?"
         ),
+
         MessageBox.TYPE_YESNO
     )
 
@@ -575,9 +746,9 @@ def check_for_update(
     remote_version = get_remote_version()
 
 
-    # -----------------------------------------------------
+    # =====================================================
     # Remote Version konnte nicht geladen werden
-    # -----------------------------------------------------
+    # =====================================================
 
     if not remote_version:
 
@@ -642,14 +813,19 @@ def check_for_update(
 
 
         session.openWithCallback(
+
             lambda answer:
                 install_update(
                     session,
                     answer,
-                    INSTALLER_URL
+                    INSTALLER_URL,
+                    callback
                 ),
+
             MessageBox,
+
             msg,
+
             MessageBox.TYPE_YESNO
         )
 
@@ -679,14 +855,19 @@ def check_for_update(
 
 
         session.openWithCallback(
+
             lambda answer:
                 install_update(
                     session,
                     answer,
-                    INSTALLER_URL
+                    INSTALLER_URL,
+                    callback
                 ),
+
             MessageBox,
+
             msg,
+
             MessageBox.TYPE_YESNO
         )
 
@@ -701,6 +882,7 @@ def check_for_update(
 
         session.open(
             MessageBox,
+
             _(
                 "The remote version ({remote}) is older "
                 "than the current one ({current})."
@@ -708,7 +890,9 @@ def check_for_update(
                 remote=remote_version,
                 current=current_version
             ),
+
             MessageBox.TYPE_INFO,
+
             timeout=5
         )
 
@@ -725,9 +909,10 @@ def isMountReadonly(mnt):
 
     try:
 
-        with open(
+        with io.open(
             "/proc/mounts",
-            "r"
+            "r",
+            encoding="utf-8"
         ) as f:
 
             for line in f:
@@ -1191,7 +1376,7 @@ class CrashLogScreen(Screen):
                 "Modifier: Evg77734\n\n"
                 "Update from Lululla\n"
                 "Homepage: gisclub.tv"
-            ) % version,
+            ) % get_local_version(),
             MessageBox.TYPE_INFO
         )
 
@@ -1339,7 +1524,12 @@ class LogScreen(Screen):
 
             else:
 
-                with open(
+                # -------------------------------------------------
+                # io.open verwenden, damit Python 2 ebenfalls
+                # encoding/errors unterstützt.
+                # -------------------------------------------------
+
+                with io.open(
                     self.crashfile,
                     "r",
                     encoding="utf-8",
@@ -1482,6 +1672,7 @@ def main(
 
     check_for_update(
         session,
+
         lambda:
             session.open(
                 CrashLogScreen
