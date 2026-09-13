@@ -57,7 +57,7 @@ LOG_BASE_PATH = "/home/root/logs/"
 # Fallback-Version.
 # Die tatsächlich installierte Version wird bevorzugt aus
 # version.txt gelesen.
-version = "2.5.4"
+version = "2.5.5"
 
 LOGFILE = "/tmp/CrashlogViewer.log"
 UPDATE_LOGFILE = "/tmp/CrashlogViewer-update.log"
@@ -2095,10 +2095,8 @@ def Plugins(
     return [
 
         PluginDescriptor(
-            name=(
-                _("Crashlog Viewer")
-                + " ver. "
-                + get_local_version()
+            name=_(
+                "Crashlog Viewer"
             ),
             description=_(
                 "View and remove crashlog files"
