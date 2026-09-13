@@ -26,20 +26,6 @@ echo "Remote version: $version"
 echo ""
 
 # ---------------------------------------------------------
-# Installationspfad
-# ---------------------------------------------------------
-
-if [ -d /usr/lib64 ]; then
-    PLUGINPATH="/usr/lib64/enigma2/python/Plugins/Extensions/CrashlogViewer"
-else
-    PLUGINPATH="/usr/lib/enigma2/python/Plugins/Extensions/CrashlogViewer"
-fi
-
-echo "Plugin path:"
-echo "$PLUGINPATH"
-echo ""
-
-# ---------------------------------------------------------
 # Python / OS
 # ---------------------------------------------------------
 
@@ -51,23 +37,23 @@ else
     OSTYPE="Dream"
 fi
 
+echo "OS type: $OSTYPE"
+
 if python --version 2>&1 | grep -q '^Python 3\.'; then
+
     PYTHON="PY3"
     Packagesix="python3-six"
-
-    if [ "$OSTYPE" = "DreamOs" ]; then
-        Packagerequests="python3-requests"
-    else
-        Packagerequests="python3-requests"
-    fi
+    Packagerequests="python3-requests"
 
     echo "Python3 image detected."
 
 else
+
     PYTHON="PY2"
     Packagerequests="python-requests"
 
     echo "Python2 image detected."
+
 fi
 
 echo ""
@@ -82,8 +68,13 @@ if [ "$PYTHON" = "PY3" ]; then
 
         echo "Installing $Packagesix..."
 
-        opkg update
-        opkg install "$Packagesix"
+        if [ "$OSTYPE" = "DreamOs" ]; then
+            apt-get update
+            apt-get install "$Packagesix" -y
+        else
+            opkg update
+            opkg install "$Packagesix"
+        fi
 
     fi
 
@@ -177,10 +168,10 @@ echo "Extracting..."
 
 tar -xzf "$ARCHIVE"
 
-if [ ! -d "$SOURCE/usr" ]; then
+if [ ! -d "$SOURCE" ]; then
 
     echo ""
-    echo "ERROR: Plugin source directory not found."
+    echo "ERROR: Extracted source directory not found."
     echo ""
 
     rm -rf "$TMPPATH"
@@ -189,38 +180,114 @@ if [ ! -d "$SOURCE/usr" ]; then
 
 fi
 
-echo "Source directory found."
+echo "Source directory found:"
+echo "$SOURCE"
 echo ""
 
 # ---------------------------------------------------------
-# Neue Installation vorbereiten
+# Plugin-Verzeichnis im Archiv suchen
 # ---------------------------------------------------------
 
-echo "Installing CrashlogViewer..."
+echo "Searching for CrashlogViewer plugin..."
 
-# Wir entfernen NUR die alte Plugin-Installation
-# unmittelbar vor dem Kopieren der bereits vollständig
-# geprüften neuen Dateien.
+PLUGIN_SOURCE=$(find "$SOURCE/usr" \
+    -type d \
+    -name "CrashlogViewer" \
+    2>/dev/null | head -n 1)
+
+if [ -z "$PLUGIN_SOURCE" ]; then
+
+    echo ""
+    echo "ERROR: CrashlogViewer plugin directory not found"
+    echo "inside the downloaded archive."
+    echo ""
+
+    echo "Archive structure:"
+    find "$SOURCE" -maxdepth 8 -type d 2>/dev/null
+
+    rm -rf "$TMPPATH"
+
+    exit 1
+
+fi
+
+echo "Plugin source found:"
+echo "$PLUGIN_SOURCE"
+echo ""
+
+# ---------------------------------------------------------
+# Tatsächlichen Installationspfad ermitteln
+# ---------------------------------------------------------
+
+PLUGIN_RELATIVE="${PLUGIN_SOURCE#$SOURCE/usr/}"
+
+PLUGINPATH="/$PLUGIN_RELATIVE"
+
+echo "Plugin installation path:"
+echo "$PLUGINPATH"
+echo ""
+
+# ---------------------------------------------------------
+# Alte Installation sichern
+# ---------------------------------------------------------
+
+BACKUPPATH="${PLUGINPATH}.backup"
+
+if [ -d "$BACKUPPATH" ]; then
+
+    echo "Removing old backup..."
+
+    rm -rf "$BACKUPPATH"
+
+fi
 
 if [ -d "$PLUGINPATH" ]; then
 
-    echo "Removing old installation..."
+    echo "Backing up existing installation..."
 
-    rm -rf "$PLUGINPATH"
+    mv "$PLUGINPATH" "$BACKUPPATH"
+
+    echo "Backup created:"
+    echo "$BACKUPPATH"
+    echo ""
 
 fi
 
 # ---------------------------------------------------------
-# Neue Dateien kopieren
+# Neue Dateien installieren
 # ---------------------------------------------------------
 
-cp -a "$SOURCE/usr/." "/"
+echo "Installing CrashlogViewer..."
+
+if ! cp -a "$SOURCE/usr/." "/"; then
+
+    echo ""
+    echo "ERROR: Failed to copy plugin files."
+    echo ""
+
+    # Neue Installation entfernen
+    if [ -d "$PLUGINPATH" ]; then
+        rm -rf "$PLUGINPATH"
+    fi
+
+    # Alte Installation wiederherstellen
+    if [ -d "$BACKUPPATH" ]; then
+        mv "$BACKUPPATH" "$PLUGINPATH"
+    fi
+
+    rm -rf "$TMPPATH"
+
+    exit 1
+
+fi
+
+echo "Files copied."
+echo ""
 
 # ---------------------------------------------------------
 # Installation überprüfen
 # ---------------------------------------------------------
 
-echo ""
 echo "Verifying installation..."
 
 if [ ! -d "$PLUGINPATH" ]; then
@@ -228,12 +295,26 @@ if [ ! -d "$PLUGINPATH" ]; then
     echo ""
     echo "ERROR: Plugin directory was not installed."
     echo ""
+    echo "Expected:"
+    echo "$PLUGINPATH"
+    echo ""
+
+    # Neue Installation entfernen
+    rm -rf "$PLUGINPATH"
+
+    # Alte Installation wiederherstellen
+    if [ -d "$BACKUPPATH" ]; then
+        mv "$BACKUPPATH" "$PLUGINPATH"
+    fi
 
     rm -rf "$TMPPATH"
 
     exit 1
 
 fi
+
+echo "Plugin directory successfully installed."
+echo ""
 
 # ---------------------------------------------------------
 # Version überprüfen
@@ -251,20 +332,49 @@ echo "Installed version: $INSTALLED_VERSION"
 echo "Expected version:  $version"
 echo ""
 
-if [ -n "$version" ] && [ -n "$INSTALLED_VERSION" ]; then
+if [ -z "$INSTALLED_VERSION" ]; then
 
-    if [ "$INSTALLED_VERSION" != "$version" ]; then
+    echo ""
+    echo "WARNING: version.txt was not found."
+    echo ""
+
+else
+
+    if [ -n "$version" ] && [ "$INSTALLED_VERSION" != "$version" ]; then
 
         echo ""
-        echo "WARNING:"
+        echo "ERROR:"
         echo "Installed version does not match remote version."
         echo ""
+        echo "Installed: $INSTALLED_VERSION"
+        echo "Expected:  $version"
+        echo ""
+
+        # Neue Installation entfernen
+        rm -rf "$PLUGINPATH"
+
+        # Alte Installation wiederherstellen
+        if [ -d "$BACKUPPATH" ]; then
+            mv "$BACKUPPATH" "$PLUGINPATH"
+        fi
 
         rm -rf "$TMPPATH"
 
         exit 1
 
     fi
+
+fi
+
+# ---------------------------------------------------------
+# Backup löschen
+# ---------------------------------------------------------
+
+if [ -d "$BACKUPPATH" ]; then
+
+    echo "Removing old backup..."
+
+    rm -rf "$BACKUPPATH"
 
 fi
 
