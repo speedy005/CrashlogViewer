@@ -387,12 +387,93 @@ def install_update(session, answer, installer_url):
 # Update abgeschlossen
 # =========================================================
 
-def update_finished(self, result=None):
+def update_finished(session, result=None):
 
     """Callback executed when the installation finishes."""
 
     log(
         "[CrashlogViewer] Update installer finished."
+    )
+
+    # -----------------------------------------------------
+    # GUI Neustart Abfrage
+    # -----------------------------------------------------
+
+    def restart_gui_callback(answer):
+
+        # -------------------------------------------------
+        # YES
+        # -------------------------------------------------
+
+        if answer:
+
+            log(
+                "[CrashlogViewer] User chose to restart "
+                "the Enigma2 GUI."
+            )
+
+            try:
+
+                from enigma import quitMainloop
+
+                log(
+                    "[CrashlogViewer] Restarting "
+                    "Enigma2 GUI..."
+                )
+
+                quitMainloop(3)
+
+            except Exception as e:
+
+                log(
+                    "[CrashlogViewer] Could not restart "
+                    "Enigma2 GUI: %s"
+                    % e
+                )
+
+                session.open(
+                    MessageBox,
+                    _(
+                        "The GUI could not be restarted "
+                        "automatically."
+                    ),
+                    MessageBox.TYPE_ERROR,
+                    timeout=5
+                )
+
+        # -------------------------------------------------
+        # NO
+        # -------------------------------------------------
+
+        else:
+
+            log(
+                "[CrashlogViewer] User chose NOT to restart "
+                "the Enigma2 GUI."
+            )
+
+            session.open(
+                MessageBox,
+                _(
+                    "Update installed successfully.\n\n"
+                    "The Enigma2 GUI was not restarted."
+                ),
+                MessageBox.TYPE_INFO,
+                timeout=5
+            )
+
+    # -----------------------------------------------------
+    # YES / NO Dialog
+    # -----------------------------------------------------
+
+    session.openWithCallback(
+        restart_gui_callback,
+        MessageBox,
+        _(
+            "The update has been installed successfully.\n\n"
+            "Would you like to restart the Enigma2 GUI now?"
+        ),
+        MessageBox.TYPE_YESNO
     )
 
     # -----------------------------------------------------
