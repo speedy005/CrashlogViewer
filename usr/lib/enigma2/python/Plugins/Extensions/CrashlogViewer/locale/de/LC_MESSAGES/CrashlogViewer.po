@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: CrashlogViewer 2.5.1\n"
+"Project-Id-Version: CrashlogViewer 2.5.2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-09-13 12:00+0000\n"
 "PO-Revision-Date: 2026-09-13 12:00+0000\n"
@@ -12,32 +12,94 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: plugin.py
-msgid "The update has been installed successfully.\n\nWould you like to restart the Enigma2 GUI now?"
-msgstr "Das Update wurde erfolgreich installiert.\n\nMöchten Sie die Enigma2-GUI jetzt neu starten?"
+msgid ""
+"An update is already running.\n\n"
+"Please wait until it has finished."
+msgstr ""
+"Ein Update läuft bereits.\n\n"
+"Bitte warten Sie, bis es abgeschlossen ist."
 
 #: plugin.py
-msgid "The GUI could not be restarted automatically."
-msgstr "Die GUI konnte nicht automatisch neu gestartet werden."
+msgid "Could not create the update lock."
+msgstr "Die Update-Sperre konnte nicht erstellt werden."
 
 #: plugin.py
-msgid "Update installed successfully.\n\nThe Enigma2 GUI was not restarted."
-msgstr "Das Update wurde erfolgreich installiert.\n\nDie Enigma2-GUI wurde nicht neu gestartet."
+msgid "Updating CrashlogViewer..."
+msgstr "CrashlogViewer wird aktualisiert..."
 
 #: plugin.py
 msgid "Update canceled."
 msgstr "Aktualisierung abgebrochen."
 
 #: plugin.py
-msgid "Updating..."
-msgstr "Aktualisierung..."
-
-#: plugin.py
 msgid "Could not start the update installer."
 msgstr "Der Update-Installer konnte nicht gestartet werden."
 
 #: plugin.py
+msgid ""
+"Could not start the update installer.\n\n"
+"%s"
+msgstr ""
+"Der Update-Installer konnte nicht gestartet werden.\n\n"
+"%s"
+
+#: plugin.py
+msgid ""
+"The update finished, but no installer "
+"status was returned.\n\n"
+"Please check:\n%s"
+msgstr ""
+"Das Update wurde beendet, aber es wurde kein "
+"Installer-Status zurückgegeben.\n\n"
+"Bitte prüfen Sie:\n%s"
+
+#: plugin.py
+msgid ""
+"The update could not be installed.\n\n"
+"Installer return code: %s\n\n"
+"See the update log:\n%s"
+msgstr ""
+"Das Update konnte nicht installiert werden.\n\n"
+"Installer-Rückgabecode: %s\n\n"
+"Siehe Update-Log:\n%s"
+
+#: plugin.py
+msgid ""
+"CrashlogViewer was updated successfully "
+"to version %s.\n\n"
+"Do you want to restart the Enigma2 GUI now?"
+msgstr ""
+"CrashlogViewer wurde erfolgreich auf Version %s "
+"aktualisiert.\n\n"
+"Möchten Sie die Enigma2-GUI jetzt neu starten?"
+
+#: plugin.py
+msgid ""
+"CrashlogViewer was updated successfully "
+"to version %s.\n\n"
+"Please restart the Enigma2 GUI manually "
+"to activate the new version."
+msgstr ""
+"CrashlogViewer wurde erfolgreich auf Version %s "
+"aktualisiert.\n\n"
+"Bitte starten Sie die Enigma2-GUI manuell neu, "
+"um die neue Version zu aktivieren."
+
+#: plugin.py
+msgid "The GUI could not be restarted automatically."
+msgstr "Die GUI konnte nicht automatisch neu gestartet werden."
+
+#: plugin.py
 msgid "Could not fetch update information."
 msgstr "Update-Informationen konnten nicht abgerufen werden."
+
+#: plugin.py
+msgid ""
+"Could not fetch update information.\n\n"
+"The CrashlogViewer will now open."
+msgstr ""
+"Update-Informationen konnten nicht abgerufen werden.\n\n"
+"CrashlogViewer wird jetzt geöffnet."
 
 #: plugin.py
 msgid "New version {version} is available."
@@ -54,6 +116,18 @@ msgstr "Möchten Sie das Update jetzt installieren?"
 #: plugin.py
 msgid "The remote version ({remote}) is older than the current one ({current})."
 msgstr "Die entfernte Version ({remote}) ist älter als die aktuelle Version ({current})."
+
+#: plugin.py
+msgid "The filesystem is mounted read-only."
+msgstr "Das Dateisystem ist schreibgeschützt eingebunden."
+
+#: plugin.py
+msgid "read-only filesystem"
+msgstr "schreibgeschütztes Dateisystem"
+
+#: plugin.py
+msgid "Failed to remove some files:"
+msgstr "Einige Dateien konnten nicht gelöscht werden:"
 
 #: plugin.py
 msgid "View or Remove Crashlog files"
@@ -96,21 +170,17 @@ msgid "No log files found to remove"
 msgstr "Keine Logdateien zum Löschen gefunden"
 
 #: plugin.py
-msgid "Failed to remove some files:\n"
-msgstr "Einige Dateien konnten nicht gelöscht werden:\n"
-
-#: plugin.py
 msgid ""
-"Crashlog Viewer  ver. %s\n\n"
+"Crashlog Viewer ver. %s\n\n"
 "Developer: 2boom\n\n"
 "Modifier: Evg77734\n\n"
 "Update from Lululla\n"
 "Homepage: gisclub.tv"
 msgstr ""
-"Crashlog Viewer  Ver. %s\n\n"
-"Entwickler: speedy005\n\n"
-"Bearbeiter: speedy005\n\n"
-"Update von speedy005\n"
+"Crashlog Viewer Ver. %s\n\n"
+"Entwickler: 2boom\n\n"
+"Bearbeiter: Evg77734\n\n"
+"Update von Lululla\n"
 "Homepage: github.com/speedy005"
 
 #: plugin.py
