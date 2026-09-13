@@ -1,235 +1,232 @@
 #!/bin/bash
 
-######### Only This 2 lines to edit with new version ######
-# Version und changelog aus der version.txt-Datei herunterladen
-version=$(curl -s https://raw.githubusercontent.com/speedy005/CrashlogViewer/main/version.txt)
-changelog=$(curl -s https://raw.githubusercontent.com/speedy005/CrashlogViewer/main/changelog.txt)
+######### Only These 2 lines to edit with new version ######
+
+version=$(curl -fsSL \
+    https://raw.githubusercontent.com/speedy005/CrashlogViewer/main/version.txt)
+
+changelog=$(curl -fsSL \
+    https://raw.githubusercontent.com/speedy005/CrashlogViewer/main/changelog.txt)
+
 ##############################################################
 
-TMPPATH=/tmp/CrashlogViewer
+set -e
 
+TMPPATH="/tmp/CrashlogViewer"
+ARCHIVE="$TMPPATH/main.tar.gz"
+SOURCE="$TMPPATH/CrashlogViewer-main"
+
+echo ""
+echo "========================================================="
+echo " CrashlogViewer Installer"
+echo "========================================================="
+echo ""
+
+echo "Remote version: $version"
+echo ""
 
 # ---------------------------------------------------------
-# Bestimmen des Installationspfads basierend auf dem
-# Systemtyp
+# Installationspfad
 # ---------------------------------------------------------
 
 if [ -d /usr/lib64 ]; then
-    PLUGINPATH=/usr/lib64/enigma2/python/Plugins/Extensions/CrashlogViewer
+    PLUGINPATH="/usr/lib64/enigma2/python/Plugins/Extensions/CrashlogViewer"
 else
-    PLUGINPATH=/usr/lib/enigma2/python/Plugins/Extensions/CrashlogViewer
+    PLUGINPATH="/usr/lib/enigma2/python/Plugins/Extensions/CrashlogViewer"
 fi
 
+echo "Plugin path:"
+echo "$PLUGINPATH"
+echo ""
 
 # ---------------------------------------------------------
-# Überprüfung des OS-Typs
+# Python / OS
 # ---------------------------------------------------------
 
 if [ -f /var/lib/dpkg/status ]; then
-
-    STATUS=/var/lib/dpkg/status
-    OSTYPE=DreamOs
-
+    STATUS="/var/lib/dpkg/status"
+    OSTYPE="DreamOs"
 else
-
-    STATUS=/var/lib/opkg/status
-    OSTYPE=Dream
-
+    STATUS="/var/lib/opkg/status"
+    OSTYPE="Dream"
 fi
 
+if python --version 2>&1 | grep -q '^Python 3\.'; then
+    PYTHON="PY3"
+    Packagesix="python3-six"
+
+    if [ "$OSTYPE" = "DreamOs" ]; then
+        Packagerequests="python3-requests"
+    else
+        Packagerequests="python3-requests"
+    fi
+
+    echo "Python3 image detected."
+
+else
+    PYTHON="PY2"
+    Packagerequests="python-requests"
+
+    echo "Python2 image detected."
+fi
 
 echo ""
 
-
 # ---------------------------------------------------------
-# Python-Version feststellen
-# ---------------------------------------------------------
-
-if python --version 2>&1 | grep -q '^Python 3\.'; then
-
-    echo "You have Python3 image"
-
-    PYTHON=PY3
-    Packagesix=python3-six
-    Packagerequests=python3-requests
-
-else
-
-    echo "You have Python2 image"
-
-    PYTHON=PY2
-    Packagerequests=python-requests
-
-fi
-
-
-# ---------------------------------------------------------
-# Benötigte Pakete überprüfen und installieren
+# Benötigte Pakete
 # ---------------------------------------------------------
 
 if [ "$PYTHON" = "PY3" ]; then
 
     if ! grep -qs "Package: $Packagesix" "$STATUS"; then
 
-        echo "Need to install $Packagesix"
+        echo "Installing $Packagesix..."
 
-        opkg update && opkg install python3-six
+        opkg update
+        opkg install "$Packagesix"
 
     fi
 
 fi
-
-
-echo ""
-
 
 if ! grep -qs "Package: $Packagerequests" "$STATUS"; then
 
-    echo "Need to install $Packagerequests"
+    echo "Installing $Packagerequests..."
 
     if [ "$OSTYPE" = "DreamOs" ]; then
 
-        apt-get update && apt-get install python3-requests -y
+        apt-get update
+        apt-get install "$Packagerequests" -y
 
-    elif [ "$PYTHON" = "PY3" ]; then
+    else
 
-        opkg update && opkg install python3-requests
-
-    elif [ "$PYTHON" = "PY2" ]; then
-
-        opkg update && opkg install python-requests
+        opkg update
+        opkg install "$Packagerequests"
 
     fi
 
 fi
 
-
 echo ""
 
+# ---------------------------------------------------------
+# Temporäres Verzeichnis
+# ---------------------------------------------------------
+
+rm -rf "$TMPPATH"
+
+mkdir -p "$TMPPATH"
+
+cd "$TMPPATH"
 
 # ---------------------------------------------------------
-# Temporäres Verzeichnis und altes Plugin entfernen
+# Download
 # ---------------------------------------------------------
 
-if [ -d "$TMPPATH" ]; then
+echo "Downloading CrashlogViewer..."
 
-    rm -rf "$TMPPATH" > /dev/null 2>&1
+wget \
+    -q \
+    --no-check-certificate \
+    --timeout=30 \
+    --tries=3 \
+    "https://github.com/speedy005/CrashlogViewer/archive/refs/heads/main.tar.gz" \
+    -O "$ARCHIVE"
+
+if [ ! -s "$ARCHIVE" ]; then
+
+    echo ""
+    echo "ERROR: Download failed."
+    echo ""
+
+    rm -rf "$TMPPATH"
+
+    exit 1
 
 fi
 
+echo "Download successful."
+echo ""
+
+# ---------------------------------------------------------
+# Archiv prüfen
+# ---------------------------------------------------------
+
+echo "Checking archive..."
+
+if ! tar -tzf "$ARCHIVE" >/dev/null 2>&1; then
+
+    echo ""
+    echo "ERROR: Invalid archive."
+    echo ""
+
+    rm -rf "$TMPPATH"
+
+    exit 1
+
+fi
+
+echo "Archive OK."
+echo ""
+
+# ---------------------------------------------------------
+# Entpacken
+# ---------------------------------------------------------
+
+echo "Extracting..."
+
+tar -xzf "$ARCHIVE"
+
+if [ ! -d "$SOURCE/usr" ]; then
+
+    echo ""
+    echo "ERROR: Plugin source directory not found."
+    echo ""
+
+    rm -rf "$TMPPATH"
+
+    exit 1
+
+fi
+
+echo "Source directory found."
+echo ""
+
+# ---------------------------------------------------------
+# Neue Installation vorbereiten
+# ---------------------------------------------------------
+
+echo "Installing CrashlogViewer..."
+
+# Wir entfernen NUR die alte Plugin-Installation
+# unmittelbar vor dem Kopieren der bereits vollständig
+# geprüften neuen Dateien.
 
 if [ -d "$PLUGINPATH" ]; then
+
+    echo "Removing old installation..."
 
     rm -rf "$PLUGINPATH"
 
 fi
 
-
 # ---------------------------------------------------------
-# Temporäres Verzeichnis erstellen
-# ---------------------------------------------------------
-
-mkdir -p "$TMPPATH"
-
-cd "$TMPPATH" || exit 1
-
-set -e
-
-
-# ---------------------------------------------------------
-# Image-Typ anzeigen
+# Neue Dateien kopieren
 # ---------------------------------------------------------
 
-if [ -f /var/lib/dpkg/status ]; then
-
-    echo "# Your image is OE2.5/2.6 #"
-
-else
-
-    echo "# Your image is OE2.0 #"
-
-fi
-
+cp -a "$SOURCE/usr/." "/"
 
 # ---------------------------------------------------------
-# Plugin herunterladen
+# Installation überprüfen
 # ---------------------------------------------------------
 
 echo ""
-echo "Downloading CrashlogViewer..."
-
-wget -q --no-check-certificate \
-    "https://github.com/speedy005/CrashlogViewer/archive/refs/heads/main.tar.gz" \
-    -O main.tar.gz
-
-
-# ---------------------------------------------------------
-# Download prüfen
-# ---------------------------------------------------------
-
-if [ ! -s main.tar.gz ]; then
-
-    echo ""
-    echo "Download failed."
-    echo ""
-
-    rm -rf "$TMPPATH"
-
-    exit 1
-
-fi
-
-
-# ---------------------------------------------------------
-# Archiv entpacken
-# ---------------------------------------------------------
-
-echo "Extracting CrashlogViewer..."
-
-tar -xzf main.tar.gz
-
-
-# ---------------------------------------------------------
-# Überprüfen, ob das Quellverzeichnis vorhanden ist
-# ---------------------------------------------------------
-
-if [ ! -d "$TMPPATH/CrashlogViewer-main/usr" ]; then
-
-    echo ""
-    echo "Something went wrong."
-    echo "Plugin source files not found."
-    echo ""
-
-    rm -rf "$TMPPATH"
-
-    exit 1
-
-fi
-
-
-# ---------------------------------------------------------
-# Plugin installieren
-# ---------------------------------------------------------
-
-echo "Installing CrashlogViewer..."
-
-cp -r "$TMPPATH/CrashlogViewer-main/usr" "/"
-
-
-cd
-
-sleep 2
-
-
-# ---------------------------------------------------------
-# Überprüfen, ob das Plugin korrekt installiert wurde
-# ---------------------------------------------------------
+echo "Verifying installation..."
 
 if [ ! -d "$PLUGINPATH" ]; then
 
     echo ""
-    echo "Something went wrong."
-    echo "Plugin not installed."
+    echo "ERROR: Plugin directory was not installed."
     echo ""
 
     rm -rf "$TMPPATH"
@@ -238,37 +235,64 @@ if [ ! -d "$PLUGINPATH" ]; then
 
 fi
 
+# ---------------------------------------------------------
+# Version überprüfen
+# ---------------------------------------------------------
+
+INSTALLED_VERSION=""
+
+if [ -f "$PLUGINPATH/version.txt" ]; then
+
+    INSTALLED_VERSION=$(cat "$PLUGINPATH/version.txt" | tr -d '\r\n ')
+
+fi
+
+echo "Installed version: $INSTALLED_VERSION"
+echo "Expected version:  $version"
+echo ""
+
+if [ -n "$version" ] && [ -n "$INSTALLED_VERSION" ]; then
+
+    if [ "$INSTALLED_VERSION" != "$version" ]; then
+
+        echo ""
+        echo "WARNING:"
+        echo "Installed version does not match remote version."
+        echo ""
+
+        rm -rf "$TMPPATH"
+
+        exit 1
+
+    fi
+
+fi
 
 # ---------------------------------------------------------
-# Temporäre Dateien entfernen
+# Aufräumen
 # ---------------------------------------------------------
 
-rm -rf "$TMPPATH" > /dev/null 2>&1
+rm -rf "$TMPPATH"
 
 sync
 
-
 # ---------------------------------------------------------
-# Installation erfolgreich
+# Erfolg
 # ---------------------------------------------------------
 
 echo ""
 echo "#########################################################"
-echo "#                  INSTALLED SUCCESSFULLY               #"
-echo "#                  developed by speedy005               #"
-echo "#                   Big thanks speedy005                #"
-echo "#                  .::CrashlogViewer::.                 #"
-echo "#                  https://github.com/speedy005         #"
-echo "#########################################################"
+echo "#                                                       #"
+echo "#              INSTALLED SUCCESSFULLY                  #"
+echo "#                                                       #"
+echo "#                  CrashlogViewer                      #"
+echo "#                                                       #"
+echo "#                  Version: $INSTALLED_VERSION"
 echo "#                                                       #"
 echo "#       Enigma2 GUI will NOT restart automatically      #"
 echo "#                                                       #"
-echo "#       The plugin will ask if the GUI should restart.  #"
-echo "#                                                       #"
 echo "#########################################################"
 echo ""
-
-sync >/dev/null 2>&1 || true
 
 echo "Installation finished successfully."
 echo "No automatic Enigma2 GUI restart performed."
