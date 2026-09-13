@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-# CrashlogViewer Enigma2 Plugin mit Update-Funktion
+# CrashlogViewer Enigma2 Plugin
+#
 # updated Lululla 05/06/2023, 30/04/2024, 30/08/2024,
 # 22/09/2024, 17/11/2024
 # updated speedy005 06/09/2025
@@ -18,7 +19,6 @@ import re
 import time
 import glob
 import io
-import shlex
 
 from os import remove
 
@@ -54,11 +54,15 @@ DOMAIN = "CrashlogViewer"
 
 LOG_BASE_PATH = "/home/root/logs/"
 
+# Fallback-Version.
+# Die tatsächlich installierte Version wird bevorzugt aus
+# version.txt gelesen.
 version = "2.5.1"
 
 LOGFILE = "/tmp/CrashlogViewer.log"
 UPDATE_LOGFILE = "/tmp/CrashlogViewer-update.log"
 UPDATE_STATUS_FILE = "/tmp/CrashlogViewer-update.status"
+UPDATE_LOCK_FILE = "/tmp/CrashlogViewer-update.lock"
 INSTALLER_TMP = "/tmp/CrashlogViewer-installer.sh"
 
 
@@ -74,6 +78,13 @@ except Exception:
 
 PY2 = sys.version_info[0] == 2
 PY3 = sys.version_info[0] == 3
+
+
+# shlex.quote existiert nicht unter Python 2.
+try:
+    from shlex import quote as shell_quote
+except ImportError:
+    from pipes import quote as shell_quote
 
 
 # =========================================================
@@ -107,28 +118,82 @@ def log(msg):
         pass
 
 
+# =========================================================
+# Hilfsfunktionen
+# =========================================================
+
+def file_exists(path):
+
+    try:
+        return os.path.exists(path)
+    except Exception:
+        return False
+
+
+def safe_remove(path):
+
+    try:
+
+        if file_exists(path):
+            os.remove(path)
+
+    except Exception as e:
+
+        log(
+            "[CrashlogViewer] Could not remove %s: %s"
+            % (
+                path,
+                e
+            )
+        )
+
+
 def clear_update_files():
 
-    for file_path in (
-        UPDATE_LOGFILE,
-        UPDATE_STATUS_FILE,
-        INSTALLER_TMP
-    ):
+    safe_remove(UPDATE_LOGFILE)
+    safe_remove(UPDATE_STATUS_FILE)
+    safe_remove(INSTALLER_TMP)
 
-        try:
 
-            if os.path.exists(file_path):
-                os.remove(file_path)
+def update_is_running():
 
-        except Exception as e:
+    return file_exists(
+        UPDATE_LOCK_FILE
+    )
 
-            log(
-                "[CrashlogViewer] Could not remove %s: %s"
-                % (
-                    file_path,
-                    e
-                )
+
+def create_update_lock():
+
+    try:
+
+        with io.open(
+            UPDATE_LOCK_FILE,
+            "w",
+            encoding="utf-8"
+        ) as lock_file:
+
+            lock_file.write(
+                str(os.getpid())
             )
+
+        return True
+
+    except Exception as e:
+
+        log(
+            "[CrashlogViewer] Could not create "
+            "update lock: %s"
+            % e
+        )
+
+        return False
+
+
+def remove_update_lock():
+
+    safe_remove(
+        UPDATE_LOCK_FILE
+    )
 
 
 # =========================================================
@@ -148,7 +213,9 @@ def localeInit():
             LOCALE_DIR
         )
 
-        gettext.textdomain(DOMAIN)
+        gettext.textdomain(
+            DOMAIN
+        )
 
     except Exception as e:
 
@@ -169,7 +236,9 @@ def _(txt):
 
         if translated == txt:
 
-            translated = gettext.gettext(txt)
+            translated = gettext.gettext(
+                txt
+            )
 
         return translated
 
@@ -179,7 +248,9 @@ def _(txt):
 
 
 localeInit()
-language.addCallback(localeInit)
+language.addCallback(
+    localeInit
+)
 
 
 # =========================================================
@@ -196,8 +267,6 @@ GITHUB_VERSION_URL = (
     "speedy005/CrashlogViewer/main/version.txt"
 )
 
-# Optional:
-# Die Datei darf fehlen.
 GITHUB_CHANGELOG_URL = (
     "https://raw.githubusercontent.com/"
     "speedy005/CrashlogViewer/main/changelog.txt"
@@ -224,17 +293,32 @@ def get_local_version():
             encoding="utf-8"
         ) as version_file:
 
-            local_version = version_file.read().strip()
+            local_version = (
+                version_file.read()
+                .strip()
+            )
 
             if local_version:
+
                 return local_version
 
     except Exception as e:
 
-        log(
-            "[CrashlogViewer] Error reading local version: %s"
-            % e
-        )
+        # Nur loggen, wenn die Datei wirklich fehlt.
+        # Das ist bei einer Erstinstallation normal.
+        if not file_exists(VERSION_FILE):
+
+            log(
+                "[CrashlogViewer] version.txt not found: %s"
+                % e
+            )
+
+        else:
+
+            log(
+                "[CrashlogViewer] Error reading local version: %s"
+                % e
+            )
 
     return version
 
@@ -255,7 +339,8 @@ def get_remote_version():
         request = urllib_request.Request(
             GITHUB_VERSION_URL,
             headers={
-                "User-Agent": "CrashlogViewer-Updater/2.5.1"
+                "User-Agent":
+                    "CrashlogViewer-Updater/2.5.1"
             }
         )
 
@@ -264,7 +349,10 @@ def get_remote_version():
             timeout=15
         ).read()
 
-        if not isinstance(response, str):
+        if not isinstance(
+            response,
+            str
+        ):
 
             response = response.decode(
                 "utf-8",
@@ -276,7 +364,9 @@ def get_remote_version():
         if not response:
             return None
 
-        remote_version = response.split()[0]
+        remote_version = (
+            response.split()[0]
+        )
 
         log(
             "[CrashlogViewer] Remote version: %s"
@@ -288,7 +378,8 @@ def get_remote_version():
     except Exception as e:
 
         log(
-            "[CrashlogViewer] Error fetching remote version: %s"
+            "[CrashlogViewer] Error fetching "
+            "remote version: %s"
             % e
         )
 
@@ -306,16 +397,20 @@ def get_remote_changelog():
         request = urllib_request.Request(
             GITHUB_CHANGELOG_URL,
             headers={
-                "User-Agent": "CrashlogViewer-Updater/2.5.1"
+                "User-Agent":
+                    "CrashlogViewer-Updater/2.5.1"
             }
         )
 
         response = urllib_request.urlopen(
             request,
-            timeout=15
+            timeout=10
         ).read()
 
-        if not isinstance(response, str):
+        if not isinstance(
+            response,
+            str
+        ):
 
             response = response.decode(
                 "utf-8",
@@ -324,16 +419,10 @@ def get_remote_changelog():
 
         return response.strip()
 
-    except Exception as e:
+    except Exception:
 
         # Changelog ist optional.
-        # Ein 404 darf das Update nicht verhindern.
-
-        log(
-            "[CrashlogViewer] Changelog unavailable: %s"
-            % e
-        )
-
+        # Ein 404 darf niemals das Update verhindern.
         return ""
 
 
@@ -344,9 +433,25 @@ def get_remote_changelog():
 def parse_version(version_str):
 
     if not version_str:
-        return (0, 0, 0)
+        return (
+            0,
+            0,
+            0
+        )
 
-    value = str(version_str).strip().lower()
+    try:
+
+        value = str(
+            version_str
+        ).strip().lower()
+
+    except Exception:
+
+        return (
+            0,
+            0,
+            0
+        )
 
     if value.startswith("v"):
         value = value[1:]
@@ -359,12 +464,22 @@ def parse_version(version_str):
     while len(parts) < 3:
         parts.append("0")
 
-    return tuple(
-        map(
-            int,
-            parts[:3]
+    try:
+
+        return tuple(
+            map(
+                int,
+                parts[:3]
+            )
         )
-    )
+
+    except Exception:
+
+        return (
+            0,
+            0,
+            0
+        )
 
 
 # =========================================================
@@ -375,9 +490,10 @@ def read_update_status():
 
     try:
 
-        if not os.path.exists(
+        if not file_exists(
             UPDATE_STATUS_FILE
         ):
+
             return None
 
         with io.open(
@@ -386,7 +502,10 @@ def read_update_status():
             encoding="utf-8"
         ) as status_file:
 
-            value = status_file.read().strip()
+            value = (
+                status_file.read()
+                .strip()
+            )
 
         if not value:
             return None
@@ -396,31 +515,46 @@ def read_update_status():
     except Exception as e:
 
         log(
-            "[CrashlogViewer] Could not read update status: %s"
+            "[CrashlogViewer] Could not read "
+            "update status: %s"
             % e
         )
 
         return None
 
 
-def remove_update_status():
+def write_update_status(code):
 
     try:
 
-        if os.path.exists(
-            UPDATE_STATUS_FILE
-        ):
+        with io.open(
+            UPDATE_STATUS_FILE,
+            "w",
+            encoding="utf-8"
+        ) as status_file:
 
-            os.remove(
-                UPDATE_STATUS_FILE
+            status_file.write(
+                str(int(code))
             )
+
+        return True
 
     except Exception as e:
 
         log(
-            "[CrashlogViewer] Could not remove status file: %s"
+            "[CrashlogViewer] Could not write "
+            "update status: %s"
             % e
         )
+
+        return False
+
+
+def remove_update_status():
+
+    safe_remove(
+        UPDATE_STATUS_FILE
+    )
 
 
 def get_result_code(result):
@@ -435,22 +569,301 @@ def get_result_code(result):
             if not result:
                 return None
 
-            return int(result[-1])
+            return int(
+                result[-1]
+            )
 
         if result is None:
             return None
 
         return int(result)
 
+    except Exception:
+
+        return None
+
+
+# =========================================================
+# Installer-Header prüfen
+# =========================================================
+
+def validate_installer_header():
+
+    try:
+
+        if not file_exists(
+            INSTALLER_TMP
+        ):
+
+            log(
+                "[CrashlogViewer] Installer file "
+                "does not exist."
+            )
+
+            return False
+
+        with io.open(
+            INSTALLER_TMP,
+            "r",
+            encoding="utf-8",
+            errors="replace"
+        ) as installer:
+
+            first_line = (
+                installer.readline()
+                .replace("\r", "")
+                .strip()
+            )
+
+        log(
+            "[CrashlogViewer] Installer header: %s"
+            % first_line
+        )
+
+        valid_headers = (
+            "#!/bin/bash",
+            "#!/usr/bin/env bash"
+        )
+
+        if first_line not in valid_headers:
+
+            log(
+                "[CrashlogViewer] Invalid installer "
+                "header: %s"
+                % first_line
+            )
+
+            return False
+
+        return True
+
     except Exception as e:
 
         log(
-            "[CrashlogViewer] Could not evaluate "
-            "Console result: %s"
+            "[CrashlogViewer] Could not validate "
+            "installer header: %s"
             % e
         )
 
-        return None
+        return False
+
+
+# =========================================================
+# Update-Shellcommand
+# =========================================================
+
+def build_update_command(installer_url):
+
+    tmp_file = shell_quote(
+        INSTALLER_TMP
+    )
+
+    url = shell_quote(
+        installer_url
+    )
+
+    status_file = shell_quote(
+        UPDATE_STATUS_FILE
+    )
+
+    update_log = shell_quote(
+        UPDATE_LOGFILE
+    )
+
+    command = (
+        "STATUS={status}; "
+        "TMP={tmp}; "
+        "LOG={log}; "
+
+        "rm -f \"$STATUS\" \"$TMP\"; "
+
+        "echo '[CrashlogViewer] Starting update' "
+        ">> \"$LOG\"; "
+
+        "echo '[CrashlogViewer] Installer URL: {url}' "
+        ">> \"$LOG\"; "
+
+        "echo '[CrashlogViewer] Downloading installer...' "
+        "| tee -a \"$LOG\"; "
+
+        # -------------------------------------------------
+        # wget vorhanden?
+        # -------------------------------------------------
+
+        "if ! command -v wget >/dev/null 2>&1; then "
+
+        "echo '[CrashlogViewer] ERROR: wget not found' "
+        "| tee -a \"$LOG\"; "
+
+        "echo 127 > \"$STATUS\"; "
+        "sync; "
+        "exit 0; "
+
+        "fi; "
+
+        # -------------------------------------------------
+        # Installer herunterladen
+        # -------------------------------------------------
+
+        "wget "
+        "--no-check-certificate "
+        "--timeout=30 "
+        "--tries=3 "
+        "{url} "
+        "-O \"$TMP\" "
+        ">> \"$LOG\" 2>&1; "
+
+        "RET=$?; "
+
+        "if [ $RET -ne 0 ]; then "
+
+        "echo '[CrashlogViewer] "
+        "ERROR: Installer download failed' "
+        "| tee -a \"$LOG\"; "
+
+        "echo $RET > \"$STATUS\"; "
+        "sync; "
+        "rm -f \"$TMP\"; "
+        "exit 0; "
+
+        "fi; "
+
+        # -------------------------------------------------
+        # Datei vorhanden?
+        # -------------------------------------------------
+
+        "if [ ! -s \"$TMP\" ]; then "
+
+        "echo '[CrashlogViewer] "
+        "ERROR: Downloaded installer is empty' "
+        "| tee -a \"$LOG\"; "
+
+        "echo 2 > \"$STATUS\"; "
+        "sync; "
+        "rm -f \"$TMP\"; "
+        "exit 0; "
+
+        "fi; "
+
+        # -------------------------------------------------
+        # Erste Zeile prüfen.
+        #
+        # Verhindert das alte Problem:
+        #
+        # bash
+        # #!/bin/bash
+        #
+        # Dadurch würde eine interaktive Bash gestartet.
+        # -------------------------------------------------
+
+        "FIRST_LINE=$(head -n 1 \"$TMP\" "
+        "| tr -d '\\r'); "
+
+        "echo '[CrashlogViewer] Installer first line:' "
+        "\"$FIRST_LINE\" "
+        "| tee -a \"$LOG\"; "
+
+        "if [ \"$FIRST_LINE\" != \"#!/bin/bash\" ] "
+        "&& [ \"$FIRST_LINE\" != "
+        "\"#!/usr/bin/env bash\" ]; then "
+
+        "echo '[CrashlogViewer] "
+        "ERROR: Invalid installer header' "
+        "| tee -a \"$LOG\"; "
+
+        "echo 3 > \"$STATUS\"; "
+        "sync; "
+        "rm -f \"$TMP\"; "
+        "exit 0; "
+
+        "fi; "
+
+        # -------------------------------------------------
+        # Syntax prüfen
+        # -------------------------------------------------
+
+        "echo '[CrashlogViewer] Checking installer syntax...' "
+        "| tee -a \"$LOG\"; "
+
+        "/bin/bash -n \"$TMP\" "
+        ">> \"$LOG\" 2>&1; "
+
+        "RET=$?; "
+
+        "if [ $RET -ne 0 ]; then "
+
+        "echo '[CrashlogViewer] "
+        "ERROR: Installer syntax check failed' "
+        "| tee -a \"$LOG\"; "
+
+        "echo $RET > \"$STATUS\"; "
+        "sync; "
+        "rm -f \"$TMP\"; "
+        "exit 0; "
+
+        "fi; "
+
+        # -------------------------------------------------
+        # Ausführbar machen
+        # -------------------------------------------------
+
+        "chmod 755 \"$TMP\"; "
+
+        "RET=$?; "
+
+        "if [ $RET -ne 0 ]; then "
+
+        "echo '[CrashlogViewer] "
+        "ERROR: chmod failed' "
+        "| tee -a \"$LOG\"; "
+
+        "echo $RET > \"$STATUS\"; "
+        "sync; "
+        "rm -f \"$TMP\"; "
+        "exit 0; "
+
+        "fi; "
+
+        # -------------------------------------------------
+        # Installer starten
+        # -------------------------------------------------
+
+        "echo '[CrashlogViewer] Running installer...' "
+        "| tee -a \"$LOG\"; "
+
+        "/bin/bash \"$TMP\" "
+        ">> \"$LOG\" 2>&1; "
+
+        "RET=$?; "
+
+        "echo '[CrashlogViewer] "
+        "Installer exit code: '\"$RET\" "
+        "| tee -a \"$LOG\"; "
+
+        # -------------------------------------------------
+        # Echten Exitcode speichern
+        # -------------------------------------------------
+
+        "echo $RET > \"$STATUS\"; "
+
+        "sync; "
+
+        "rm -f \"$TMP\"; "
+
+        "echo '[CrashlogViewer] Update command finished.' "
+        ">> \"$LOG\"; "
+
+        # Console bekommt bewusst 0.
+        # Der echte Installer-Status steht in STATUS.
+        "exit 0"
+    ).format(
+        status=status_file,
+        tmp=tmp_file,
+        log=update_log,
+        url=url
+    )
+
+    return command
 
 
 # =========================================================
@@ -471,6 +884,7 @@ def install_update(
         )
 
         if callback:
+
             callback()
 
         else:
@@ -484,159 +898,59 @@ def install_update(
 
         return
 
-    clear_update_files()
+    # -----------------------------------------------------
+    # Schutz gegen mehrfaches Starten
+    # -----------------------------------------------------
 
-    tmp_file = shlex.quote(
-        INSTALLER_TMP
-    )
+    if update_is_running():
 
-    url = shlex.quote(
-        installer_url
-    )
+        log(
+            "[CrashlogViewer] Update already running."
+        )
 
-    status_file = shlex.quote(
-        UPDATE_STATUS_FILE
-    )
+        session.open(
+            MessageBox,
+            _(
+                "An update is already running.\n\n"
+                "Please wait until it has finished."
+            ),
+            MessageBox.TYPE_INFO,
+            timeout=5
+        )
 
-    update_log = shlex.quote(
+        return
+
+    if not create_update_lock():
+
+        session.open(
+            MessageBox,
+            _(
+                "Could not create the update lock."
+            ),
+            MessageBox.TYPE_ERROR,
+            timeout=5
+        )
+
+        return
+
+    # -----------------------------------------------------
+    # Alte temporäre Dateien entfernen
+    # -----------------------------------------------------
+
+    safe_remove(
         UPDATE_LOGFILE
     )
 
-    # =====================================================
-    # Update-Shellcommand
-    #
-    # Wichtig:
-    # Console darf unabhängig vom Installer-Ergebnis
-    # erfolgreich beendet werden.
-    #
-    # Der echte Installer-Exitcode wird separat in
-    # UPDATE_STATUS_FILE gespeichert.
-    # =====================================================
+    safe_remove(
+        UPDATE_STATUS_FILE
+    )
 
-    cmd = (
-        "STATUS={status}; "
-        "TMP={tmp}; "
-        "LOG={log}; "
+    safe_remove(
+        INSTALLER_TMP
+    )
 
-        "echo '[CrashlogViewer] Starting update' "
-        ">> \"$LOG\"; "
-
-        "echo '[CrashlogViewer] Installer URL: {url}' "
-        ">> \"$LOG\"; "
-
-        "rm -f \"$STATUS\" \"$TMP\"; "
-
-        "echo '[CrashlogViewer] Downloading installer...' "
-        "| tee -a \"$LOG\"; "
-
-        "if ! command -v wget >/dev/null 2>&1; then "
-        "echo '[CrashlogViewer] wget not found' "
-        "| tee -a \"$LOG\"; "
-        "echo 127 > \"$STATUS\"; "
-        "exit 0; "
-        "fi; "
-
-        "wget "
-        "--no-check-certificate "
-        "--timeout=30 "
-        "--tries=3 "
-        "{url} "
-        "-O \"$TMP\" "
-        ">> \"$LOG\" 2>&1; "
-
-        "RET=$?; "
-
-        "if [ $RET -ne 0 ]; then "
-
-        "echo '[CrashlogViewer] "
-        "Installer download failed' "
-        "| tee -a \"$LOG\"; "
-
-        "echo $RET > \"$STATUS\"; "
-
-        "rm -f \"$TMP\"; "
-
-        "exit 0; "
-
-        "fi; "
-
-        "if [ ! -s \"$TMP\" ]; then "
-
-        "echo '[CrashlogViewer] "
-        "Downloaded installer is empty' "
-        "| tee -a \"$LOG\"; "
-
-        "echo 2 > \"$STATUS\"; "
-
-        "rm -f \"$TMP\"; "
-
-        "exit 0; "
-
-        "fi; "
-
-        "echo '[CrashlogViewer] Checking installer syntax...' "
-        "| tee -a \"$LOG\"; "
-
-        "/bin/bash -n \"$TMP\" "
-        ">> \"$LOG\" 2>&1; "
-
-        "RET=$?; "
-
-        "if [ $RET -ne 0 ]; then "
-
-        "echo '[CrashlogViewer] "
-        "Installer syntax check failed' "
-        "| tee -a \"$LOG\"; "
-
-        "echo $RET > \"$STATUS\"; "
-
-        "rm -f \"$TMP\"; "
-
-        "exit 0; "
-
-        "fi; "
-
-        "chmod 755 \"$TMP\"; "
-
-        "RET=$?; "
-
-        "if [ $RET -ne 0 ]; then "
-
-        "echo '[CrashlogViewer] chmod failed' "
-        "| tee -a \"$LOG\"; "
-
-        "echo $RET > \"$STATUS\"; "
-
-        "rm -f \"$TMP\"; "
-
-        "exit 0; "
-
-        "fi; "
-
-        "echo '[CrashlogViewer] Running installer...' "
-        "| tee -a \"$LOG\"; "
-
-        "/bin/bash \"$TMP\" "
-        ">> \"$LOG\" 2>&1; "
-
-        "RET=$?; "
-
-        "echo '[CrashlogViewer] "
-        "Installer exit code: $RET' "
-        "| tee -a \"$LOG\"; "
-
-        "echo $RET > \"$STATUS\"; "
-
-        "rm -f \"$TMP\"; "
-
-        "sync; "
-
-        "exit 0"
-    ).format(
-        status=status_file,
-        tmp=tmp_file,
-        log=update_log,
-        url=url
+    command = build_update_command(
+        installer_url
     )
 
     log(
@@ -648,34 +962,53 @@ def install_update(
         % installer_url
     )
 
+    def installer_finished(result=None):
+
+        update_finished(
+            session,
+            result,
+            callback
+        )
+
     try:
 
+        # Wichtig:
+        #
+        # closeOnSuccess=True
+        #
+        # Der Shell-Wrapper beendet sich immer mit 0.
+        # Der echte Installer-Code wird über die
+        # Statusdatei ausgewertet.
+        #
         session.open(
             Console,
             _("Updating CrashlogViewer..."),
-            cmdlist=[cmd],
-            finishedCallback=lambda result=None:
-                update_finished(
-                    session,
-                    result,
-                    callback
-                )
+            cmdlist=[
+                command
+            ],
+            finishedCallback=installer_finished,
+            closeOnSuccess=True,
+            closeOnCancel=True
         )
 
     except Exception as e:
 
+        remove_update_lock()
+
         log(
-            "[CrashlogViewer] Could not start installer: %s"
+            "[CrashlogViewer] Could not start "
+            "installer: %s"
             % e
         )
 
         session.open(
             MessageBox,
             _(
-                "Could not start the update installer.\n\n%s"
+                "Could not start the update installer.\n\n"
+                "%s"
             ) % e,
             MessageBox.TYPE_ERROR,
-            timeout=7
+            timeout=8
         )
 
 
@@ -698,15 +1031,23 @@ def update_finished(
         % result
     )
 
-    # Der Status aus der Datei hat Priorität.
+    # -----------------------------------------------------
+    # Statusdatei hat absolute Priorität.
+    # -----------------------------------------------------
 
     status = read_update_status()
 
+    # Nur wenn keine Statusdatei existiert, versuchen wir
+    # den Console-Rückgabewert.
     if status is None:
 
-        status = get_result_code(
+        console_status = get_result_code(
             result
         )
+
+        if console_status is not None:
+
+            status = console_status
 
     log(
         "[CrashlogViewer] Effective installer status: %s"
@@ -714,23 +1055,42 @@ def update_finished(
     )
 
     remove_update_status()
+    remove_update_lock()
 
-    # =====================================================
+    # -----------------------------------------------------
+    # Kein verwertbarer Status
+    # -----------------------------------------------------
+
+    if status is None:
+
+        log(
+            "[CrashlogViewer] No installer status "
+            "was available."
+        )
+
+        session.open(
+            MessageBox,
+            _(
+                "The update finished, but no installer "
+                "status was returned.\n\n"
+                "Please check:\n%s"
+            ) % UPDATE_LOGFILE,
+            MessageBox.TYPE_ERROR,
+            timeout=10
+        )
+
+        return
+
+    # -----------------------------------------------------
     # Update fehlgeschlagen
-    # =====================================================
+    # -----------------------------------------------------
 
     if status != 0:
-
-        if status is None:
-            status_text = _("unknown")
-
-        else:
-            status_text = str(status)
 
         log(
             "[CrashlogViewer] Update failed "
             "with code: %s"
-            % status_text
+            % status
         )
 
         session.open(
@@ -738,10 +1098,9 @@ def update_finished(
             _(
                 "The update could not be installed.\n\n"
                 "Installer return code: %s\n\n"
-                "See %s and %s for more information."
+                "See the update log:\n%s"
             ) % (
-                status_text,
-                LOGFILE,
+                status,
                 UPDATE_LOGFILE
             ),
             MessageBox.TYPE_ERROR,
@@ -750,12 +1109,28 @@ def update_finished(
 
         return
 
-    # =====================================================
+    # -----------------------------------------------------
     # Update erfolgreich
-    # =====================================================
+    # -----------------------------------------------------
 
     log(
         "[CrashlogViewer] Update installed successfully."
+    )
+
+    # -----------------------------------------------------
+    # Installierte Version prüfen
+    #
+    # Achtung:
+    # Das laufende Python-Modul kann weiterhin die alte
+    # Version enthalten. Deshalb lesen wir version.txt
+    # direkt neu von der Platte.
+    # -----------------------------------------------------
+
+    installed_version = get_local_version()
+
+    log(
+        "[CrashlogViewer] Version after installation: %s"
+        % installed_version
     )
 
     def restart_gui_callback(answer):
@@ -763,7 +1138,12 @@ def update_finished(
         if answer:
 
             log(
-                "[CrashlogViewer] Restarting Enigma2 GUI."
+                "[CrashlogViewer] User chose to restart "
+                "the Enigma2 GUI."
+            )
+
+            log(
+                "[CrashlogViewer] Restarting Enigma2 GUI..."
             )
 
             try:
@@ -786,33 +1166,36 @@ def update_finished(
                         "automatically.\n\n%s"
                     ) % e,
                     MessageBox.TYPE_ERROR,
-                    timeout=7
+                    timeout=8
                 )
 
         else:
 
             log(
-                "[CrashlogViewer] User declined GUI restart."
+                "[CrashlogViewer] User chose NOT "
+                "to restart the Enigma2 GUI."
             )
 
             session.open(
                 MessageBox,
                 _(
-                    "Update installed successfully.\n\n"
+                    "CrashlogViewer was updated successfully "
+                    "to version %s.\n\n"
                     "Please restart the Enigma2 GUI manually "
-                    "to load the new version."
-                ),
+                    "to activate the new version."
+                ) % installed_version,
                 MessageBox.TYPE_INFO,
-                timeout=7
+                timeout=8
             )
 
     session.openWithCallback(
         restart_gui_callback,
         MessageBox,
         _(
-            "The update has been installed successfully.\n\n"
-            "Would you like to restart the Enigma2 GUI now?"
-        ),
+            "CrashlogViewer was updated successfully "
+            "to version %s.\n\n"
+            "Do you want to restart the Enigma2 GUI now?"
+        ) % installed_version,
         MessageBox.TYPE_YESNO
     )
 
@@ -826,6 +1209,22 @@ def check_for_update(
     callback=None
 ):
 
+    # -----------------------------------------------------
+    # Wenn bereits ein Update läuft, NICHT erneut starten.
+    # -----------------------------------------------------
+
+    if update_is_running():
+
+        log(
+            "[CrashlogViewer] Update already running. "
+            "Skipping update check."
+        )
+
+        if callback:
+            callback()
+
+        return
+
     current_version = get_current_version()
 
     log(
@@ -837,15 +1236,21 @@ def check_for_update(
 
     if not remote_version:
 
-        session.open(
-            MessageBox,
-            _("Could not fetch update information."),
-            MessageBox.TYPE_ERROR,
-            timeout=5
+        log(
+            "[CrashlogViewer] Remote version unavailable."
         )
 
-        if callback:
-            callback()
+        session.openWithCallback(
+            lambda answer:
+                callback() if callback else None,
+            MessageBox,
+            _(
+                "Could not fetch update information.\n\n"
+                "The CrashlogViewer will now open."
+            ),
+            MessageBox.TYPE_INFO,
+            timeout=5
+        )
 
         return
 
@@ -858,7 +1263,7 @@ def check_for_update(
     )
 
     # =====================================================
-    # Neue Version verfügbar
+    # Neue Version
     # =====================================================
 
     if remote_parsed > current_parsed:
@@ -885,6 +1290,14 @@ def check_for_update(
             + _("Do you want to install it now?")
         )
 
+        log(
+            "[CrashlogViewer] Update available: %s -> %s"
+            % (
+                current_version,
+                remote_version
+            )
+        )
+
         session.openWithCallback(
             lambda answer:
                 install_update(
@@ -902,51 +1315,42 @@ def check_for_update(
 
     # =====================================================
     # Gleiche Version
+    #
+    # KEIN Reinstall mehr.
+    #
+    # Genau das verhindert die bisherige Schleife:
+    #
+    # 2.5.1 == 2.5.1
+    # -> Reinstall
+    # -> GUI
+    # -> Update check
+    # -> Reinstall
+    # -> ...
     # =====================================================
 
     if remote_parsed == current_parsed:
 
-        message = _(
-            "You already have version {version} installed."
-        ).format(
-            version=remote_version
+        log(
+            "[CrashlogViewer] Version is up to date: %s"
+            % current_version
         )
 
-        message += (
-            "\n\n"
-            + _("Do you want to reinstall it?")
-        )
-
-        session.openWithCallback(
-            lambda answer:
-                install_update(
-                    session,
-                    answer,
-                    INSTALLER_URL,
-                    callback
-                ),
-            MessageBox,
-            message,
-            MessageBox.TYPE_YESNO
-        )
+        if callback:
+            callback()
 
         return
 
     # =====================================================
-    # Remote-Version älter
+    # Lokale Version ist neuer
     # =====================================================
 
-    session.open(
-        MessageBox,
-        _(
-            "The remote version ({remote}) is older "
-            "than the current one ({current})."
-        ).format(
-            remote=remote_version,
-            current=current_version
-        ),
-        MessageBox.TYPE_INFO,
-        timeout=5
+    log(
+        "[CrashlogViewer] Local version %s is newer "
+        "than remote version %s."
+        % (
+            current_version,
+            remote_version
+        )
     )
 
     if callback:
@@ -1025,9 +1429,21 @@ def find_log_files(
 
     for pattern in patterns:
 
-        log_files.extend(
-            glob.glob(pattern)
-        )
+        try:
+
+            log_files.extend(
+                glob.glob(pattern)
+            )
+
+        except Exception as e:
+
+            log(
+                "[CrashlogViewer] Error searching %s: %s"
+                % (
+                    pattern,
+                    e
+                )
+            )
 
     return sorted(
         list(
@@ -1061,7 +1477,9 @@ def delete_log_files(files):
 
 class CrashLogScreen(Screen):
 
-    sz_w = getDesktop(0).size().width()
+    sz_w = getDesktop(
+        0
+    ).size().width()
 
     if sz_w == 1920:
 
@@ -1182,10 +1600,15 @@ class CrashLogScreen(Screen):
 
         if not log_files:
 
-            self["menu"].setList([])
+            self["menu"].setList(
+                []
+            )
+
             return
 
-        sz_w = getDesktop(0).size().width()
+        sz_w = getDesktop(
+            0
+        ).size().width()
 
         if sz_w >= 1920:
 
@@ -1282,6 +1705,24 @@ class CrashLogScreen(Screen):
             item[3]
         )
 
+        if isMountReadonly(
+            os.path.dirname(
+                file_path
+            )
+        ):
+
+            self.session.open(
+                MessageBox,
+                _(
+                    "The filesystem is mounted "
+                    "read-only."
+                ),
+                MessageBox.TYPE_ERROR,
+                timeout=5
+            )
+
+            return
+
         try:
 
             os.remove(
@@ -1320,6 +1761,14 @@ class CrashLogScreen(Screen):
                     file_path
                 )
             ):
+
+                failed_files.append(
+                    "%s (%s)"
+                    % (
+                        file_path,
+                        _("read-only filesystem")
+                    )
+                )
 
                 continue
 
@@ -1388,6 +1837,7 @@ class CrashLogScreen(Screen):
         )
 
     def exit(self):
+
         self.close()
 
 
@@ -1397,7 +1847,9 @@ class CrashLogScreen(Screen):
 
 class LogScreen(Screen):
 
-    sz_w = getDesktop(0).size().width()
+    sz_w = getDesktop(
+        0
+    ).size().width()
 
     if sz_w == 1920:
 
@@ -1459,8 +1911,13 @@ class LogScreen(Screen):
             _("Restart GUI")
         )
 
-        self["text"] = ScrollLabel("")
-        self["text2"] = ScrollLabel("")
+        self["text"] = ScrollLabel(
+            ""
+        )
+
+        self["text2"] = ScrollLabel(
+            ""
+        )
 
         self["actions"] = ActionMap(
             [
@@ -1573,6 +2030,7 @@ class LogScreen(Screen):
             )
 
     def exit(self):
+
         self.close()
 
 
@@ -1614,12 +2072,15 @@ def main(
     **kwargs
 ):
 
+    def open_crashlog():
+
+        session.open(
+            CrashLogScreen
+        )
+
     check_for_update(
         session,
-        lambda:
-            session.open(
-                CrashLogScreen
-            )
+        open_crashlog
     )
 
 
@@ -1656,4 +2117,3 @@ def Plugins(
         )
 
     ]
-
