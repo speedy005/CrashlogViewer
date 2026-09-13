@@ -10,8 +10,6 @@ changelog=$(curl -fsSL \
 
 ##############################################################
 
-set -e
-
 TMPPATH="/tmp/CrashlogViewer"
 ARCHIVE="$TMPPATH/main.tar.gz"
 SOURCE="$TMPPATH/CrashlogViewer-main"
@@ -40,20 +38,16 @@ fi
 echo "OS type: $OSTYPE"
 
 if python --version 2>&1 | grep -q '^Python 3\.'; then
-
     PYTHON="PY3"
     Packagesix="python3-six"
     Packagerequests="python3-requests"
 
     echo "Python3 image detected."
-
 else
-
     PYTHON="PY2"
     Packagerequests="python-requests"
 
     echo "Python2 image detected."
-
 fi
 
 echo ""
@@ -76,8 +70,13 @@ if [ "$PYTHON" = "PY3" ]; then
             opkg install "$Packagesix"
         fi
 
+        if [ $? -ne 0 ]; then
+            echo ""
+            echo "ERROR: Could not install $Packagesix."
+            echo ""
+            exit 1
+        fi
     fi
-
 fi
 
 if ! grep -qs "Package: $Packagerequests" "$STATUS"; then
@@ -96,6 +95,12 @@ if ! grep -qs "Package: $Packagerequests" "$STATUS"; then
 
     fi
 
+    if [ $? -ne 0 ]; then
+        echo ""
+        echo "ERROR: Could not install $Packagerequests."
+        echo ""
+        exit 1
+    fi
 fi
 
 echo ""
@@ -104,9 +109,18 @@ echo ""
 # Temporäres Verzeichnis
 # ---------------------------------------------------------
 
+echo "Preparing temporary directory..."
+
 rm -rf "$TMPPATH"
 
 mkdir -p "$TMPPATH"
+
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "ERROR: Could not create temporary directory."
+    echo ""
+    exit 1
+fi
 
 cd "$TMPPATH"
 
@@ -124,7 +138,7 @@ wget \
     "https://github.com/speedy005/CrashlogViewer/archive/refs/heads/main.tar.gz" \
     -O "$ARCHIVE"
 
-if [ ! -s "$ARCHIVE" ]; then
+if [ $? -ne 0 ] || [ ! -s "$ARCHIVE" ]; then
 
     echo ""
     echo "ERROR: Download failed."
@@ -133,7 +147,6 @@ if [ ! -s "$ARCHIVE" ]; then
     rm -rf "$TMPPATH"
 
     exit 1
-
 fi
 
 echo "Download successful."
@@ -145,7 +158,9 @@ echo ""
 
 echo "Checking archive..."
 
-if ! tar -tzf "$ARCHIVE" >/dev/null 2>&1; then
+tar -tzf "$ARCHIVE" >/dev/null 2>&1
+
+if [ $? -ne 0 ]; then
 
     echo ""
     echo "ERROR: Invalid archive."
@@ -154,7 +169,6 @@ if ! tar -tzf "$ARCHIVE" >/dev/null 2>&1; then
     rm -rf "$TMPPATH"
 
     exit 1
-
 fi
 
 echo "Archive OK."
@@ -168,16 +182,27 @@ echo "Extracting..."
 
 tar -xzf "$ARCHIVE"
 
-if [ ! -d "$SOURCE" ]; then
+if [ $? -ne 0 ]; then
 
     echo ""
-    echo "ERROR: Extracted source directory not found."
+    echo "ERROR: Extraction failed."
     echo ""
 
     rm -rf "$TMPPATH"
 
     exit 1
+fi
 
+if [ ! -d "$SOURCE" ]; then
+
+    echo ""
+    echo "ERROR: Extracted source directory not found:"
+    echo "$SOURCE"
+    echo ""
+
+    rm -rf "$TMPPATH"
+
+    exit 1
 fi
 
 echo "Source directory found:"
@@ -185,7 +210,28 @@ echo "$SOURCE"
 echo ""
 
 # ---------------------------------------------------------
-# Plugin-Verzeichnis im Archiv suchen
+# usr prüfen
+# ---------------------------------------------------------
+
+if [ ! -d "$SOURCE/usr" ]; then
+
+    echo ""
+    echo "ERROR: usr directory not found."
+    echo ""
+
+    echo "Archive structure:"
+    find "$SOURCE" -maxdepth 8 -type d 2>/dev/null
+
+    rm -rf "$TMPPATH"
+
+    exit 1
+fi
+
+echo "usr directory found."
+echo ""
+
+# ---------------------------------------------------------
+# CrashlogViewer im Archiv suchen
 # ---------------------------------------------------------
 
 echo "Searching for CrashlogViewer plugin..."
@@ -198,17 +244,15 @@ PLUGIN_SOURCE=$(find "$SOURCE/usr" \
 if [ -z "$PLUGIN_SOURCE" ]; then
 
     echo ""
-    echo "ERROR: CrashlogViewer plugin directory not found"
-    echo "inside the downloaded archive."
+    echo "ERROR: CrashlogViewer plugin directory not found."
     echo ""
 
     echo "Archive structure:"
-    find "$SOURCE" -maxdepth 8 -type d 2>/dev/null
+    find "$SOURCE/usr" -maxdepth 10 -type d 2>/dev/null
 
     rm -rf "$TMPPATH"
 
     exit 1
-
 fi
 
 echo "Plugin source found:"
@@ -216,72 +260,49 @@ echo "$PLUGIN_SOURCE"
 echo ""
 
 # ---------------------------------------------------------
-# Tatsächlichen Installationspfad ermitteln
+# Zielpfad bestimmen
 # ---------------------------------------------------------
 
 PLUGIN_RELATIVE="${PLUGIN_SOURCE#$SOURCE/usr/}"
-
 PLUGINPATH="/$PLUGIN_RELATIVE"
 
-echo "Plugin installation path:"
+echo "Target plugin path:"
 echo "$PLUGINPATH"
 echo ""
 
 # ---------------------------------------------------------
-# Alte Installation sichern
+# Prüfen ob Plugin-Quelldateien vorhanden sind
 # ---------------------------------------------------------
 
-BACKUPPATH="${PLUGINPATH}.backup"
+if [ ! -f "$PLUGIN_SOURCE/plugin.py" ]; then
 
-if [ -d "$BACKUPPATH" ]; then
-
-    echo "Removing old backup..."
-
-    rm -rf "$BACKUPPATH"
-
-fi
-
-if [ -d "$PLUGINPATH" ]; then
-
-    echo "Backing up existing installation..."
-
-    mv "$PLUGINPATH" "$BACKUPPATH"
-
-    echo "Backup created:"
-    echo "$BACKUPPATH"
+    echo ""
+    echo "WARNING: plugin.py not found in source directory."
     echo ""
 
 fi
 
 # ---------------------------------------------------------
-# Neue Dateien installieren
+# Alte Installation NICHT vorher löschen
 # ---------------------------------------------------------
 
-echo "Installing CrashlogViewer..."
+echo "Installing new files..."
+echo ""
 
-if ! cp -a "$SOURCE/usr/." "/"; then
+cp -a "$SOURCE/usr/." "/"
+
+if [ $? -ne 0 ]; then
 
     echo ""
-    echo "ERROR: Failed to copy plugin files."
+    echo "ERROR: Copy operation failed."
     echo ""
-
-    # Neue Installation entfernen
-    if [ -d "$PLUGINPATH" ]; then
-        rm -rf "$PLUGINPATH"
-    fi
-
-    # Alte Installation wiederherstellen
-    if [ -d "$BACKUPPATH" ]; then
-        mv "$BACKUPPATH" "$PLUGINPATH"
-    fi
 
     rm -rf "$TMPPATH"
 
     exit 1
-
 fi
 
-echo "Files copied."
+echo "Files copied successfully."
 echo ""
 
 # ---------------------------------------------------------
@@ -299,21 +320,30 @@ if [ ! -d "$PLUGINPATH" ]; then
     echo "$PLUGINPATH"
     echo ""
 
-    # Neue Installation entfernen
-    rm -rf "$PLUGINPATH"
+    rm -rf "$TMPPATH"
 
-    # Alte Installation wiederherstellen
-    if [ -d "$BACKUPPATH" ]; then
-        mv "$BACKUPPATH" "$PLUGINPATH"
-    fi
+    exit 1
+fi
+
+echo "Plugin directory found."
+echo ""
+
+# ---------------------------------------------------------
+# plugin.py prüfen
+# ---------------------------------------------------------
+
+if [ ! -f "$PLUGINPATH/plugin.py" ]; then
+
+    echo ""
+    echo "ERROR: plugin.py was not installed."
+    echo ""
 
     rm -rf "$TMPPATH"
 
     exit 1
-
 fi
 
-echo "Plugin directory successfully installed."
+echo "plugin.py found."
 echo ""
 
 # ---------------------------------------------------------
@@ -334,7 +364,6 @@ echo ""
 
 if [ -z "$INSTALLED_VERSION" ]; then
 
-    echo ""
     echo "WARNING: version.txt was not found."
     echo ""
 
@@ -343,46 +372,31 @@ else
     if [ -n "$version" ] && [ "$INSTALLED_VERSION" != "$version" ]; then
 
         echo ""
-        echo "ERROR:"
-        echo "Installed version does not match remote version."
+        echo "ERROR: Version mismatch."
         echo ""
         echo "Installed: $INSTALLED_VERSION"
         echo "Expected:  $version"
         echo ""
 
-        # Neue Installation entfernen
-        rm -rf "$PLUGINPATH"
-
-        # Alte Installation wiederherstellen
-        if [ -d "$BACKUPPATH" ]; then
-            mv "$BACKUPPATH" "$PLUGINPATH"
-        fi
-
         rm -rf "$TMPPATH"
 
         exit 1
-
     fi
 
-fi
-
-# ---------------------------------------------------------
-# Backup löschen
-# ---------------------------------------------------------
-
-if [ -d "$BACKUPPATH" ]; then
-
-    echo "Removing old backup..."
-
-    rm -rf "$BACKUPPATH"
-
+    echo "Version check OK."
+    echo ""
 fi
 
 # ---------------------------------------------------------
 # Aufräumen
 # ---------------------------------------------------------
 
+echo "Cleaning temporary files..."
+
 rm -rf "$TMPPATH"
+
+echo "Cleanup finished."
+echo ""
 
 sync
 
