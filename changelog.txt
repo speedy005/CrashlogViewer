@@ -1,4 +1,4 @@
-CrashlogViewer 2.5.3
+CrashlogViewer 2.5.4
 
 - Improved the update and installation system.
 - Improved version detection using version.txt.
