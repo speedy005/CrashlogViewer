@@ -5,6 +5,7 @@
 # updated Lululla 05/06/2023, 30/04/2024, 30/08/2024,
 # 22/09/2024, 17/11/2024
 # updated speedy005 06/09/2025
+# update system revised 13/09/2026
 
 from __future__ import print_function
 
@@ -82,6 +83,7 @@ PY3 = sys.version_info[0] == 3
 def log(msg):
 
     try:
+
         if PY2:
             text = unicode(msg)
         else:
@@ -114,6 +116,7 @@ def clear_update_files():
     ):
 
         try:
+
             if os.path.exists(file_path):
                 os.remove(file_path)
 
@@ -165,6 +168,7 @@ def _(txt):
         )
 
         if translated == txt:
+
             translated = gettext.gettext(txt)
 
         return translated
@@ -192,8 +196,8 @@ GITHUB_VERSION_URL = (
     "speedy005/CrashlogViewer/main/version.txt"
 )
 
-# Optional: Die Datei darf fehlen.
-# Ein 404 wird nicht als Updatefehler behandelt.
+# Optional:
+# Die Datei darf fehlen.
 GITHUB_CHANGELOG_URL = (
     "https://raw.githubusercontent.com/"
     "speedy005/CrashlogViewer/main/changelog.txt"
@@ -236,6 +240,7 @@ def get_local_version():
 
 
 def get_current_version():
+
     return get_local_version()
 
 
@@ -250,7 +255,7 @@ def get_remote_version():
         request = urllib_request.Request(
             GITHUB_VERSION_URL,
             headers={
-                "User-Agent": "CrashlogViewer-Updater/2.5.0"
+                "User-Agent": "CrashlogViewer-Updater/2.5.1"
             }
         )
 
@@ -301,7 +306,7 @@ def get_remote_changelog():
         request = urllib_request.Request(
             GITHUB_CHANGELOG_URL,
             headers={
-                "User-Agent": "CrashlogViewer-Updater/2.5.0"
+                "User-Agent": "CrashlogViewer-Updater/2.5.1"
             }
         )
 
@@ -322,7 +327,8 @@ def get_remote_changelog():
     except Exception as e:
 
         # Changelog ist optional.
-        # Ein fehlendes changelog.txt darf das Update nicht verhindern.
+        # Ein 404 darf das Update nicht verhindern.
+
         log(
             "[CrashlogViewer] Changelog unavailable: %s"
             % e
@@ -369,7 +375,9 @@ def read_update_status():
 
     try:
 
-        if not os.path.exists(UPDATE_STATUS_FILE):
+        if not os.path.exists(
+            UPDATE_STATUS_FILE
+        ):
             return None
 
         with io.open(
@@ -399,8 +407,13 @@ def remove_update_status():
 
     try:
 
-        if os.path.exists(UPDATE_STATUS_FILE):
-            os.remove(UPDATE_STATUS_FILE)
+        if os.path.exists(
+            UPDATE_STATUS_FILE
+        ):
+
+            os.remove(
+                UPDATE_STATUS_FILE
+            )
 
     except Exception as e:
 
@@ -414,7 +427,10 @@ def get_result_code(result):
 
     try:
 
-        if isinstance(result, (tuple, list)):
+        if isinstance(
+            result,
+            (tuple, list)
+        ):
 
             if not result:
                 return None
@@ -429,7 +445,8 @@ def get_result_code(result):
     except Exception as e:
 
         log(
-            "[CrashlogViewer] Could not evaluate Console result: %s"
+            "[CrashlogViewer] Could not evaluate "
+            "Console result: %s"
             % e
         )
 
@@ -469,83 +486,151 @@ def install_update(
 
     clear_update_files()
 
-    tmp_file = shlex.quote(INSTALLER_TMP)
-    url = shlex.quote(installer_url)
-    status_file = shlex.quote(UPDATE_STATUS_FILE)
-    update_log = shlex.quote(UPDATE_LOGFILE)
+    tmp_file = shlex.quote(
+        INSTALLER_TMP
+    )
 
-    # Der Console-Callback liefert auf manchen Images None.
-    # Deshalb wird der echte Installer-Exitcode immer zusätzlich
-    # in UPDATE_STATUS_FILE gespeichert.
+    url = shlex.quote(
+        installer_url
+    )
+
+    status_file = shlex.quote(
+        UPDATE_STATUS_FILE
+    )
+
+    update_log = shlex.quote(
+        UPDATE_LOGFILE
+    )
+
+    # =====================================================
+    # Update-Shellcommand
+    #
+    # Wichtig:
+    # Console darf unabhängig vom Installer-Ergebnis
+    # erfolgreich beendet werden.
+    #
+    # Der echte Installer-Exitcode wird separat in
+    # UPDATE_STATUS_FILE gespeichert.
+    # =====================================================
+
     cmd = (
         "STATUS={status}; "
         "TMP={tmp}; "
         "LOG={log}; "
 
-        "echo '[CrashlogViewer] Starting update' >> $LOG; "
-        "echo '[CrashlogViewer] Installer URL: {url}' >> $LOG; "
+        "echo '[CrashlogViewer] Starting update' "
+        ">> \"$LOG\"; "
 
-        "rm -f $STATUS $TMP; "
+        "echo '[CrashlogViewer] Installer URL: {url}' "
+        ">> \"$LOG\"; "
 
-        "echo '[CrashlogViewer] Downloading installer...' | tee -a $LOG; "
+        "rm -f \"$STATUS\" \"$TMP\"; "
+
+        "echo '[CrashlogViewer] Downloading installer...' "
+        "| tee -a \"$LOG\"; "
+
+        "if ! command -v wget >/dev/null 2>&1; then "
+        "echo '[CrashlogViewer] wget not found' "
+        "| tee -a \"$LOG\"; "
+        "echo 127 > \"$STATUS\"; "
+        "exit 0; "
+        "fi; "
+
         "wget "
         "--no-check-certificate "
         "--timeout=30 "
         "--tries=3 "
         "{url} "
-        "-O $TMP >> $LOG 2>&1; "
+        "-O \"$TMP\" "
+        ">> \"$LOG\" 2>&1; "
 
         "RET=$?; "
 
         "if [ $RET -ne 0 ]; then "
-        "echo '[CrashlogViewer] Installer download failed' | tee -a $LOG; "
-        "echo $RET > $STATUS; "
-        "rm -f $TMP; "
+
+        "echo '[CrashlogViewer] "
+        "Installer download failed' "
+        "| tee -a \"$LOG\"; "
+
+        "echo $RET > \"$STATUS\"; "
+
+        "rm -f \"$TMP\"; "
+
         "exit 0; "
+
         "fi; "
 
-        "if [ ! -s $TMP ]; then "
-        "echo '[CrashlogViewer] Downloaded installer is empty' | tee -a $LOG; "
-        "echo 2 > $STATUS; "
-        "rm -f $TMP; "
+        "if [ ! -s \"$TMP\" ]; then "
+
+        "echo '[CrashlogViewer] "
+        "Downloaded installer is empty' "
+        "| tee -a \"$LOG\"; "
+
+        "echo 2 > \"$STATUS\"; "
+
+        "rm -f \"$TMP\"; "
+
         "exit 0; "
+
         "fi; "
 
-        "echo '[CrashlogViewer] Checking installer syntax...' | tee -a $LOG; "
-        "/bin/bash -n $TMP >> $LOG 2>&1; "
+        "echo '[CrashlogViewer] Checking installer syntax...' "
+        "| tee -a \"$LOG\"; "
+
+        "/bin/bash -n \"$TMP\" "
+        ">> \"$LOG\" 2>&1; "
 
         "RET=$?; "
 
         "if [ $RET -ne 0 ]; then "
-        "echo '[CrashlogViewer] Installer syntax check failed' | tee -a $LOG; "
-        "echo $RET > $STATUS; "
-        "rm -f $TMP; "
+
+        "echo '[CrashlogViewer] "
+        "Installer syntax check failed' "
+        "| tee -a \"$LOG\"; "
+
+        "echo $RET > \"$STATUS\"; "
+
+        "rm -f \"$TMP\"; "
+
         "exit 0; "
+
         "fi; "
 
-        "chmod 755 $TMP; "
+        "chmod 755 \"$TMP\"; "
 
         "RET=$?; "
 
         "if [ $RET -ne 0 ]; then "
-        "echo '[CrashlogViewer] chmod failed' | tee -a $LOG; "
-        "echo $RET > $STATUS; "
-        "rm -f $TMP; "
+
+        "echo '[CrashlogViewer] chmod failed' "
+        "| tee -a \"$LOG\"; "
+
+        "echo $RET > \"$STATUS\"; "
+
+        "rm -f \"$TMP\"; "
+
         "exit 0; "
+
         "fi; "
 
-        "echo '[CrashlogViewer] Running installer...' | tee -a $LOG; "
-        "/bin/bash $TMP >> $LOG 2>&1; "
+        "echo '[CrashlogViewer] Running installer...' "
+        "| tee -a \"$LOG\"; "
+
+        "/bin/bash \"$TMP\" "
+        ">> \"$LOG\" 2>&1; "
 
         "RET=$?; "
 
-        "echo '[CrashlogViewer] Installer exit code: ' $RET | tee -a $LOG; "
-        "echo $RET > $STATUS; "
+        "echo '[CrashlogViewer] "
+        "Installer exit code: $RET' "
+        "| tee -a \"$LOG\"; "
 
-        "rm -f $TMP; "
+        "echo $RET > \"$STATUS\"; "
 
-        # Console soll selbst erfolgreich schließen.
-        # Der tatsächliche Installerstatus steht in STATUS.
+        "rm -f \"$TMP\"; "
+
+        "sync; "
+
         "exit 0"
     ).format(
         status=status_file,
@@ -574,8 +659,7 @@ def install_update(
                     session,
                     result,
                     callback
-                ),
-            closeOnSuccess=False
+                )
         )
 
     except Exception as e:
@@ -615,19 +699,25 @@ def update_finished(
     )
 
     # Der Status aus der Datei hat Priorität.
-    # Damit funktioniert es auch auf Images, die None liefern.
+
     status = read_update_status()
 
     if status is None:
 
-        status = get_result_code(result)
-
-    remove_update_status()
+        status = get_result_code(
+            result
+        )
 
     log(
         "[CrashlogViewer] Effective installer status: %s"
         % status
     )
+
+    remove_update_status()
+
+    # =====================================================
+    # Update fehlgeschlagen
+    # =====================================================
 
     if status != 0:
 
@@ -638,7 +728,8 @@ def update_finished(
             status_text = str(status)
 
         log(
-            "[CrashlogViewer] Update failed with code: %s"
+            "[CrashlogViewer] Update failed "
+            "with code: %s"
             % status_text
         )
 
@@ -658,6 +749,10 @@ def update_finished(
         )
 
         return
+
+    # =====================================================
+    # Update erfolgreich
+    # =====================================================
 
     log(
         "[CrashlogViewer] Update installed successfully."
@@ -754,8 +849,17 @@ def check_for_update(
 
         return
 
-    current_parsed = parse_version(current_version)
-    remote_parsed = parse_version(remote_version)
+    current_parsed = parse_version(
+        current_version
+    )
+
+    remote_parsed = parse_version(
+        remote_version
+    )
+
+    # =====================================================
+    # Neue Version verfügbar
+    # =====================================================
 
     if remote_parsed > current_parsed:
 
@@ -796,6 +900,10 @@ def check_for_update(
 
         return
 
+    # =====================================================
+    # Gleiche Version
+    # =====================================================
+
     if remote_parsed == current_parsed:
 
         message = _(
@@ -823,6 +931,10 @@ def check_for_update(
         )
 
         return
+
+    # =====================================================
+    # Remote-Version älter
+    # =====================================================
 
     session.open(
         MessageBox,
@@ -866,7 +978,11 @@ def isMountReadonly(mnt):
                 flags = parts[3]
 
                 if mountpoint == mnt:
-                    return "ro" in flags.split(",")
+
+                    return (
+                        "ro"
+                        in flags.split(",")
+                    )
 
     except Exception:
         pass
@@ -908,10 +1024,15 @@ def find_log_files(
     log_files = []
 
     for pattern in patterns:
-        log_files.extend(glob.glob(pattern))
+
+        log_files.extend(
+            glob.glob(pattern)
+        )
 
     return sorted(
-        list(set(log_files))
+        list(
+            set(log_files)
+        )
     )
 
 
@@ -983,7 +1104,7 @@ class CrashLogScreen(Screen):
         <widget source="Redkey" render="Label" position="0,814" size="250,45" font="Regular;26" />
         <widget source="Greenkey" render="Label" position="252,813" size="250,45" font="Regular;26" foregroundColor="green" />
         <widget source="Yellowkey" render="Label" position="499,814" size="250,45" font="Regular;26" foregroundColor="yellow" />
-        <widget source="Bluekey" render="Label" position="749,814" size="250,45" font="Regular;26" foregroundColor="blue" />
+        <widget source="Bluekey" render="Label" position="749,813" size="250,45" font="Regular;26" foregroundColor="blue" />
         <widget source="menu" render="Listbox" position="20,10" size="961,740" scrollbarMode="showOnDemand">
             <convert type="TemplatedMultiContent">
                 {"template":[
@@ -1011,14 +1132,27 @@ class CrashLogScreen(Screen):
             _("View or Remove Crashlog files")
         )
 
-        self["Redkey"] = StaticText(_("Close"))
-        self["Greenkey"] = StaticText(_("View"))
-        self["Yellowkey"] = StaticText(_("Remove"))
-        self["Bluekey"] = StaticText(_("Remove All"))
+        self["Redkey"] = StaticText(
+            _("Close")
+        )
+
+        self["Greenkey"] = StaticText(
+            _("View")
+        )
+
+        self["Yellowkey"] = StaticText(
+            _("Remove")
+        )
+
+        self["Bluekey"] = StaticText(
+            _("Remove All")
+        )
 
         self.list = []
 
-        self["menu"] = List(self.list)
+        self["menu"] = List(
+            self.list
+        )
 
         self["shortcuts"] = ActionMap(
             [
@@ -1074,18 +1208,24 @@ class CrashLogScreen(Screen):
 
             try:
 
-                stat = os.stat(file_path)
+                stat = os.stat(
+                    file_path
+                )
 
                 file_size = stat.st_size
 
                 file_date = time.strftime(
                     "%Y-%m-%d %H:%M",
-                    time.localtime(stat.st_mtime)
+                    time.localtime(
+                        stat.st_mtime
+                    )
                 )
 
                 self.list.append(
                     (
-                        os.path.basename(file_path),
+                        os.path.basename(
+                            file_path
+                        ),
                         "Size: %s - Date: %s"
                         % (
                             file_size,
@@ -1106,7 +1246,9 @@ class CrashLogScreen(Screen):
                     )
                 )
 
-        self["menu"].setList(self.list)
+        self["menu"].setList(
+            self.list
+        )
 
     def Ok(self):
 
@@ -1136,11 +1278,15 @@ class CrashLogScreen(Screen):
         if not item or len(item) < 4:
             return
 
-        file_path = str(item[3])
+        file_path = str(
+            item[3]
+        )
 
         try:
 
-            os.remove(file_path)
+            os.remove(
+                file_path
+            )
 
             self.session.open(
                 MessageBox,
@@ -1170,14 +1316,19 @@ class CrashLogScreen(Screen):
         for file_path in log_files:
 
             if isMountReadonly(
-                os.path.dirname(file_path)
+                os.path.dirname(
+                    file_path
+                )
             ):
 
                 continue
 
             try:
 
-                os.remove(file_path)
+                os.remove(
+                    file_path
+                )
+
                 deleted_files += 1
 
             except Exception as e:
@@ -1208,7 +1359,9 @@ class CrashLogScreen(Screen):
                 "\n\n"
                 + _("Failed to remove some files:")
                 + "\n"
-                + "\n".join(failed_files)
+                + "\n".join(
+                    failed_files
+                )
             )
 
         self.session.open(
@@ -1280,7 +1433,11 @@ class LogScreen(Screen):
             "View Crashlog file"
         )
 
-    def __init__(self, session, crashfile):
+    def __init__(
+        self,
+        session,
+        crashfile
+    ):
 
         Screen.__init__(
             self,
@@ -1290,10 +1447,17 @@ class LogScreen(Screen):
         self.session = session
         self.crashfile = crashfile
 
-        self.setTitle(_("View Crashlog file"))
+        self.setTitle(
+            _("View Crashlog file")
+        )
 
-        self["Redkey"] = StaticText(_("Close"))
-        self["Greenkey"] = StaticText(_("Restart GUI"))
+        self["Redkey"] = StaticText(
+            _("Close")
+        )
+
+        self["Greenkey"] = StaticText(
+            _("Restart GUI")
+        )
 
         self["text"] = ScrollLabel("")
         self["text2"] = ScrollLabel("")
@@ -1326,7 +1490,9 @@ class LogScreen(Screen):
 
         try:
 
-            if not os.path.exists(self.crashfile):
+            if not os.path.exists(
+                self.crashfile
+            ):
 
                 full_text = _(
                     "File not found: %s"
@@ -1359,8 +1525,13 @@ class LogScreen(Screen):
                 "Error opening file:\n%s"
             ) % e
 
-        self["text"].setText(full_text)
-        self["text2"].setText(error_text)
+        self["text"].setText(
+            full_text
+        )
+
+        self["text2"].setText(
+            error_text
+        )
 
     def scrollUp(self):
 
@@ -1388,7 +1559,9 @@ class LogScreen(Screen):
 
             from enigma import quitMainloop
 
-            log("[CrashlogViewer] Manual GUI restart.")
+            log(
+                "[CrashlogViewer] Manual GUI restart."
+            )
 
             quitMainloop(3)
 
@@ -1407,7 +1580,10 @@ class LogScreen(Screen):
 # Menü
 # =========================================================
 
-def menu(menuid, **kwargs):
+def menu(
+    menuid,
+    **kwargs
+):
 
     if menuid == "mainmenu":
 
@@ -1433,11 +1609,17 @@ def menu(menuid, **kwargs):
 # Main
 # =========================================================
 
-def main(session, **kwargs):
+def main(
+    session,
+    **kwargs
+):
 
     check_for_update(
         session,
-        lambda: session.open(CrashLogScreen)
+        lambda:
+            session.open(
+                CrashLogScreen
+            )
     )
 
 
@@ -1445,7 +1627,9 @@ def main(session, **kwargs):
 # Plugin-Descriptor
 # =========================================================
 
-def Plugins(**kwargs):
+def Plugins(
+    **kwargs
+):
 
     return [
 
@@ -1472,3 +1656,4 @@ def Plugins(**kwargs):
         )
 
     ]
+
