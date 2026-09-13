@@ -57,7 +57,7 @@ LOG_BASE_PATH = "/home/root/logs/"
 # Fallback-Version.
 # Die tatsächlich installierte Version wird bevorzugt aus
 # version.txt gelesen.
-version = "2.5.1"
+version = "2.5.2"
 
 LOGFILE = "/tmp/CrashlogViewer.log"
 UPDATE_LOGFILE = "/tmp/CrashlogViewer-update.log"
