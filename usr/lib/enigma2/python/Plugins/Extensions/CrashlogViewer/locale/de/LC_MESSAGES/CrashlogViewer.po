@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: CrashlogViewer 2.0\n"
+"Project-Id-Version: CrashlogViewer 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-14 12:00+0000\n"
-"PO-Revision-Date: 2025-09-14 12:00+0000\n"
+"POT-Creation-Date: 2026-09-13 12:00+0000\n"
+"PO-Revision-Date: 2026-09-13 12:00+0000\n"
 "Last-Translator: speedy005\n"
 "Language-Team: Deutsch\n"
 "Language: de\n"
@@ -12,20 +12,56 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: plugin.py
-msgid "Update installed successfully!\nDo you want to restart the GUI now?"
-msgstr "Update erfolgreich installiert!\nMöchten Sie die GUI jetzt neu starten?"
+msgid "The update has been installed successfully.\n\nWould you like to restart the Enigma2 GUI now?"
+msgstr "Das Update wurde erfolgreich installiert.\n\nMöchten Sie die Enigma2-GUI jetzt neu starten?"
 
 #: plugin.py
-msgid "Error during update:\n%s"
-msgstr "Fehler beim Update:\n%s"
+msgid "The GUI could not be restarted automatically."
+msgstr "Die GUI konnte nicht automatisch neu gestartet werden."
 
 #: plugin.py
-msgid "A new version %s is available.\nDo you want to install the update?"
-msgstr "Eine neue Version %s ist verfügbar.\nMöchten Sie das Update installieren?"
+msgid "Update installed successfully.\n\nThe Enigma2 GUI was not restarted."
+msgstr "Das Update wurde erfolgreich installiert.\n\nDie Enigma2-GUI wurde nicht neu gestartet."
 
 #: plugin.py
-msgid "Kein Update verfügbar"
-msgstr "Kein Update verfügbar"
+msgid "Update canceled."
+msgstr "Aktualisierung abgebrochen."
+
+#: plugin.py
+msgid "Updating..."
+msgstr "Aktualisierung..."
+
+#: plugin.py
+msgid "Could not start the update installer."
+msgstr "Der Update-Installer konnte nicht gestartet werden."
+
+#: plugin.py
+msgid "Could not fetch update information."
+msgstr "Update-Informationen konnten nicht abgerufen werden."
+
+#: plugin.py
+msgid "New version {version} is available."
+msgstr "Eine neue Version {version} ist verfügbar."
+
+#: plugin.py
+msgid "Changelog:"
+msgstr "Änderungen:"
+
+#: plugin.py
+msgid "Do you want to install it now?"
+msgstr "Möchten Sie das Update jetzt installieren?"
+
+#: plugin.py
+msgid "You already have version {version} installed."
+msgstr "Sie haben bereits Version {version} installiert."
+
+#: plugin.py
+msgid "Do you want to reinstall it?"
+msgstr "Möchten Sie die Version erneut installieren?"
+
+#: plugin.py
+msgid "The remote version ({remote}) is older than the current one ({current})."
+msgstr "Die entfernte Version ({remote}) ist älter als die aktuelle Version ({current})."
 
 #: plugin.py
 msgid "View or Remove Crashlog files"
