@@ -8,15 +8,16 @@ changelog=$(curl -s https://raw.githubusercontent.com/speedy005/CrashlogViewer/m
 
 TMPPATH=/tmp/CrashlogViewer
 
+
 # ---------------------------------------------------------
 # Bestimmen des Installationspfads basierend auf dem
 # Systemtyp
 # ---------------------------------------------------------
 
-if [ ! -d /usr/lib64 ]; then
-    PLUGINPATH=/usr/lib/enigma2/python/Plugins/Extensions/CrashlogViewer
-else
+if [ -d /usr/lib64 ]; then
     PLUGINPATH=/usr/lib64/enigma2/python/Plugins/Extensions/CrashlogViewer
+else
+    PLUGINPATH=/usr/lib/enigma2/python/Plugins/Extensions/CrashlogViewer
 fi
 
 
@@ -88,7 +89,7 @@ if ! grep -qs "Package: $Packagerequests" "$STATUS"; then
 
     if [ "$OSTYPE" = "DreamOs" ]; then
 
-        apt-get update && apt-get install python-requests -y
+        apt-get update && apt-get install python3-requests -y
 
     elif [ "$PYTHON" = "PY3" ]; then
 
@@ -111,12 +112,16 @@ echo ""
 # ---------------------------------------------------------
 
 if [ -d "$TMPPATH" ]; then
+
     rm -rf "$TMPPATH" > /dev/null 2>&1
+
 fi
 
 
 if [ -d "$PLUGINPATH" ]; then
+
     rm -rf "$PLUGINPATH"
+
 fi
 
 
@@ -154,11 +159,15 @@ echo ""
 echo "Downloading CrashlogViewer..."
 
 wget -q --no-check-certificate \
-    https://github.com/speedy005/CrashlogViewer/archive/refs/heads/main.tar.gz \
+    "https://github.com/speedy005/CrashlogViewer/archive/refs/heads/main.tar.gz" \
     -O main.tar.gz
 
 
-if [ ! -f main.tar.gz ]; then
+# ---------------------------------------------------------
+# Download prüfen
+# ---------------------------------------------------------
+
+if [ ! -s main.tar.gz ]; then
 
     echo ""
     echo "Download failed."
@@ -207,8 +216,6 @@ echo "Installing CrashlogViewer..."
 cp -r "$TMPPATH/CrashlogViewer-main/usr" "/"
 
 
-set +e
-
 cd
 
 sleep 2
@@ -221,7 +228,8 @@ sleep 2
 if [ ! -d "$PLUGINPATH" ]; then
 
     echo ""
-    echo "Something went wrong .. Plugin not installed"
+    echo "Something went wrong."
+    echo "Plugin not installed."
     echo ""
 
     rm -rf "$TMPPATH"
